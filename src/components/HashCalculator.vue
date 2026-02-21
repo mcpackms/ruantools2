@@ -223,17 +223,6 @@
                     <div class="radio-dot"></div>
                     <span class="radio-text">RIPEMD-160</span>
                   </label>
-                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'Whirlpool' }">
-                    <input 
-                      type="radio" 
-                      v-model="selectedAlgorithm" 
-                      value="Whirlpool" 
-                      @change="calculateHash"
-                      hidden
-                    />
-                    <div class="radio-dot"></div>
-                    <span class="radio-text">Whirlpool</span>
-                  </label>
                   <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'HMAC-MD5' }">
                     <input 
                       type="radio" 
@@ -529,16 +518,6 @@ const algorithms = [
     byteLength: 20
   },
   { 
-    value: 'Whirlpool', 
-    label: 'Whirlpool', 
-    description: '基于AES设计的哈希函数，512位输出',
-    category: 'other',
-    outputLength: '128字符 (Hex)',
-    security: '高安全性',
-    securityLevel: 'high',
-    byteLength: 64
-  },
-  { 
     value: 'HMAC-MD5', 
     label: 'HMAC-MD5', 
     description: '基于MD5的HMAC，带密钥的消息认证码',
@@ -708,13 +687,6 @@ const calculateHashWithCryptoJS = async (data, algorithm) => {
             throw new Error('CryptoJS.RIPEMD160 未加载，请确保加载了 ripemd160.js')
           }
           break
-        case 'Whirlpool': 
-          if (CryptoJS.Whirlpool) {
-            hash = CryptoJS.Whirlpool(wordArray)
-          } else {
-            throw new Error('CryptoJS.Whirlpool 未加载，请确保加载了 whirlpool.js')
-          }
-          break
         case 'HMAC-MD5': 
           // 使用默认密钥 'key'
           const key = CryptoJS.enc.Utf8.parse('ruantools-hmac-key')
@@ -750,13 +722,6 @@ const calculateHashWithCryptoJS = async (data, algorithm) => {
             hash = CryptoJS.RIPEMD160(data)
           } else {
             throw new Error('CryptoJS.RIPEMD160 未加载，请确保加载了 ripemd160.js')
-          }
-          break
-        case 'Whirlpool': 
-          if (CryptoJS.Whirlpool) {
-            hash = CryptoJS.Whirlpool(data)
-          } else {
-            throw new Error('CryptoJS.Whirlpool 未加载，请确保加载了 whirlpool.js')
           }
           break
         case 'HMAC-MD5': 
@@ -921,7 +886,6 @@ const loadCryptoJS = () => {
       const extensions = [
         'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/sha3.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/ripemd160.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/whirlpool.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/hmac-md5.min.js'
       ]
       
