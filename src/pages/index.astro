@@ -3,27 +3,26 @@
 const pageTitle = "RuanTools - 在线工具集合";
 const description = "一个实用的在线工具集合，包含 JSON 格式化、Base64 编解码等常用开发工具。";
 
-// 工具列表数据 - 注意：路径不需要加 /ruantools2 前缀，Astro 会自动处理
 const tools = [
   {
     id: "json-formatter",
     name: "JSON 格式化工具",
     description: "格式化、验证和美化 JSON 数据，支持语法高亮和错误提示。",
-    path: "/tools/json-formatter",
+    path: "/ruantools2/tools/json-formatter",
     category: "数据格式"
   },
   {
     id: "base64-url",
     name: "Base64 & URL 编解码",
     description: "支持 Base64 编码/解码和 URL 编码/解码，处理特殊字符和中文。",
-    path: "/tools/base64-url",
+    path: "/ruantools2/tools/base64-url",
     category: "编码转换"
   },
   {
     id: "timestamp",
     name: "时间戳转换",
     description: "Unix 时间戳与日期时间相互转换，支持多种格式。",
-    path: "/tools/timestamp",
+    path: "/ruantools2/tools/timestamp",
     category: "时间工具",
     comingSoon: true
   },
@@ -31,7 +30,7 @@ const tools = [
     id: "hash-generator",
     name: "哈希计算器",
     description: "计算文本的 MD5、SHA-1、SHA-256 等哈希值。",
-    path: "/tools/hash",
+    path: "/ruantools2/tools/hash",
     category: "加密工具",
     comingSoon: true
   },
@@ -39,7 +38,7 @@ const tools = [
     id: "color-converter",
     name: "颜色转换器",
     description: "RGB、HEX、HSL 颜色格式相互转换。",
-    path: "/tools/color",
+    path: "/ruantools2/tools/color",
     category: "设计工具",
     comingSoon: true
   },
@@ -47,7 +46,7 @@ const tools = [
     id: "regex-tester",
     name: "正则表达式测试",
     description: "在线测试和调试正则表达式。",
-    path: "/tools/regex",
+    path: "/ruantools2/tools/regex",
     category: "文本处理",
     comingSoon: true
   },
