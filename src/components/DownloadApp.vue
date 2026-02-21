@@ -57,7 +57,6 @@ const copyStatus = ref('')
 
 const handleDownload = (event) => {
   console.log(`开始下载: ${props.app.name} ${props.app.version}`)
-  // 这里可以添加下载统计或其他逻辑
 }
 
 const copyHash = async () => {
@@ -65,7 +64,6 @@ const copyHash = async () => {
     await navigator.clipboard.writeText(props.app.sha256)
     copyStatus.value = '已复制到剪贴板!'
     
-    // 3秒后清除状态
     setTimeout(() => {
       copyStatus.value = ''
     }, 3000)
@@ -84,6 +82,9 @@ const copyHash = async () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   border: 1px solid #eaeaea;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-card:hover {
@@ -126,6 +127,7 @@ const copyHash = async () => {
   line-height: 1.6;
   margin-bottom: 20px;
   font-size: 1rem;
+  flex-grow: 1;
 }
 
 .app-description :deep(s) {
@@ -134,7 +136,7 @@ const copyHash = async () => {
 }
 
 .app-download {
-  margin-top: 20px;
+  margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid #eee;
 }
@@ -153,6 +155,8 @@ const copyHash = async () => {
   border: none;
   cursor: pointer;
   font-size: 1rem;
+  width: 100%;
+  justify-content: center;
 }
 
 .download-btn:hover {
@@ -170,26 +174,26 @@ const copyHash = async () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
 }
 
 .file-hash strong {
   color: #333;
   font-weight: 600;
   font-size: 0.95rem;
+  white-space: nowrap;
 }
 
 .hash-code {
-  background: #f8f9fa;
-  padding: 8px 12px;
-  border-radius: 6px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
   color: #333;
+  word-break: break-all;
   flex: 1;
-  min-width: 200px;
-  overflow-x: auto;
-  white-space: nowrap;
+  /* 移除突出效果 */
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .copy-btn {
@@ -203,6 +207,7 @@ const copyHash = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .copy-btn:hover {
@@ -228,7 +233,6 @@ const copyHash = async () => {
   }
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .app-card {
     padding: 20px;
@@ -243,15 +247,14 @@ const copyHash = async () => {
     font-size: 1.3rem;
   }
   
-  .hash-code {
-    min-width: 100%;
-    font-size: 0.8rem;
-  }
-  
   .file-hash {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+  
+  .hash-code {
+    width: 100%;
   }
 }
 </style>

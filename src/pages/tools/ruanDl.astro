@@ -13,10 +13,8 @@ import DownloadApp from '../../components/DownloadApp.vue';
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>软天空改版下载站 | Ruantools</title>
   
-  <!-- 引入 Font Awesome 图标 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   
-  <!-- 页面样式 -->
   <style>
     :root {
       --primary-color: #007bff;
@@ -46,24 +44,27 @@ import DownloadApp from '../../components/DownloadApp.vue';
       color: var(--text-primary);
       background: var(--background-color);
       min-height: 100vh;
-      padding: 20px;
+      /* 移除页面两侧白边 */
+      padding: 0;
     }
 
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 20px;
+      /* 移除容器内边距，通过内部元素控制间距 */
+      padding: 0;
     }
 
     .site-header {
       text-align: center;
-      margin-bottom: 48px;
-      padding: 40px 0;
+      margin-bottom: 40px;
+      padding: 40px 20px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: var(--border-radius);
       color: white;
       position: relative;
       overflow: hidden;
+      /* 移除圆角，使头部背景延伸到边缘 */
+      border-radius: 0;
     }
 
     .site-header::before {
@@ -121,56 +122,68 @@ import DownloadApp from '../../components/DownloadApp.vue';
       backdrop-filter: blur(10px);
     }
 
-    .app-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      margin-bottom: 60px;
-    }
-
     .stats-section {
       background: var(--card-background);
-      border-radius: var(--border-radius);
-      padding: 24px;
+      padding: 30px 20px;
       margin-bottom: 40px;
-      box-shadow: 0 4px 12px var(--shadow-color);
+      /* 移除阴影和圆角，使其更简洁 */
+      box-shadow: none;
+      border-radius: 0;
+      border-bottom: 1px solid #eee;
+      border-top: 1px solid #eee;
     }
 
     .stats-title {
       font-size: 1.5rem;
       font-weight: 600;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       color: var(--text-primary);
+      text-align: center;
     }
 
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
     }
 
     .stat-item {
       text-align: center;
-      padding: 16px;
+      padding: 20px;
       background: var(--background-color);
-      border-radius: 8px;
+      border-radius: 12px;
+      transition: transform 0.3s ease;
+    }
+
+    .stat-item:hover {
+      transform: translateY(-5px);
     }
 
     .stat-value {
-      font-size: 2rem;
+      font-size: 2.5rem;
       font-weight: 700;
       color: var(--primary-color);
       margin-bottom: 8px;
     }
 
     .stat-label {
-      font-size: 0.9rem;
+      font-size: 1rem;
       color: var(--text-secondary);
+    }
+
+    .app-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+      padding: 0 20px;
     }
 
     .site-footer {
       text-align: center;
-      padding: 30px 0;
+      padding: 30px 20px;
       margin-top: 60px;
       border-top: 1px solid var(--border-color);
       color: var(--text-secondary);
@@ -206,14 +219,16 @@ import DownloadApp from '../../components/DownloadApp.vue';
       
       .app-list {
         grid-template-columns: 1fr;
+        padding: 0 16px;
       }
       
       .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
       }
       
-      body {
-        padding: 10px;
+      .stat-value {
+        font-size: 2rem;
       }
     }
 
@@ -223,7 +238,15 @@ import DownloadApp from '../../components/DownloadApp.vue';
       }
       
       .site-header {
-        padding: 30px 20px;
+        padding: 30px 16px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .app-list {
+        padding: 0 12px;
       }
     }
 
@@ -294,20 +317,14 @@ import DownloadApp from '../../components/DownloadApp.vue';
   </div>
 
   <script>
-    // 添加页面加载动画
     document.addEventListener('DOMContentLoaded', () => {
-      // 添加点击统计
       document.querySelectorAll('.download-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
           const appName = this.getAttribute('title') || '未知应用';
           console.log(`用户点击下载: ${appName}`);
-          
-          // 这里可以添加实际的统计代码
-          // 例如: fetch('/api/download-stats', { method: 'POST', body: JSON.stringify({ app: appName }) });
         });
       });
       
-      // 添加滚动动画
       const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -322,7 +339,6 @@ import DownloadApp from '../../components/DownloadApp.vue';
         });
       }, observerOptions);
       
-      // 观察所有应用卡片
       document.querySelectorAll('.app-card').forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
