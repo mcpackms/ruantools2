@@ -1,7 +1,6 @@
-<!-- src/components/DownloadApp.vue -->
 <template>
   <div class="download-app">
-    <!-- 网站头部 - 完全按照图片样式 -->
+    <!-- 网站头部 -->
     <header class="site-header">
       <h1 class="site-title">RuanTools</h1>
       <p class="site-description">经作者授权的改版应用集散地</p>
@@ -10,11 +9,10 @@
     </header>
 
     <!-- 应用列表 -->
-    <main class="app-list">
-      <!-- 动态渲染应用卡片 -->
+    <main v-if="validatedApps.length > 0" class="app-list">
       <article 
-        v-for="app in appsData" 
-        :key="app.id" 
+        v-for="(app, index) in validatedApps" 
+        :key="app.id || index" 
         class="app-card"
       >
         <div class="app-header">
@@ -34,9 +32,10 @@
             class="download-btn" 
             :href="app.downloadUrl" 
             :title="`下载 ${app.name} ${app.version}`"
-            :download="`${app.name}_${app.version}.apk`"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <i class="fas fa-download"></i> {{ app.downloadText }}
+            <i class="fas fa-download"></i> {{ app.downloadText || '下载 APK' }}
           </a>
           
           <p class="file-hash">
@@ -46,6 +45,13 @@
         </div>
       </article>
     </main>
+
+    <!-- 如果没有数据 -->
+    <div v-else class="no-data">
+      <p style="color: #666; text-align: center; padding: 40px; background: #f8f9fa; border-radius: 8px;">
+        暂无应用数据
+      </p>
+    </div>
 
     <!-- 页脚 -->
     <footer class="site-footer">
@@ -63,13 +69,37 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
 // 定义 props
 const props = defineProps({
   appsData: {
     type: Array,
     default: () => []
   }
-});
+})
+
+// 验证和清理数据
+const validatedApps = computed(() => {
+  if (!props.appsData || !Array.isArray(props.appsData)) {
+    console.warn('appsData 不是有效的数组:', props.appsData)
+    return []
+  }
+  
+  return props.appsData.map(app => {
+    // 确保有所有必需的字段
+    return {
+      id: app.id || 0,
+      name: app.name || '未知应用',
+      version: app.version || 'v1.0',
+      author: app.author || '未知作者',
+      description: app.description || '暂无描述',
+      downloadUrl: app.downloadUrl || '',
+      sha256: app.sha256 || '',
+      downloadText: app.downloadText || '下载 APK'
+    }
+  }).filter(app => app.downloadUrl) // 只保留有下载链接的应用
+})
 </script>
 
 <style scoped>
