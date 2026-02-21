@@ -48,4 +48,13 @@ export const tools = [
     category: "软件下载",
     comingSoon: false
   },
+  { 
+    id: "aes", 
+    name: "AES在线加解密", 
+    description: "AES在线加解密工具", 
+    path: "/ruantools2/tools/aes", 
+    category: "加密工具",
+    comingSoon: false
+  }
+  
 ];
