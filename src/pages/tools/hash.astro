@@ -1,7 +1,7 @@
 ---
 // 页面元数据
 const pageTitle = "哈希计算器 - RuanTools";
-const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、SHA-3 等多种哈希值。";
+const description = "计算文本和文件的哈希值，从下拉菜单中选择算法";
 ---
 
 <html lang="zh-CN">
@@ -11,9 +11,7 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
     
-    <!-- 使用可靠的 CDN 链接，避免构建问题 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha3/0.8.0/sha3.min.js"></script>
+    <!-- 不再依赖外部 CDN，全部使用原生 API -->
     
     <style>
       /* 基础样式 */
@@ -81,7 +79,7 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         font-size: 1.1rem;
       }
 
-      /* 算法选择器 - 下拉菜单 */
+      /* 算法选择器 */
       .algorithm-selector {
         margin-bottom: 20px;
       }
@@ -261,7 +259,7 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
       }
 
       .loading-spinner {
-        width: 20px; /* 修复：改为20px */
+        width: 20px;
         height: 20px;
         border: 3px solid #f3f3f3;
         border-top: 3px solid #007bff;
@@ -477,11 +475,10 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
             <label class="select-label">算法选择：</label>
             <select id="algorithm-select" class="select-field">
               <option value="sha256" selected>SHA-256 (256位)</option>
-              <option value="md5">MD5 (128位)</option>
               <option value="sha1">SHA-1 (160位)</option>
+              <option value="md5">MD5 (128位)</option>
               <option value="sha512">SHA-512 (512位)</option>
-              <option value="sha3-256">SHA-3-256 (256位)</option>
-              <option value="sha3-512">SHA-3-512 (512位)</option>
+              <option value="sha384">SHA-384 (384位)</option>
             </select>
           </div>
           
@@ -565,20 +562,27 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         <div style="color: #666; line-height: 1.6; font-size: 0.9rem;">
           <p><strong>支持的哈希算法：</strong></p>
           <ul style="padding-left: 20px; margin-top: 8px;">
-            <li><strong>MD5</strong> - 128位哈希，常用于文件校验</li>
-            <li><strong>SHA-1</strong> - 160位哈希，已不推荐用于安全用途</li>
-            <li><strong>SHA-256</strong> - 256位SHA-2算法，目前广泛使用</li>
+            <li><strong>SHA-256</strong> - 256位SHA-2算法，目前广泛使用（推荐）</li>
+            <li><strong>SHA-1</strong> - 160位哈希算法，已不推荐用于安全用途</li>
+            <li><strong>MD5</strong> - 128位哈希算法，常用于文件校验</li>
             <li><strong>SHA-512</strong> - 512位SHA-2算法，更安全的版本</li>
-            <li><strong>SHA-3-256</strong> - 256位SHA-3算法，新一代标准</li>
-            <li><strong>SHA-3-512</strong> - 512位SHA-3算法</li>
+            <li><strong>SHA-384</strong> - 384位SHA-2算法</li>
+          </ul>
+          
+          <p style="margin-top: 12px;"><strong>技术说明：</strong></p>
+          <ul style="padding-left: 20px; margin-top: 8px;">
+            <li>本工具使用浏览器自带的 Web Crypto API，无需加载任何外部库</li>
+            <li>完全离线工作，保证数据安全</li>
+            <li>所有计算均在您的浏览器中本地完成</li>
+            <li>支持所有现代浏览器（Chrome, Firefox, Safari, Edge）</li>
           </ul>
           
           <p style="margin-top: 12px;"><strong>注意事项：</strong></p>
           <ul style="padding-left: 20px; margin-top: 8px;">
             <li>每次只能选择一种哈希算法进行计算</li>
-            <li>所有计算均在浏览器本地完成，文件不会上传到任何服务器</li>
             <li>大文件计算可能需要较长时间，请耐心等待</li>
             <li>点击"复制"按钮可以复制哈希值</li>
+            <li>文件不会上传到任何服务器，完全本地处理</li>
           </ul>
         </div>
       </div>
@@ -586,19 +590,36 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
       <!-- 页脚 -->
       <footer class="footer">
         <p>© 2024 RuanTools · 哈希计算器</p>
-        <p style="margin-top: 5px;">所有计算均在浏览器本地完成，保证数据安全</p>
+        <p style="margin-top: 5px;">使用原生 Web Crypto API，无需外部依赖，完全离线工作</p>
       </footer>
     </div>
 
     <script>
       // 算法信息映射
       const algorithmInfo = {
-        'md5': 'MD5 - 128位哈希算法，常用于文件完整性校验，但已不推荐用于安全用途',
-        'sha1': 'SHA-1 - 160位哈希算法，已发现碰撞攻击，不推荐用于安全用途',
         'sha256': 'SHA-256 - 256位SHA-2算法，目前广泛用于安全应用和区块链技术',
+        'sha1': 'SHA-1 - 160位哈希算法，已发现碰撞攻击，不推荐用于安全用途',
+        'md5': 'MD5 - 128位哈希算法，常用于文件完整性校验，但已不推荐用于安全用途',
         'sha512': 'SHA-512 - 512位SHA-2算法，提供更高的安全性，适合加密用途',
-        'sha3-256': 'SHA-3-256 - 256位SHA-3算法，新一代哈希标准，安全性更高',
-        'sha3-512': 'SHA-3-512 - 512位SHA-3算法，最高安全级别的哈希算法'
+        'sha384': 'SHA-384 - 384位SHA-2算法，平衡性能与安全性'
+      };
+
+      // 算法名称映射
+      const algorithmNames = {
+        'md5': 'MD5',
+        'sha1': 'SHA-1',
+        'sha256': 'SHA-256',
+        'sha384': 'SHA-384',
+        'sha512': 'SHA-512'
+      };
+
+      // 算法位数映射
+      const algorithmBits = {
+        'md5': '128位',
+        'sha1': '160位',
+        'sha256': '256位',
+        'sha384': '384位',
+        'sha512': '512位'
       };
 
       // 当前选择的文件
@@ -612,20 +633,212 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         // 监听选择变化
         select.addEventListener('change', function() {
           const selected = this.value;
-          info.innerHTML = `<strong>${this.options[this.selectedIndex].text}</strong> - ${algorithmInfo[selected]}`;
+          info.innerHTML = `<strong>${algorithmNames[selected] || selected}</strong> - ${algorithmInfo[selected] || ''}`;
         });
       }
 
       // 获取当前选中的算法
       function getSelectedAlgorithm() {
         const select = document.getElementById('algorithm-select');
+        const algoId = select.value;
         return {
-          id: select.value,
-          name: select.options[select.selectedIndex].text.split(' ')[0],
-          bits: select.value.includes('512') ? '512位' : 
-                select.value.includes('256') ? '256位' : 
-                select.value.includes('160') ? '160位' : '128位'
+          id: algoId,
+          name: algorithmNames[algoId] || algoId,
+          bits: algorithmBits[algoId] || ''
         };
+      }
+
+      // 使用 Web Crypto API 计算哈希
+      async function calculateHash(text, algorithm) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(text);
+        
+        // 将算法名称转换为 Web Crypto API 可识别的格式
+        let cryptoAlgorithm;
+        switch(algorithm) {
+          case 'md5':
+            // MD5 不被 Web Crypto API 支持，使用替代实现
+            return calculateMD5(text);
+          case 'sha1':
+            cryptoAlgorithm = 'SHA-1';
+            break;
+          case 'sha256':
+            cryptoAlgorithm = 'SHA-256';
+            break;
+          case 'sha384':
+            cryptoAlgorithm = 'SHA-384';
+            break;
+          case 'sha512':
+            cryptoAlgorithm = 'SHA-512';
+            break;
+          default:
+            cryptoAlgorithm = 'SHA-256';
+        }
+        
+        try {
+          const hashBuffer = await crypto.subtle.digest(cryptoAlgorithm, data);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        } catch (error) {
+          console.error('计算哈希时出错:', error);
+          throw error;
+        }
+      }
+
+      // MD5 替代实现（因为 Web Crypto API 不支持 MD5）
+      function calculateMD5(text) {
+        // 简单的 MD5 实现（用于兼容性）
+        // 注意：这是简化版本，生产环境建议使用完整的 MD5 实现
+        function md5cycle(x, k) {
+          let a = x[0], b = x[1], c = x[2], d = x[3];
+          
+          a = ff(a, b, c, d, k[0], 7, -680876936);
+          d = ff(d, a, b, c, k[1], 12, -389564586);
+          c = ff(c, d, a, b, k[2], 17, 606105819);
+          b = ff(b, c, d, a, k[3], 22, -1044525330);
+          a = ff(a, b, c, d, k[4], 7, -176418897);
+          d = ff(d, a, b, c, k[5], 12, 1200080426);
+          c = ff(c, d, a, b, k[6], 17, -1473231341);
+          b = ff(b, c, d, a, k[7], 22, -45705983);
+          a = ff(a, b, c, d, k[8], 7, 1770035416);
+          d = ff(d, a, b, c, k[9], 12, -1958414417);
+          c = ff(c, d, a, b, k[10], 17, -42063);
+          b = ff(b, c, d, a, k[11], 22, -1990404162);
+          a = ff(a, b, c, d, k[12], 7, 1804603682);
+          d = ff(d, a, b, c, k[13], 12, -40341101);
+          c = ff(c, d, a, b, k[14], 17, -1502002290);
+          b = ff(b, c, d, a, k[15], 22, 1236535329);
+          
+          a = gg(a, b, c, d, k[1], 5, -165796510);
+          d = gg(d, a, b, c, k[6], 9, -1069501632);
+          c = gg(c, d, a, b, k[11], 14, 643717713);
+          b = gg(b, c, d, a, k[0], 20, -373897302);
+          a = gg(a, b, c, d, k[5], 5, -701558691);
+          d = gg(d, a, b, c, k[10], 9, 38016083);
+          c = gg(c, d, a, b, k[15], 14, -660478335);
+          b = gg(b, c, d, a, k[4], 20, -405537848);
+          a = gg(a, b, c, d, k[9], 5, 568446438);
+          d = gg(d, a, b, c, k[14], 9, -1019803690);
+          c = gg(c, d, a, b, k[3], 14, -187363961);
+          b = gg(b, c, d, a, k[8], 20, 1163531501);
+          a = gg(a, b, c, d, k[13], 5, -1444681467);
+          d = gg(d, a, b, c, k[2], 9, -51403784);
+          c = gg(c, d, a, b, k[7], 14, 1735328473);
+          b = gg(b, c, d, a, k[12], 20, -1926607734);
+          
+          a = hh(a, b, c, d, k[5], 4, -378558);
+          d = hh(d, a, b, c, k[8], 11, -2022574463);
+          c = hh(c, d, a, b, k[11], 16, 1839030562);
+          b = hh(b, c, d, a, k[14], 23, -35309556);
+          a = hh(a, b, c, d, k[1], 4, -1530992060);
+          d = hh(d, a, b, c, k[4], 11, 1272893353);
+          c = hh(c, d, a, b, k[7], 16, -155497632);
+          b = hh(b, c, d, a, k[10], 23, -1094730640);
+          a = hh(a, b, c, d, k[13], 4, 681279174);
+          d = hh(d, a, b, c, k[0], 11, -358537222);
+          c = hh(c, d, a, b, k[3], 16, -722521979);
+          b = hh(b, c, d, a, k[6], 23, 76029189);
+          a = hh(a, b, c, d, k[9], 4, -640364487);
+          d = hh(d, a, b, c, k[12], 11, -421815835);
+          c = hh(c, d, a, b, k[15], 16, 530742520);
+          b = hh(b, c, d, a, k[2], 23, -995338651);
+          
+          a = ii(a, b, c, d, k[0], 6, -198630844);
+          d = ii(d, a, b, c, k[7], 10, 1126891415);
+          c = ii(c, d, a, b, k[14], 15, -1416354905);
+          b = ii(b, c, d, a, k[5], 21, -57434055);
+          a = ii(a, b, c, d, k[12], 6, 1700485571);
+          d = ii(d, a, b, c, k[3], 10, -1894986606);
+          c = ii(c, d, a, b, k[10], 15, -1051523);
+          b = ii(b, c, d, a, k[1], 21, -2054922799);
+          a = ii(a, b, c, d, k[8], 6, 1873313359);
+          d = ii(d, a, b, c, k[15], 10, -30611744);
+          c = ii(c, d, a, b, k[6], 15, -1560198380);
+          b = ii(b, c, d, a, k[13], 21, 1309151649);
+          a = ii(a, b, c, d, k[4], 6, -145523070);
+          d = ii(d, a, b, c, k[11], 10, -1120210379);
+          c = ii(c, d, a, b, k[2], 15, 718787259);
+          b = ii(b, c, d, a, k[9], 21, -343485551);
+          
+          x[0] = add32(a, x[0]);
+          x[1] = add32(b, x[1]);
+          x[2] = add32(c, x[2]);
+          x[3] = add32(d, x[3]);
+        }
+        
+        function cmn(q, a, b, x, s, t) {
+          a = add32(add32(a, q), add32(x, t));
+          return add32((a << s) | (a >>> (32 - s)), b);
+        }
+        
+        function ff(a, b, c, d, x, s, t) {
+          return cmn((b & c) | ((~b) & d), a, b, x, s, t);
+        }
+        
+        function gg(a, b, c, d, x, s, t) {
+          return cmn((b & d) | (c & (~d)), a, b, x, s, t);
+        }
+        
+        function hh(a, b, c, d, x, s, t) {
+          return cmn(b ^ c ^ d, a, b, x, s, t);
+        }
+        
+        function ii(a, b, c, d, x, s, t) {
+          return cmn(c ^ (b | (~d)), a, b, x, s, t);
+        }
+        
+        function md51(s) {
+          const n = s.length;
+          const state = [1732584193, -271733879, -1732584194, 271733878];
+          let i;
+          
+          for (i = 64; i <= n; i += 64) {
+            md5cycle(state, md5blk(s.substring(i - 64, i)));
+          }
+          
+          s = s.substring(i - 64);
+          const tail = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0];
+          for (i = 0; i < s.length; i++) {
+            tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
+          }
+          tail[i >> 2] |= 0x80 << ((i % 4) << 3);
+          if (i > 55) {
+            md5cycle(state, tail);
+            for (i = 0; i < 16; i++) tail[i] = 0;
+          }
+          
+          tail[14] = n * 8;
+          md5cycle(state, tail);
+          return state;
+        }
+        
+        function md5blk(s) {
+          const md5blks = [];
+          for (let i = 0; i < 64; i += 4) {
+            md5blks[i >> 2] = s.charCodeAt(i) +
+              (s.charCodeAt(i + 1) << 8) +
+              (s.charCodeAt(i + 2) << 16) +
+              (s.charCodeAt(i + 3) << 24);
+          }
+          return md5blks;
+        }
+        
+        function add32(a, b) {
+          return (a + b) & 0xFFFFFFFF;
+        }
+        
+        function hex(x) {
+          for (let i = 0; i < x.length; i++) {
+            x[i] = ('0' + (x[i] & 0xFF).toString(16)).slice(-2);
+          }
+          return x.join('');
+        }
+        
+        function hexMD5(s) {
+          return hex(md51(s));
+        }
+        
+        return hexMD5(text);
       }
 
       // 计算文本哈希
@@ -638,47 +851,10 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
 
         const algorithm = getSelectedAlgorithm();
         
-        // 检查库是否加载完成
-        if (typeof CryptoJS === 'undefined') {
-          alert('CryptoJS 库加载失败，请刷新页面重试...');
-          return;
-        }
-        
-        if (typeof sha3_256 === 'undefined') {
-          alert('SHA-3 库加载失败，请刷新页面重试...');
-          return;
-        }
-
         showLoading('text');
         
         try {
-          let hash;
-          
-          switch(algorithm.id) {
-            case 'md5':
-              // 直接使用全局的 CryptoJS 库
-              hash = CryptoJS.MD5(text).toString();
-              break;
-            case 'sha1':
-              hash = CryptoJS.SHA1(text).toString();
-              break;
-            case 'sha256':
-              hash = CryptoJS.SHA256(text).toString();
-              break;
-            case 'sha512':
-              hash = CryptoJS.SHA512(text).toString();
-              break;
-            case 'sha3-256':
-              // 直接使用全局的 sha3_256 函数
-              hash = sha3_256(text);
-              break;
-            case 'sha3-512':
-              hash = sha3_512(text);
-              break;
-            default:
-              hash = '不支持该算法';
-          }
-          
+          const hash = await calculateHash(text, algorithm.id);
           displayResult(algorithm, hash);
         } catch (error) {
           console.error('计算哈希时出错:', error);
@@ -696,54 +872,13 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         }
 
         const algorithm = getSelectedAlgorithm();
-        
-        // 检查库是否加载完成
-        if (typeof CryptoJS === 'undefined') {
-          alert('CryptoJS 库加载失败，请刷新页面重试...');
-          return;
-        }
-        
-        if (typeof sha3_256 === 'undefined') {
-          alert('SHA-3 库加载失败，请刷新页面重试...');
-          return;
-        }
 
         showLoading('file');
         showProgress(0);
 
         try {
           const file = selectedFile;
-          
-          // 读取文件为 ArrayBuffer
-          const arrayBuffer = await readFileAsArrayBuffer(file);
-          
-          let hash;
-          
-          if (algorithm.id.startsWith('sha3-')) {
-            // SHA-3 需要特殊处理
-            const hexString = arrayBufferToHex(arrayBuffer);
-            hash = algorithm.id === 'sha3-256' ? sha3_256(hexString) : sha3_512(hexString);
-          } else {
-            // 其他算法使用 CryptoJS
-            const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
-            
-            switch(algorithm.id) {
-              case 'md5':
-                hash = CryptoJS.MD5(wordArray).toString();
-                break;
-              case 'sha1':
-                hash = CryptoJS.SHA1(wordArray).toString();
-                break;
-              case 'sha256':
-                hash = CryptoJS.SHA256(wordArray).toString();
-                break;
-              case 'sha512':
-                hash = CryptoJS.SHA512(wordArray).toString();
-                break;
-              default:
-                hash = '不支持该算法';
-            }
-          }
+          const hash = await calculateFileHashWithProgress(file, algorithm.id);
           
           // 显示文件信息
           showFileInfo(file);
@@ -757,6 +892,79 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         } finally {
           hideLoading('file');
           hideProgress();
+        }
+      }
+
+      // 计算文件哈希（带进度显示）
+      async function calculateFileHashWithProgress(file, algorithm) {
+        return new Promise((resolve, reject) => {
+          const fileSize = file.size;
+          const chunkSize = 1024 * 1024; // 1MB chunks
+          const chunks = Math.ceil(fileSize / chunkSize);
+          let currentChunk = 0;
+          
+          const reader = new FileReader();
+          const cryptoAlgorithm = getCryptoAlgorithmName(algorithm);
+          
+          // 初始化加密上下文
+          if (algorithm === 'md5') {
+            // MD5 需要特殊处理
+            const md5Chunks = [];
+            
+            reader.onload = function(e) {
+              const arrayBuffer = e.target.result;
+              md5Chunks.push(new Uint8Array(arrayBuffer));
+              
+              currentChunk++;
+              showProgress((currentChunk / chunks) * 100);
+              
+              if (currentChunk < chunks) {
+                loadNextChunk();
+              } else {
+                // 所有块读取完成，计算 MD5
+                const combined = new Uint8Array(fileSize);
+                let offset = 0;
+                for (const chunk of md5Chunks) {
+                  combined.set(chunk, offset);
+                  offset += chunk.length;
+                }
+                
+                const text = new TextDecoder().decode(combined);
+                const hash = calculateMD5(text);
+                resolve(hash);
+              }
+            };
+          } else {
+            // 使用 Web Crypto API
+            crypto.subtle.digest(cryptoAlgorithm, new ArrayBuffer(0))
+              .then(hashBuffer => {
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                resolve(hash);
+              })
+              .catch(reject);
+          }
+          
+          function loadNextChunk() {
+            const start = currentChunk * chunkSize;
+            const end = Math.min(start + chunkSize, fileSize);
+            const slice = file.slice(start, end);
+            reader.readAsArrayBuffer(slice);
+          }
+          
+          reader.onerror = reject;
+          loadNextChunk();
+        });
+      }
+
+      // 获取 Web Crypto API 算法名称
+      function getCryptoAlgorithmName(algorithm) {
+        switch(algorithm) {
+          case 'sha1': return 'SHA-1';
+          case 'sha256': return 'SHA-256';
+          case 'sha384': return 'SHA-384';
+          case 'sha512': return 'SHA-512';
+          default: return 'SHA-256';
         }
       }
 
@@ -797,21 +1005,7 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
-      // 辅助函数
-      function readFileAsArrayBuffer(file) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = e => resolve(e.target.result);
-          reader.onerror = e => reject(new Error('读取文件失败'));
-          reader.readAsArrayBuffer(file);
-        });
-      }
-
-      function arrayBufferToHex(buffer) {
-        const byteArray = new Uint8Array(buffer);
-        return Array.from(byteArray, byte => byte.toString(16).padStart(2, '0')).join('');
-      }
-
+      // 显示文件信息
       function showFileInfo(file) {
         const fileInfo = document.getElementById('file-info');
         fileInfo.style.display = 'block';
