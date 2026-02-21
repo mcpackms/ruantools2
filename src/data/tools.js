@@ -1,8 +1,7 @@
 // src/data/tools.js
 export const tools = [
   { 
-    id: "j
-    code-formatter", 
+    id: "code-formatter", 
     name: "代码格式化工具", 
     description: "格式化、验证和美化", 
     path: "/ruantools2/tools/code-formatter", 
