@@ -1,3 +1,4 @@
+// src/data/apps.js
 // 应用数据
 export const apps = [
   {
