@@ -1,372 +1,257 @@
 <template>
-  <div class="download-app">
-    <!-- 网站头部 -->
-    <header class="site-header">
-      <h1 class="site-title">RuanTools</h1>
-      <p class="site-description">经作者授权的改版应用集散地</p>
-      <p class="site-contact">投稿或建议请联系: <a href="mailto:5haghh49p@mozmail.com">5haghh49p@mozmail.com</a></p>
-      <p class="site-notice">请复制网址 https://mcpackms.github.io/ruantools2/tools/ruanDl/ 到浏览器下载</p>
-    </header>
-
-    <!-- 应用列表 -->
-    <main v-if="validatedApps.length > 0" class="app-list">
-      <article 
-        v-for="(app, index) in validatedApps" 
-        :key="app.id || index" 
-        class="app-card"
-      >
-        <div class="app-header">
-          <h2 class="app-name">{{ app.name }}</h2>
-          <span class="app-version">{{ app.version }}</span>
-        </div>
-        
-        <p class="app-author">作者: {{ app.author }}</p>
-        
-        <p 
-          class="app-desc" 
-          v-html="app.description"
-        ></p>
-        
-        <div class="app-download">
-          <a 
-            class="download-btn" 
-            :href="app.downloadUrl" 
-            :title="`下载 ${app.name} ${app.version}`"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <i class="fas fa-download"></i> {{ app.downloadText || '下载 APK' }}
-          </a>
-          
-          <p class="file-hash">
-            <strong>SHA256:</strong>
-            <code>{{ app.sha256 }}</code>
-          </p>
-        </div>
-      </article>
-    </main>
-
-    <!-- 如果没有数据 -->
-    <div v-else class="no-data">
-      <p style="color: #666; text-align: center; padding: 40px; background: #f8f9fa; border-radius: 8px;">
-        暂无应用数据
-      </p>
+  <article class="app-card">
+    <div class="app-header">
+      <h2 class="app-name">{{ app.name }}</h2>
+      <span class="app-version">{{ app.version }}</span>
     </div>
-
-    <!-- 页脚 -->
-    <footer class="site-footer">
-      <p>© 2023-2025 sl_ly. Licensed under 
-        <a 
-          href="https://www.apache.org/licenses/LICENSE-2.0" 
-          target="_blank" 
-          rel="noopener noreferrer"
+    
+    <p class="app-author">作者: {{ app.author }}</p>
+    
+    <div class="app-description" v-html="app.description"></div>
+    
+    <div class="app-download">
+      <a 
+        class="download-btn" 
+        :href="app.downloadUrl" 
+        :title="`下载 ${app.name} ${app.version}`"
+        @click="handleDownload"
+      >
+        <i class="fas fa-download"></i> {{ app.downloadText }}
+      </a>
+      
+      <div class="file-hash">
+        <strong>SHA256:</strong>
+        <code class="hash-code">{{ app.sha256 }}</code>
+        <button 
+          v-if="showCopyButton" 
+          class="copy-btn" 
+          @click="copyHash"
+          :title="`复制SHA256哈希值`"
         >
-          Apache 2.0
-        </a>.
-      </p>
-    </footer>
-  </div>
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+      
+      <div v-if="copyStatus" class="copy-status">
+        {{ copyStatus }}
+      </div>
+    </div>
+  </article>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref } from 'vue'
 
-// 定义 props
 const props = defineProps({
-  appsData: {
-    type: Array,
-    default: () => []
+  app: {
+    type: Object,
+    required: true
+  },
+  showCopyButton: {
+    type: Boolean,
+    default: true
   }
 })
 
-// 验证和清理数据
-const validatedApps = computed(() => {
-  if (!props.appsData || !Array.isArray(props.appsData)) {
-    console.warn('appsData 不是有效的数组:', props.appsData)
-    return []
+const copyStatus = ref('')
+
+const handleDownload = (event) => {
+  console.log(`开始下载: ${props.app.name} ${props.app.version}`)
+  // 这里可以添加下载统计或其他逻辑
+}
+
+const copyHash = async () => {
+  try {
+    await navigator.clipboard.writeText(props.app.sha256)
+    copyStatus.value = '已复制到剪贴板!'
+    
+    // 3秒后清除状态
+    setTimeout(() => {
+      copyStatus.value = ''
+    }, 3000)
+  } catch (err) {
+    console.error('复制失败:', err)
+    copyStatus.value = '复制失败，请手动复制'
   }
-  
-  return props.appsData.map(app => {
-    // 确保有所有必需的字段
-    return {
-      id: app.id || 0,
-      name: app.name || '未知应用',
-      version: app.version || 'v1.0',
-      author: app.author || '未知作者',
-      description: app.description || '暂无描述',
-      downloadUrl: app.downloadUrl || '',
-      sha256: app.sha256 || '',
-      downloadText: app.downloadText || '下载 APK'
-    }
-  }).filter(app => app.downloadUrl) // 只保留有下载链接的应用
-})
+}
 </script>
 
 <style scoped>
-/* 根据图片重新调整样式 */
-.download-app {
-  width: 100%;
-  max-width: 800px; /* 限制最大宽度，避免"突出来" */
-  margin: 0 auto;
-  padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #333;
-  line-height: 1.6;
-  box-sizing: border-box;
-}
-
-/* 头部样式 - 完全按照图片 */
-.site-header {
-  text-align: left; /* 图片中是左对齐 */
-  margin-bottom: 40px;
-  padding: 0;
-  background: transparent; /* 移除背景色 */
-  border-radius: 0; /* 移除圆角 */
-  box-shadow: none; /* 移除阴影 */
-}
-
-.site-title {
-  font-size: 2.2rem; /* 图片中标题不是特别大 */
-  font-weight: 900; /* 图片中是粗体黑色 */
-  color: #000; /* 纯黑色 */
-  margin-bottom: 8px;
-  line-height: 1.2;
-  letter-spacing: -0.5px;
-}
-
-.site-description {
-  font-size: 1rem;
-  color: #666; /* 灰色 */
-  margin-bottom: 15px;
-  font-weight: 400;
-  line-height: 1.4;
-}
-
-.site-contact {
-  font-size: 0.95rem;
-  color: #333;
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
-
-.site-contact a {
-  color: #0366d6; /* 图片中邮箱是蓝色 */
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.site-contact a:hover {
-  text-decoration: underline;
-}
-
-/* 注意：根据图片，这个区域是粉红色背景，红色文字 */
-.site-notice {
-  font-size: 0.9rem;
-  color: #dc3545; /* 红色文字 */
-  background: #f8d7da; /* 粉红色背景 */
-  padding: 12px 16px;
-  border-radius: 4px;
-  display: block;
-  margin-top: 20px;
-  border-left: 4px solid #dc3545;
-  line-height: 1.5;
-  word-break: break-all;
-}
-
-/* 应用列表 */
-.app-list {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  margin-bottom: 40px;
-}
-
-/* 应用卡片 - 简化样式 */
 .app-card {
   background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 20px;
-  transition: box-shadow 0.2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #eaeaea;
 }
 
 .app-card:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #007bff;
 }
 
 .app-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  align-items: flex-start;
+  margin-bottom: 12px;
 }
 
 .app-name {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  color: #333;
+  color: #1a1a1a;
   margin: 0;
-  line-height: 1.3;
 }
 
 .app-version {
-  font-size: 0.85rem;
-  color: #666;
-  background: #f8f9fa;
-  padding: 4px 10px;
-  border-radius: 4px;
+  background: #007bff;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
 .app-author {
-  font-size: 0.9rem;
   color: #666;
-  margin-bottom: 12px;
-  font-style: italic;
-}
-
-.app-desc {
-  line-height: 1.6;
-  color: #444;
-  margin-bottom: 20px;
   font-size: 0.95rem;
+  margin: 8px 0 16px;
 }
 
-.app-desc s {
+.app-description {
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+.app-description :deep(s) {
   color: #999;
   text-decoration: line-through;
 }
 
 .app-download {
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: 1px solid #eee;
-  padding-top: 15px;
-  margin-top: 10px;
 }
 
 .download-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  background: #007bff;
+  background: linear-gradient(135deg, #007bff, #0056b3);
   color: white;
-  padding: 10px 20px;
-  border-radius: 4px;
+  padding: 12px 24px;
+  border-radius: 8px;
   text-decoration: none;
   font-weight: 500;
-  transition: background 0.2s;
-  margin-bottom: 15px;
+  transition: all 0.2s ease;
   border: none;
   cursor: pointer;
-  font-size: 0.95rem;
-  width: 100%;
-  text-align: center;
+  font-size: 1rem;
 }
 
 .download-btn:hover {
-  background: #0056b3;
-  text-decoration: none;
+  background: linear-gradient(135deg, #0056b3, #004085);
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-.download-btn i {
-  font-size: 1.1em;
+.download-btn:active {
+  transform: scale(0.98);
 }
 
 .file-hash {
-  font-size: 0.85rem;
-  color: #666;
-  margin: 0;
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-  line-height: 1.5;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .file-hash strong {
-  margin-right: 8px;
   color: #333;
   font-weight: 600;
+  font-size: 0.95rem;
 }
 
-.file-hash code {
+.hash-code {
   background: #f8f9fa;
-  padding: 6px 10px;
-  border-radius: 4px;
-  color: #e83e8c;
-  word-break: break-all;
-  display: inline-block;
-  width: calc(100% - 60px);
-  border: 1px solid #eaeaea;
-}
-
-/* 页脚 */
-.site-footer {
-  text-align: center;
-  padding: 25px 0;
-  border-top: 1px solid #eee;
-  color: #666;
-  font-size: 0.9rem;
-  background: #f8f9fa;
+  padding: 8px 12px;
   border-radius: 6px;
-  margin-top: 20px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  color: #333;
+  flex: 1;
+  min-width: 200px;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
-.site-footer a {
-  color: #0366d6;
-  text-decoration: none;
+.copy-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-btn:hover {
+  background: #545b62;
+}
+
+.copy-status {
+  margin-top: 8px;
+  color: #28a745;
+  font-size: 0.875rem;
   font-weight: 500;
+  animation: fadeIn 0.3s ease;
 }
 
-.site-footer a:hover {
-  text-decoration: underline;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* 响应式调整 */
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .download-app {
-    padding: 15px;
-  }
-  
-  .site-title {
-    font-size: 1.8rem;
-  }
-  
-  .site-description {
-    font-size: 0.95rem;
-  }
-  
   .app-card {
-    padding: 15px;
+    padding: 20px;
+  }
+  
+  .app-header {
+    flex-direction: column;
+    gap: 8px;
   }
   
   .app-name {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
   
-  .file-hash code {
-    width: calc(100% - 50px);
+  .hash-code {
+    min-width: 100%;
     font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .app-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .app-version {
-    align-self: flex-start;
   }
   
   .file-hash {
-    display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
-  }
-  
-  .file-hash code {
-    width: 100%;
   }
 }
 </style>
