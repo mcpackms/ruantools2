@@ -2,6 +2,18 @@
 // 页面元数据
 const pageTitle = "哈希计算器 - RuanTools";
 const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、SHA-3 等多种哈希值。";
+
+// 在构建时读取库文件内容
+import fs from 'fs';
+import path from 'path';
+
+// 获取库文件路径
+const cryptoJSPath = path.join(process.cwd(), 'node_modules/crypto-js/crypto-js.js');
+const sha3Path = path.join(process.cwd(), 'node_modules/js-sha3/build/sha3.js');
+
+// 读取库文件内容
+const cryptoJSContent = fs.readFileSync(cryptoJSPath, 'utf-8');
+const sha3Content = fs.readFileSync(sha3Path, 'utf-8');
 ---
 
 <html lang="zh-CN">
@@ -11,24 +23,13 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
     
-    <!-- 从 npm 包加载样式 -->
+    <!-- 在构建时直接嵌入库代码 -->
     <script>
-      // 动态加载所需的库
-      window.loadHashLibraries = async function() {
-        if (typeof CryptoJS === 'undefined') {
-          // 加载 crypto-js
-          const script = document.createElement('script');
-          script.src = '/libs/crypto-js.min.js';
-          document.head.appendChild(script);
-        }
-        
-        if (typeof sha3_256 === 'undefined') {
-          // 加载 js-sha3
-          const script = document.createElement('script');
-          script.src = '/libs/js-sha3.min.js';
-          document.head.appendChild(script);
-        }
-      };
+      {cryptoJSContent}
+    </script>
+    
+    <script>
+      {sha3Content}
     </script>
     
     <style>
@@ -97,7 +98,7 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         font-size: 1.1rem;
       }
 
-      /* 算法选择器 - 改为下拉菜单 */
+      /* 算法选择器 - 下拉菜单 */
       .algorithm-selector {
         margin-bottom: 20px;
       }
@@ -476,7 +477,7 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
       }
     </style>
   </head>
-  <body onload="loadHashLibraries()">
+  <body>
     <div class="container">
       <!-- 头部 -->
       <header class="header">
@@ -484,7 +485,7 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         <p>计算文本和文件的哈希值，从下拉菜单中选择算法</p>
       </header>
 
-      <!-- 算法选择 - 改为下拉菜单 -->
+      <!-- 算法选择 - 下拉菜单 -->
       <div class="card">
         <h2 class="section-title">选择哈希算法</h2>
         
@@ -654,9 +655,14 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
 
         const algorithm = getSelectedAlgorithm();
         
-        // 检查库是否加载完成
-        if (typeof CryptoJS === 'undefined' || typeof sha3_256 === 'undefined') {
-          alert('哈希库正在加载中，请稍后再试...');
+        // 检查库是否可用（现在应该直接可用）
+        if (typeof CryptoJS === 'undefined') {
+          alert('CryptoJS 库加载失败，请刷新页面重试');
+          return;
+        }
+        
+        if (typeof sha3_256 === 'undefined') {
+          alert('SHA-3 库加载失败，请刷新页面重试');
           return;
         }
 
@@ -706,9 +712,14 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
 
         const algorithm = getSelectedAlgorithm();
         
-        // 检查库是否加载完成
-        if (typeof CryptoJS === 'undefined' || typeof sha3_256 === 'undefined') {
-          alert('哈希库正在加载中，请稍后再试...');
+        // 检查库是否可用
+        if (typeof CryptoJS === 'undefined') {
+          alert('CryptoJS 库加载失败，请刷新页面重试');
+          return;
+        }
+        
+        if (typeof sha3_256 === 'undefined') {
+          alert('SHA-3 库加载失败，请刷新页面重试');
           return;
         }
 
