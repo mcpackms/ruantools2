@@ -29,5 +29,15 @@ export const apps = [
     downloadUrl: 'https://ruantools.pages.dev/files/apk/ruansky/k_dian/kDianUnlock.apk',
     sha256: '7c605fee22b75691566bc1f7fd294c0248b00b653622509300221a368b5becf9',
     downloadText: '下载 APK'
+  },
+  {
+    id: 1,
+    name: 'qweerr软天空',
+    version: 'v2.3',
+    author: 'qweerr',
+    description: '使用体验接近原版，功能数量中等，很稳定',
+    downloadUrl: 'https://ruantools.pages.dev/files/apk/ruansky/qweerr/qweerrRuan.apk',
+    sha256: 'acac226ea7dc009e730483f5da5c24cbd7b552e889cc9f83ea0854d5b25aee1c',
+    downloadText: '下载 APK'
   }
 ];
