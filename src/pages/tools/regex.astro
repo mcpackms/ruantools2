@@ -1,193 +1,206 @@
 ---
-// 页面元数据
-const pageTitle = "正则表达式测试工具 - RuanTools";
-const description = "在线测试、调试和验证正则表达式";
+// src/pages/tools/regex.astro
+import Layout from '../../layouts/Layout.astro';
+import RegexTester from '../../components/RegexTester.jsx';
+
+const pageTitle = '正则表达式测试工具';
+const description = '在线测试、调试和验证正则表达式，支持多种模式和实时高亮显示匹配结果';
 ---
 
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
-    <title>{pageTitle}</title>
-    
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: sans-serif; background: #f5f5f5; }
-      .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-      .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-      h1, h2 { margin-bottom: 16px; color: #333; }
-      .input-group { margin-bottom: 20px; }
-      label { display: block; margin-bottom: 8px; font-weight: 500; }
-      input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-      textarea { min-height: 120px; font-family: monospace; }
-      .button-group { display: flex; gap: 10px; margin-top: 20px; }
-      button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
-      .primary { background: #007bff; color: white; }
-      .secondary { background: #6c757d; color: white; }
-      .outline { background: white; border: 1px solid #ddd; }
-      .result { background: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 20px; font-family: monospace; white-space: pre-wrap; }
-      .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-top: 10px; }
-      .hidden { display: none; }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>正则表达式测试器</h1>
-      
-      <div class="card">
-        <h2>输入正则表达式</h2>
-        <div class="input-group">
-          <label for="regex-input">正则表达式：</label>
-          <input type="text" id="regex-input" value="\w+@\w+\.\w+" placeholder="例如：\d{3}-\d{3}-\d{4}">
+<Layout title={`${pageTitle} | 软糖工具`}>
+  <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- 页面标题和描述 -->
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        {pageTitle}
+      </h1>
+      <p class="text-lg text-gray-600 dark:text-gray-400">
+        {description}
+      </p>
+    </div>
+
+    <!-- 工具主界面 -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8">
+      <div class="p-6">
+        <RegexTester client:load />
+      </div>
+    </div>
+
+    <!-- 正则表达式速查表 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- 字符类 -->
+      <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          字符类
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead>
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">模式</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">描述</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tr><td class="px-4 py-2 font-mono">.</td><td>匹配除换行符外的任意字符</td></tr>
+              <tr><td class="px-4 py-2 font-mono">\d</td><td>数字，等同于 [0-9]</td></tr>
+              <tr><td class="px-4 py-2 font-mono">\D</td><td>非数字，等同于 [^0-9]</td></tr>
+              <tr><td class="px-4 py-2 font-mono">\w</td><td>单词字符，等同于 [A-Za-z0-9_]</td></tr>
+              <tr><td class="px-4 py-2 font-mono">\W</td><td>非单词字符</td></tr>
+              <tr><td class="px-4 py-2 font-mono">\s</td><td>空白字符（空格、制表符等）</td></tr>
+              <tr><td class="px-4 py-2 font-mono">\S</td><td>非空白字符</td></tr>
+              <tr><td class="px-4 py-2 font-mono">[abc]</td><td>匹配括号内的任意一个字符</td></tr>
+              <tr><td class="px-4 py-2 font-mono">[^abc]</td><td>匹配不在括号内的任意字符</td></tr>
+            </tbody>
+          </table>
         </div>
-        
-        <div class="input-group">
-          <label for="test-text">测试文本：</label>
-          <textarea id="test-text" placeholder="输入要测试的文本...">请发送邮件到 test@example.com 或联系 admin@domain.com</textarea>
+      </div>
+
+      <!-- 量词 -->
+      <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          量词
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead>
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">模式</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">描述</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tr><td class="px-4 py-2 font-mono">*</td><td>匹配 0 次或多次</td></tr>
+              <tr><td class="px-4 py-2 font-mono">+</td><td>匹配 1 次或多次</td></tr>
+              <tr><td class="px-4 py-2 font-mono">?</td><td>匹配 0 次或 1 次</td></tr>
+              <tr><td class="px-4 py-2 font-mono">{"{n}"}</td><td>匹配恰好 n 次</td></tr>
+              <tr><td class="px-4 py-2 font-mono">{"{n,}"}</td><td>匹配至少 n 次</td></tr>
+              <tr><td class="px-4 py-2 font-mono">{"{n,m}"}</td><td>匹配 n 到 m 次</td></tr>
+              <tr><td class="px-4 py-2 font-mono">*?</td><td>非贪婪匹配（尽可能少匹配）</td></tr>
+            </tbody>
+          </table>
         </div>
-        
-        <div class="input-group">
-          <label>模式：</label>
-          <div>
-            <input type="checkbox" id="global" checked> <label for="global" style="display: inline;">全局匹配 (g)</label>
-            <input type="checkbox" id="ignoreCase" style="margin-left: 20px;"> <label for="ignoreCase" style="display: inline;">忽略大小写 (i)</label>
-            <input type="checkbox" id="multiline" style="margin-left: 20px;"> <label for="multiline" style="display: inline;">多行模式 (m)</label>
-          </div>
+      </div>
+
+      <!-- 锚点与边界 -->
+      <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          锚点与边界
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead>
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">模式</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">描述</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tr><td class="px-4 py-2 font-mono">^</td><td>匹配字符串的开始（多行模式匹配行开始）</td></tr>
+              <tr><td class="px-4 py-2 font-mono">$</td><td>匹配字符串的结束（多行模式匹配行结束）</td></tr>
+              <tr><td class="px-4 py-2 font-mono">\b</td><td>单词边界</td></tr>
+              <tr><td class="px-4 py-2 font-mono">\B</td><td>非单词边界</td></tr>
+              <tr><td class="px-4 py-2 font-mono">(?=...)</td><td>正向先行断言</td></tr>
+              <tr><td class="px-4 py-2 font-mono">(?!...)</td><td>负向先行断言</td></tr>
+              <tr><td class="px-4 py-2 font-mono">{"(?<=...)"}</td><td>正向后行断言</td></tr>
+              <tr><td class="px-4 py-2 font-mono">{"(?<!...)"}</td><td>负向后行断言</td></tr>
+            </tbody>
+          </table>
         </div>
-        
-        <div class="button-group">
-          <button id="test-btn" class="primary">测试正则表达式</button>
-          <button id="clear-btn" class="outline">清空</button>
-        </div>
-        
-        <div id="error" class="error hidden"></div>
-        
-        <div id="results" class="hidden">
-          <h2>匹配结果</h2>
-          <div class="result" id="result-content"></div>
+      </div>
+
+      <!-- 分组与引用 -->
+      <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          分组与引用
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead>
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">模式</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">描述</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+              <tr><td class="px-4 py-2 font-mono">(...)</td><td>捕获组</td></tr>
+              <tr><td class="px-4 py-2 font-mono">(?:...)</td><td>非捕获组</td></tr>
+              <tr><td class="px-4 py-2 font-mono">{"(?<name>...)"}</td><td>命名捕获组</td></tr>
+              <tr><td class="px-4 py-2 font-mono">\1, \2, ...</td><td>引用捕获组</td></tr>
+              <tr><td class="px-4 py-2 font-mono">|</td><td>或（选择）操作</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const regexInput = document.getElementById('regex-input');
-        const testText = document.getElementById('test-text');
-        const testBtn = document.getElementById('test-btn');
-        const clearBtn = document.getElementById('clear-btn');
-        const errorDiv = document.getElementById('error');
-        const resultsDiv = document.getElementById('results');
-        const resultContent = document.getElementById('result-content');
-        
-        const globalCheck = document.getElementById('global');
-        const ignoreCaseCheck = document.getElementById('ignoreCase');
-        const multilineCheck = document.getElementById('multiline');
-        
-        testBtn.addEventListener('click', testRegex);
-        clearBtn.addEventListener('click', clearAll);
-        
-        function testRegex() {
-          // 清空之前的错误和结果
-          errorDiv.classList.add('hidden');
-          resultsDiv.classList.add('hidden');
-          
-          const regexStr = regexInput.value;
-          const text = testText.value;
-          
-          if (!regexStr) {
-            showError('请输入正则表达式');
-            return;
-          }
-          
-          if (!text) {
-            showError('请输入测试文本');
-            return;
-          }
-          
-          try {
-            // 构建标志
-            let flags = '';
-            if (globalCheck.checked) flags += 'g';
-            if (ignoreCaseCheck.checked) flags += 'i';
-            if (multilineCheck.checked) flags += 'm';
-            
-            const regex = new RegExp(regexStr, flags);
-            
-            // 执行匹配
-            let matches = [];
-            if (globalCheck.checked) {
-              // 全局匹配
-              const allMatches = text.matchAll(regex);
-              for (const match of allMatches) {
-                matches.push({
-                  text: match[0],
-                  index: match.index,
-                  groups: match.slice(1)
-                });
-              }
-            } else {
-              // 单次匹配
-              const match = regex.exec(text);
-              if (match) {
-                matches.push({
-                  text: match[0],
-                  index: match.index,
-                  groups: match.slice(1)
-                });
-              }
-            }
-            
-            // 显示结果
-            displayResults(matches, regex);
-            
-          } catch (err) {
-            showError('正则表达式错误: ' + err.message);
-          }
-        }
-        
-        function displayResults(matches, regex) {
-          if (matches.length === 0) {
-            resultContent.textContent = '没有找到匹配项。';
-            resultsDiv.classList.remove('hidden');
-            return;
-          }
-          
-          let resultText = `找到 ${matches.length} 个匹配项\n\n`;
-          
-          matches.forEach((match, index) => {
-            resultText += `匹配 #${index + 1}:\n`;
-            resultText += `  文本: "${match.text}"\n`;
-            resultText += `  位置: ${match.index}\n`;
-            
-            if (match.groups.length > 0) {
-              resultText += `  捕获组:\n`;
-              match.groups.forEach((group, groupIndex) => {
-                resultText += `    $${groupIndex + 1}: "${group || '(空)'}"\n`;
-              });
-            }
-            resultText += '\n';
-          });
-          
-          resultContent.textContent = resultText;
-          resultsDiv.classList.remove('hidden');
-        }
-        
-        function showError(message) {
-          errorDiv.textContent = message;
-          errorDiv.classList.remove('hidden');
-        }
-        
-        function clearAll() {
-          regexInput.value = '';
-          testText.value = '';
-          errorDiv.classList.add('hidden');
-          resultsDiv.classList.add('hidden');
-          globalCheck.checked = true;
-          ignoreCaseCheck.checked = false;
-          multilineCheck.checked = false;
-        }
-      });
-    </script>
-  </body>
-</html>
+    <!-- 使用场景示例 -->
+    <div class="mt-8">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">常见使用场景</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 场景1 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">验证邮箱</h3>
+          <div class="space-y-2 text-sm">
+            <p class="font-mono text-blue-600 dark:text-blue-400 break-words">^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{"{2,3}"})+$</p>
+            <p class="text-gray-600 dark:text-gray-400">匹配常见邮箱格式</p>
+          </div>
+        </div>
+
+        <!-- 场景2 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">提取URL</h3>
+          <div class="space-y-2 text-sm">
+            <p class="font-mono text-blue-600 dark:text-blue-400 break-words">https?:\/\/(?:[-\w]+\.)+[-\w]+(?:[-\w\/.%&?=]*)?</p>
+            <p class="text-gray-600 dark:text-gray-400">提取网页URL链接</p>
+          </div>
+        </div>
+
+        <!-- 场景3 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">匹配电话号码</h3>
+          <div class="space-y-2 text-sm">
+            <p class="font-mono text-blue-600 dark:text-blue-400 break-words">(\+?\d{"{1,3}"}[- ]?)?\(?\d{"{2,3}"}\)?[- ]?\d{"{3,4}"}[- ]?\d{"{4}"}</p>
+            <p class="text-gray-600 dark:text-gray-400">匹配多种格式的电话号码</p>
+          </div>
+        </div>
+
+        <!-- 场景4 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">提取HTML标签</h3>
+          <div class="space-y-2 text-sm">
+            <p class="font-mono text-blue-600 dark:text-blue-400 break-words">&lt;([a-zA-Z][a-zA-Z0-9]*)\b[^&gt;]*&gt;(.*?)&lt;\/\1&gt;</p>
+            <p class="text-gray-600 dark:text-gray-400">提取HTML标签及内容</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  /* 为 mark 标签添加样式 */
+  mark {
+    background-color: #fef3c7;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+  }
+  
+  .dark mark {
+    background-color: #92400e;
+  }
+
+  /* 表格样式优化 */
+  table td {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  table tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+
+  .dark table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+</style>
