@@ -38,7 +38,7 @@ export const tools = [
     description: "在线测试和调试正则表达式。", 
     path: "/ruantools2/tools/regex", 
     category: "文本处理",
-    comingSoon: true
+    comingSoon: false
   },
   { 
     id: "ruanDl", 
@@ -46,6 +46,6 @@ export const tools = [
     description: "对原下载站的重构", 
     path: "/ruantools2/tools/ruanDl", 
     category: "软件下载",
-    comingSoon: true
+    comingSoon: false
   },
 ];
