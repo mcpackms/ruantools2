@@ -1,0 +1,33 @@
+// 应用数据
+export const apps = [
+  {
+    id: 1,
+    name: '软天空 NEXT',
+    version: 'v1.01',
+    author: '一支电笔 / sl_ly',
+    description: '主打精简，包体积小，使用流畅，功能较少，超稳定 <s>本站作者的改版</s>',
+    downloadUrl: 'https://ruantools.pages.dev/files/apk/ruansky/sl_ly/RUANSKY_NEXT_E_1.01.apk',
+    sha256: 'f0956ea4890fadb038e26438644d883bfe9e5dd2ebc5c2ac88789f003b1275de',
+    downloadText: '下载 APK'
+  },
+  {
+    id: 2,
+    name: '满级软天空',
+    version: 'v20.0',
+    author: '莎士比亚',
+    description: '拥有多特色功能，如家族自动审核回复和动态修改昵称等等集合所有改版的趣味功能，开挂一般的存在，界面简洁好看',
+    downloadUrl: 'https://ruantools.pages.dev/files/apk/ruansky/ssby/MaxRuan20.0.apk',
+    sha256: '864dc0222f12029f034ad71ab40b5e204e8ecc1746f807e825ad830030e6309b',
+    downloadText: '下载 APK'
+  },
+  {
+    id: 3,
+    name: '软天空（解锁版）',
+    version: '2.1',
+    author: 'k点',
+    description: '极其精简，界面好看(真的好看!)，适合使用社区功能的用户使用',
+    downloadUrl: 'https://ruantools.pages.dev/files/apk/ruansky/k_dian/kDianUnlock.apk',
+    sha256: '7c605fee22b75691566bc1f7fd294c0248b00b653622509300221a368b5becf9',
+    downloadText: '下载 APK'
+  }
+];
