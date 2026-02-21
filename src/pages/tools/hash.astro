@@ -1,7 +1,7 @@
 ---
 // 页面元数据
 const pageTitle = "哈希计算器 - RuanTools";
-const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、SHA-3、BLAKE2b 等多种哈希值。";
+const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、SHA-3 等多种哈希值。";
 ---
 
 <html lang="zh-CN">
@@ -10,6 +10,9 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
+    <!-- 引入所需的 JavaScript 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-sha3@0.8.0/dist/sha3.min.js"></script>
     <style>
       /* 基础样式 */
       * {
@@ -76,19 +79,19 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         font-size: 1.1rem;
       }
 
-      /* 算法选择 */
+      /* 算法选择器 - 单选按钮样式 */
       .algorithm-selector {
         margin-bottom: 20px;
       }
 
-      .algorithm-grid {
+      .algorithm-radio-group {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 10px;
         margin-top: 10px;
       }
 
-      .algorithm-item {
+      .algorithm-radio-item {
         display: flex;
         align-items: center;
         gap: 8px;
@@ -98,23 +101,25 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         cursor: pointer;
         transition: all 0.2s;
         font-size: 0.9rem;
+        position: relative;
       }
 
-      .algorithm-item:hover {
+      .algorithm-radio-item:hover {
         background: #f8f9fa;
         border-color: #bbb;
       }
 
-      .algorithm-item.selected {
+      .algorithm-radio-item.selected {
         background: #007bff;
         color: white;
         border-color: #007bff;
       }
 
-      .algorithm-checkbox {
-        width: 16px;
-        height: 16px;
-        margin: 0;
+      .algorithm-radio-item input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
       }
 
       .algorithm-name {
@@ -127,7 +132,7 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         margin-left: auto;
       }
 
-      .algorithm-item.selected .algorithm-bits {
+      .algorithm-radio-item.selected .algorithm-bits {
         color: rgba(255, 255, 255, 0.9);
       }
 
@@ -161,6 +166,10 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         outline: none;
         border-color: #007bff;
         background: white;
+      }
+
+      .textarea-field::placeholder {
+        color: #999;
       }
 
       /* 文件上传 */
@@ -281,41 +290,13 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         font-weight: 600;
         margin-bottom: 15px;
         color: #2c3e50;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .copy-all-btn {
-        padding: 6px 12px;
-        font-size: 0.8rem;
-        background: #28a745;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .copy-all-btn:hover {
-        background: #218838;
-      }
-
-      .hash-results {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 15px;
-      }
-
-      @media (max-width: 768px) {
-        .hash-results {
-          grid-template-columns: 1fr;
-        }
       }
 
       .hash-item {
         background: #f8f9fa;
         border-radius: 8px;
-        padding: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
         border: 1px solid #e0e0e0;
       }
 
@@ -323,42 +304,43 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
 
       .hash-name {
-        font-size: 0.9rem;
+        font-size: 1rem;
         font-weight: 600;
         color: #2c3e50;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
       }
 
       .hash-bits {
         font-size: 0.75rem;
         color: #666;
         background: #e9ecef;
-        padding: 2px 6px;
-        border-radius: 10px;
+        padding: 3px 8px;
+        border-radius: 12px;
       }
 
       .hash-value {
         font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         color: #333;
         word-break: break-all;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+        line-height: 1.4;
       }
 
       .hash-actions {
         display: flex;
-        gap: 8px;
+        justify-content: flex-end;
       }
 
       .copy-btn {
-        padding: 4px 8px;
-        font-size: 0.75rem;
+        padding: 6px 12px;
+        font-size: 0.8rem;
         background: #007bff;
         color: white;
         border: none;
@@ -456,120 +438,13 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         font-size: 0.9rem;
       }
 
-      /* 暗色模式支持 */
-      @media (prefers-color-scheme: dark) {
-        body {
-          background: #1a1a1a;
-          color: #e0e0e0;
-        }
-
-        .header h1 {
-          color: #ffffff;
-        }
-
-        .header p {
-          color: #aaa;
-        }
-
-        .card {
-          background: #2d2d2d;
-          border-color: #444;
-        }
-
-        .algorithm-item {
-          background: #333;
-          border-color: #555;
-          color: #e0e0e0;
-        }
-
-        .algorithm-item:hover {
-          background: #3a3a3a;
-        }
-
-        .algorithm-item.selected {
-          background: #007bff;
-          border-color: #007bff;
-        }
-
-        .textarea-field {
-          background: #333;
-          border-color: #555;
-          color: #e0e0e0;
-        }
-
-        .textarea-field:focus {
-          background: #3a3a3a;
-          border-color: #007bff;
-        }
-
-        .file-upload {
-          background: #333;
-          border-color: #555;
-        }
-
-        .file-name {
-          color: #aaa;
-        }
-
-        .btn-outline {
-          background: #333;
-          color: #e0e0e0;
-          border-color: #555;
-        }
-
-        .btn-outline:hover {
-          background: #444;
-        }
-
-        .loading {
-          background: #333;
-          color: #aaa;
-        }
-
-        .hash-item {
-          background: #333;
-          border-color: #444;
-        }
-
-        .hash-name {
-          color: #e0e0e0;
-        }
-
-        .hash-bits {
-          background: #444;
-          color: #aaa;
-        }
-
-        .hash-value {
-          color: #e0e0e0;
-        }
-
-        .file-info {
-          background: #333;
-          border-color: #444;
-        }
-
-        .detail-label {
-          color: #aaa;
-        }
-
-        .detail-value {
-          color: #e0e0e0;
-        }
-
-        .footer {
-          border-color: #444;
-          color: #aaa;
-        }
-      }
-
       /* 响应式设计 */
       @media (max-width: 768px) {
         .container {
           padding: 15px;
         }
 
-        .algorithm-grid {
+        .algorithm-radio-group {
           grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         }
 
@@ -581,6 +456,16 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
           width: 100%;
           justify-content: center;
         }
+
+        .file-upload {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+        }
+
+        .file-name {
+          text-align: center;
+        }
       }
     </style>
   </head>
@@ -589,14 +474,19 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
       <!-- 头部 -->
       <header class="header">
         <h1>哈希计算器</h1>
-        <p>计算文本和文件的 MD5、SHA 系列、BLAKE2b 等多种哈希值</p>
+        <p>计算文本和文件的哈希值，每次只能选择一种算法</p>
       </header>
 
-      <!-- 算法选择 -->
+      <!-- 算法选择 - 改为单选 -->
       <div class="card">
         <h2 class="section-title">选择哈希算法</h2>
-        <div class="algorithm-grid" id="algorithm-grid">
-          <!-- 算法选项将通过 JavaScript 动态生成 -->
+        <div class="algorithm-selector">
+          <p style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">
+            请选择一种哈希算法（单选）：
+          </p>
+          <div class="algorithm-radio-group" id="algorithm-radio-group">
+            <!-- 算法选项将通过 JavaScript 动态生成 -->
+          </div>
         </div>
       </div>
 
@@ -615,7 +505,7 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         </div>
 
         <div class="button-group">
-          <button id="calculate-text-btn" class="btn btn-primary">计算文本哈希</button>
+          <button id="calculate-text-btn" class="btn btn-primary">计算哈希</button>
           <button id="clear-text-btn" class="btn btn-outline">清空文本</button>
           <button id="example-text-btn" class="btn btn-outline">使用示例</button>
         </div>
@@ -662,12 +552,8 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
 
       <!-- 结果显示 -->
       <div id="results-section" class="card" style="display: none;">
-        <div class="result-title">
-          <span>哈希计算结果</span>
-          <button id="copy-all-btn" class="copy-all-btn">复制所有</button>
-        </div>
-        
-        <div id="hash-results" class="hash-results">
+        <h3 class="result-title">哈希计算结果</h3>
+        <div id="hash-results">
           <!-- 哈希结果将在这里动态显示 -->
         </div>
       </div>
@@ -684,23 +570,14 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
             <li><strong>SHA-512</strong> - 512位SHA-2算法，更安全的版本</li>
             <li><strong>SHA-3-256</strong> - 256位SHA-3算法，新一代标准</li>
             <li><strong>SHA-3-512</strong> - 512位SHA-3算法</li>
-            <li><strong>BLAKE2b</strong> - 高速哈希算法，性能优于SHA-2/3</li>
           </ul>
           
           <p style="margin-top: 12px;"><strong>注意事项：</strong></p>
           <ul style="padding-left: 20px; margin-top: 8px;">
+            <li>每次只能选择一种哈希算法进行计算</li>
             <li>所有计算均在浏览器本地完成，文件不会上传到任何服务器</li>
             <li>大文件计算可能需要较长时间，请耐心等待</li>
-            <li>对于大文件，建议使用较新的浏览器以获得更好的性能</li>
-            <li>点击"复制"按钮可以复制单个哈希值，点击"复制所有"可以复制全部</li>
-          </ul>
-
-          <p style="margin-top: 12px;"><strong>技术说明：</strong></p>
-          <ul style="padding-left: 20px; margin-top: 8px;">
-            <li>MD5、SHA-1、SHA-256、SHA-512 使用 CryptoJS 库</li>
-            <li>SHA-3-256、SHA-3-512 使用 js-sha3 库</li>
-            <li>BLAKE2b 使用 blake2b-wasm 库（WebAssembly）</li>
-            <li>所有计算均在浏览器中本地执行，保证数据安全</li>
+            <li>点击"复制"按钮可以复制哈希值</li>
           </ul>
         </div>
       </div>
@@ -713,113 +590,76 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
     </div>
 
     <script>
-      // 导入已安装的库（通过 npm 安装）
-      // 注意：这些库需要在构建时被处理
-      import CryptoJS from 'crypto-js';
-      import { sha3_256, sha3_512 } from 'js-sha3';
-      
-      // 初始化算法列表
+      // 初始化算法列表 - 移除了 BLAKE2b
       const algorithms = [
-        { id: 'md5', name: 'MD5', bits: '128位', selected: true },
-        { id: 'sha1', name: 'SHA-1', bits: '160位', selected: true },
-        { id: 'sha256', name: 'SHA-256', bits: '256位', selected: true },
-        { id: 'sha512', name: 'SHA-512', bits: '512位', selected: true },
-        { id: 'sha3-256', name: 'SHA-3-256', bits: '256位', selected: true },
-        { id: 'sha3-512', name: 'SHA-3-512', bits: '512位', selected: true },
-        { id: 'blake2b', name: 'BLAKE2b', bits: '512位', selected: true }
+        { id: 'md5', name: 'MD5', bits: '128位' },
+        { id: 'sha1', name: 'SHA-1', bits: '160位' },
+        { id: 'sha256', name: 'SHA-256', bits: '256位' },
+        { id: 'sha512', name: 'SHA-512', bits: '512位' },
+        { id: 'sha3-256', name: 'SHA-3-256', bits: '256位' },
+        { id: 'sha3-512', name: 'SHA-3-512', bits: '512位' }
       ];
 
-      // 动态导入 blake2b-wasm
-      let blake2bPromise = null;
-      let blake2b = null;
-
-      async function loadBlake2b() {
-        if (!blake2bPromise) {
-          blake2bPromise = import('blake2b-wasm').then(module => {
-            blake2b = module.default;
-            return blake2b;
-          }).catch(err => {
-            console.error('加载 BLAKE2b 库失败:', err);
-            return null;
-          });
-        }
-        return blake2bPromise;
-      }
-
+      // 当前选择的算法
+      let selectedAlgorithm = 'sha256';
       // 当前选择的文件
       let selectedFile = null;
 
-      // 初始化算法选择器
+      // 初始化算法选择器 - 改为单选
       function initAlgorithmSelector() {
-        const grid = document.getElementById('algorithm-grid');
-        grid.innerHTML = '';
+        const radioGroup = document.getElementById('algorithm-radio-group');
+        radioGroup.innerHTML = '';
         
         algorithms.forEach(algo => {
-          const item = document.createElement('div');
-          item.className = `algorithm-item ${algo.selected ? 'selected' : ''}`;
+          const item = document.createElement('label');
+          item.className = `algorithm-radio-item ${selectedAlgorithm === algo.id ? 'selected' : ''}`;
           item.innerHTML = `
-            <input type="checkbox" class="algorithm-checkbox" id="algo-${algo.id}" ${algo.selected ? 'checked' : ''}>
+            <input 
+              type="radio" 
+              name="hash-algorithm" 
+              value="${algo.id}" 
+              ${selectedAlgorithm === algo.id ? 'checked' : ''}
+            >
             <span class="algorithm-name">${algo.name}</span>
             <span class="algorithm-bits">${algo.bits}</span>
           `;
           
+          // 点击选择算法
           item.addEventListener('click', (e) => {
-            if (e.target.type !== 'checkbox') {
-              const checkbox = item.querySelector('.algorithm-checkbox');
-              checkbox.checked = !checkbox.checked;
-              algo.selected = checkbox.checked;
-              item.classList.toggle('selected');
+            if (e.target.type !== 'radio') {
+              const radio = item.querySelector('input[type="radio"]');
+              radio.checked = true;
+              selectedAlgorithm = radio.value;
+              
+              // 更新所有选项的选中状态
+              document.querySelectorAll('.algorithm-radio-item').forEach(el => {
+                el.classList.remove('selected');
+              });
+              item.classList.add('selected');
             }
           });
           
-          const checkbox = item.querySelector('.algorithm-checkbox');
-          checkbox.addEventListener('change', (e) => {
-            e.stopPropagation();
-            algo.selected = checkbox.checked;
-            item.classList.toggle('selected');
+          // 直接点击radio按钮
+          const radio = item.querySelector('input[type="radio"]');
+          radio.addEventListener('change', (e) => {
+            if (e.target.checked) {
+              selectedAlgorithm = e.target.value;
+              
+              // 更新所有选项的选中状态
+              document.querySelectorAll('.algorithm-radio-item').forEach(el => {
+                el.classList.remove('selected');
+              });
+              item.classList.add('selected');
+            }
           });
           
-          grid.appendChild(item);
+          radioGroup.appendChild(item);
         });
       }
 
-      // 获取选中的算法
-      function getSelectedAlgorithms() {
-        return algorithms.filter(algo => algo.selected);
-      }
-
-      // 显示加载状态
-      function showLoading(type) {
-        if (type === 'text') {
-          document.getElementById('text-loading').style.display = 'flex';
-        } else if (type === 'file') {
-          document.getElementById('file-loading').style.display = 'flex';
-        }
-      }
-
-      // 隐藏加载状态
-      function hideLoading(type) {
-        if (type === 'text') {
-          document.getElementById('text-loading').style.display = 'none';
-        } else if (type === 'file') {
-          document.getElementById('file-loading').style.display = 'none';
-        }
-      }
-
-      // 显示进度条
-      function showProgress(percent) {
-        const progress = document.getElementById('file-progress');
-        const fill = document.getElementById('progress-fill');
-        const text = document.getElementById('progress-text');
-        
-        progress.style.display = 'block';
-        fill.style.width = `${percent}%`;
-        text.textContent = `${Math.round(percent)}%`;
-      }
-
-      // 隐藏进度条
-      function hideProgress() {
-        document.getElementById('file-progress').style.display = 'none';
+      // 获取当前选中的算法
+      function getSelectedAlgorithm() {
+        return algorithms.find(algo => algo.id === selectedAlgorithm);
       }
 
       // 计算文本哈希
@@ -830,63 +670,41 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
           return;
         }
 
-        const selectedAlgos = getSelectedAlgorithms();
-        if (selectedAlgos.length === 0) {
-          alert('请至少选择一个哈希算法');
+        const algorithm = getSelectedAlgorithm();
+        if (!algorithm) {
+          alert('请选择一个哈希算法');
           return;
         }
 
         showLoading('text');
         
         try {
-          const results = [];
+          let hash;
           
-          for (const algo of selectedAlgos) {
-            let hash;
-            
-            switch(algo.id) {
-              case 'md5':
-                hash = CryptoJS.MD5(text).toString();
-                break;
-              case 'sha1':
-                hash = CryptoJS.SHA1(text).toString();
-                break;
-              case 'sha256':
-                hash = CryptoJS.SHA256(text).toString();
-                break;
-              case 'sha512':
-                hash = CryptoJS.SHA512(text).toString();
-                break;
-              case 'sha3-256':
-                hash = sha3_256(text);
-                break;
-              case 'sha3-512':
-                hash = sha3_512(text);
-                break;
-              case 'blake2b':
-                // 异步加载 BLAKE2b
-                const blake2bLib = await loadBlake2b();
-                if (blake2bLib) {
-                  const encoder = new TextEncoder();
-                  const data = encoder.encode(text);
-                  hash = blake2bLib(data).toString('hex');
-                } else {
-                  hash = 'BLAKE2b 库加载失败';
-                }
-                break;
-              default:
-                hash = '不支持该算法';
-            }
-            
-            results.push({
-              name: algo.name,
-              bits: algo.bits,
-              value: hash,
-              length: hash.length
-            });
+          switch(algorithm.id) {
+            case 'md5':
+              hash = CryptoJS.MD5(text).toString();
+              break;
+            case 'sha1':
+              hash = CryptoJS.SHA1(text).toString();
+              break;
+            case 'sha256':
+              hash = CryptoJS.SHA256(text).toString();
+              break;
+            case 'sha512':
+              hash = CryptoJS.SHA512(text).toString();
+              break;
+            case 'sha3-256':
+              hash = sha3_256(text);
+              break;
+            case 'sha3-512':
+              hash = sha3_512(text);
+              break;
+            default:
+              hash = '不支持该算法';
           }
           
-          displayResults(results);
+          displayResult(algorithm, hash);
         } catch (error) {
           console.error('计算哈希时出错:', error);
           alert('计算哈希时出错: ' + error.message);
@@ -902,9 +720,9 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
           return;
         }
 
-        const selectedAlgos = getSelectedAlgorithms();
-        if (selectedAlgos.length === 0) {
-          alert('请至少选择一个哈希算法');
+        const algorithm = getSelectedAlgorithm();
+        if (!algorithm) {
+          alert('请选择一个哈希算法');
           return;
         }
 
@@ -912,81 +730,54 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         showProgress(0);
 
         try {
-          const results = [];
           const file = selectedFile;
           
           // 读取文件为 ArrayBuffer
           const arrayBuffer = await readFileAsArrayBuffer(file);
           
-          // 显示文件信息
-          showFileInfo(file);
+          // 转换为 CryptoJS 可用的格式
+          const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
           
-          // 计算每个选中的哈希算法
-          for (let i = 0; i < selectedAlgos.length; i++) {
-            const algo = selectedAlgos[i];
-            let hash;
-            
-            try {
-              // 将 ArrayBuffer 转换为 CryptoJS 可用的格式
-              const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
-              
-              switch(algo.id) {
-                case 'md5':
-                  hash = CryptoJS.MD5(wordArray).toString();
-                  break;
-                case 'sha1':
-                  hash = CryptoJS.SHA1(wordArray).toString();
-                  break;
-                case 'sha256':
-                  hash = CryptoJS.SHA256(wordArray).toString();
-                  break;
-                case 'sha512':
-                  hash = CryptoJS.SHA512(wordArray).toString();
-                  break;
-                case 'sha3-256':
-                  // 将 ArrayBuffer 转换为十六进制字符串
-                  const hexString256 = arrayBufferToHex(arrayBuffer);
-                  hash = sha3_256(hexString256);
-                  break;
-                case 'sha3-512':
-                  const hexString512 = arrayBufferToHex(arrayBuffer);
-                  hash = sha3_512(hexString512);
-                  break;
-                case 'blake2b':
-                  // 异步加载 BLAKE2b
-                  const blake2bLib = await loadBlake2b();
-                  if (blake2bLib) {
-                    hash = blake2bLib(new Uint8Array(arrayBuffer)).toString('hex');
-                  } else {
-                    hash = 'BLAKE2b 库加载失败';
-                  }
-                  break;
-                default:
-                  hash = '不支持该算法';
-              }
-              
-              results.push({
-                name: algo.name,
-                bits: algo.bits,
-                value: hash,
-                length: hash.length
-              });
-              
-              // 更新进度
-              showProgress(((i + 1) / selectedAlgos.length) * 100);
-              
-            } catch (error) {
-              console.error(`计算 ${algo.name} 哈希时出错:`, error);
-              results.push({
-                name: algo.name,
-                bits: algo.bits,
-                value: `错误: ${error.message}`,
-                length: 0
-              });
+          let hash;
+          
+          try {
+            switch(algorithm.id) {
+              case 'md5':
+                hash = CryptoJS.MD5(wordArray).toString();
+                break;
+              case 'sha1':
+                hash = CryptoJS.SHA1(wordArray).toString();
+                break;
+              case 'sha256':
+                hash = CryptoJS.SHA256(wordArray).toString();
+                break;
+              case 'sha512':
+                hash = CryptoJS.SHA512(wordArray).toString();
+                break;
+              case 'sha3-256':
+                // 将 ArrayBuffer 转换为十六进制字符串
+                const hexString256 = arrayBufferToHex(arrayBuffer);
+                hash = sha3_256(hexString256);
+                break;
+              case 'sha3-512':
+                const hexString512 = arrayBufferToHex(arrayBuffer);
+                hash = sha3_512(hexString512);
+                break;
+              default:
+                hash = '不支持该算法';
             }
+            
+            // 显示文件信息
+            showFileInfo(file);
+            
+            // 显示结果
+            displayResult(algorithm, hash);
+            
+          } catch (error) {
+            console.error(`计算 ${algorithm.name} 哈希时出错:`, error);
+            alert(`计算 ${algorithm.name} 哈希时出错: ${error.message}`);
           }
           
-          displayResults(results);
           hideLoading('file');
           hideProgress();
           
@@ -998,35 +789,113 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         }
       }
 
-      // 读取文件为 ArrayBuffer
+      // 显示单个结果
+      function displayResult(algorithm, hash) {
+        const resultsSection = document.getElementById('results-section');
+        const hashResults = document.getElementById('hash-results');
+        
+        resultsSection.style.display = 'block';
+        hashResults.innerHTML = '';
+        
+        const hashItem = document.createElement('div');
+        hashItem.className = 'hash-item';
+        hashItem.innerHTML = `
+          <div class="hash-header">
+            <div class="hash-name">
+              <span>${algorithm.name}</span>
+              <span class="hash-bits">${algorithm.bits}</span>
+            </div>
+            <span style="font-size: 0.8rem; color: #666;">${hash.length} 字符</span>
+          </div>
+          <div class="hash-value">${hash}</div>
+          <div class="hash-actions">
+            <button class="copy-btn" data-hash="${hash}">复制哈希值</button>
+          </div>
+        `;
+        
+        hashResults.appendChild(hashItem);
+        
+        // 为复制按钮添加事件监听器
+        const copyBtn = hashItem.querySelector('.copy-btn');
+        copyBtn.addEventListener('click', function() {
+          const hash = this.getAttribute('data-hash');
+          copyToClipboard(hash, this);
+        });
+        
+        // 滚动到结果区域
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      // 其他辅助函数保持不变...
+      // 包括：readFileAsArrayBuffer, arrayBufferToHex, showFileInfo, formatFileSize,
+      // showLoading, hideLoading, showProgress, hideProgress, copyToClipboard 等
+
+      // 初始化页面
+      document.addEventListener('DOMContentLoaded', function() {
+        // 初始化算法选择器
+        initAlgorithmSelector();
+        
+        // 文本计算按钮事件
+        document.getElementById('calculate-text-btn').addEventListener('click', calculateTextHash);
+        
+        // 清空文本按钮事件
+        document.getElementById('clear-text-btn').addEventListener('click', function() {
+          document.getElementById('text-input').value = '';
+        });
+        
+        // 示例文本按钮事件
+        document.getElementById('example-text-btn').addEventListener('click', function() {
+          document.getElementById('text-input').value = 'Hello, World! 这是一个测试文本，用于计算哈希值。';
+        });
+        
+        // 文件选择事件
+        document.getElementById('file-input').addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            selectedFile = file;
+            document.getElementById('file-name').textContent = `${file.name} (${formatFileSize(file.size)})`;
+            document.getElementById('calculate-file-btn').disabled = false;
+          } else {
+            selectedFile = null;
+            document.getElementById('file-name').textContent = '未选择文件';
+            document.getElementById('calculate-file-btn').disabled = true;
+          }
+        });
+        
+        // 文件计算按钮事件
+        document.getElementById('calculate-file-btn').addEventListener('click', calculateFileHash);
+        
+        // 清除文件按钮事件
+        document.getElementById('clear-file-btn').addEventListener('click', function() {
+          document.getElementById('file-input').value = '';
+          selectedFile = null;
+          document.getElementById('file-name').textContent = '未选择文件';
+          document.getElementById('calculate-file-btn').disabled = true;
+        });
+        
+        // 文本输入框 Ctrl+Enter 计算
+        document.getElementById('text-input').addEventListener('keydown', function(e) {
+          if (e.ctrlKey && e.key === 'Enter') {
+            calculateTextHash();
+          }
+        });
+      });
+
+      // 其他工具函数保持不变...
       function readFileAsArrayBuffer(file) {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
-          
-          reader.onload = function(e) {
-            resolve(e.target.result);
-          };
-          
-          reader.onerror = function(e) {
-            reject(new Error('读取文件失败'));
-          };
-          
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = e => reject(new Error('读取文件失败'));
           reader.readAsArrayBuffer(file);
         });
       }
 
-      // ArrayBuffer 转十六进制字符串
       function arrayBufferToHex(buffer) {
         const byteArray = new Uint8Array(buffer);
-        const hexParts = [];
-        for (let i = 0; i < byteArray.length; i++) {
-          const hex = byteArray[i].toString(16).padStart(2, '0');
-          hexParts.push(hex);
-        }
-        return hexParts.join('');
+        return Array.from(byteArray, byte => byte.toString(16).padStart(2, '0')).join('');
       }
 
-      // 显示文件信息
       function showFileInfo(file) {
         const fileInfo = document.getElementById('file-info');
         fileInfo.style.display = 'block';
@@ -1053,106 +922,6 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         `;
       }
 
-      // 显示结果
-      function displayResults(results) {
-        const resultsSection = document.getElementById('results-section');
-        const hashResults = document.getElementById('hash-results');
-        
-        resultsSection.style.display = 'block';
-        hashResults.innerHTML = '';
-        
-        results.forEach(result => {
-          const hashItem = document.createElement('div');
-          hashItem.className = 'hash-item';
-          hashItem.innerHTML = `
-            <div class="hash-header">
-              <div class="hash-name">
-                <span>${result.name}</span>
-                <span class="hash-bits">${result.bits}</span>
-              </div>
-              <span class="hash-length">${result.length} 字符</span>
-            </div>
-            <div class="hash-value">${result.value}</div>
-            <div class="hash-actions">
-              <button class="copy-btn" data-hash="${result.value}">复制</button>
-            </div>
-          `;
-          
-          hashResults.appendChild(hashItem);
-        });
-        
-        // 为每个复制按钮添加事件监听器
-        document.querySelectorAll('.copy-btn').forEach(btn => {
-          btn.addEventListener('click', function(e) {
-            const hash = this.getAttribute('data-hash');
-            copyToClipboard(hash, this);
-          });
-        });
-        
-        // 滚动到结果区域
-        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-
-      // 复制到剪贴板
-      async function copyToClipboard(text, button) {
-        try {
-          await navigator.clipboard.writeText(text);
-          // 显示复制成功反馈
-          button.textContent = '已复制';
-          button.classList.add('copied');
-          setTimeout(() => {
-            button.textContent = '复制';
-            button.classList.remove('copied');
-          }, 2000);
-        } catch (err) {
-          console.error('复制失败:', err);
-          // 备用方法
-          const textArea = document.createElement('textarea');
-          textArea.value = text;
-          document.body.appendChild(textArea);
-          textArea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textArea);
-          
-          // 显示复制成功反馈
-          button.textContent = '已复制';
-          button.classList.add('copied');
-          setTimeout(() => {
-            button.textContent = '复制';
-            button.classList.remove('copied');
-          }, 2000);
-        }
-      }
-
-      // 复制所有哈希值
-      function copyAllHashes() {
-        const hashValues = Array.from(document.querySelectorAll('.hash-value'))
-          .map(el => {
-            const algoName = el.closest('.hash-item').querySelector('.hash-name span').textContent;
-            const hashValue = el.textContent;
-            return `${algoName}: ${hashValue}`;
-          })
-          .join('\n');
-        
-        const btn = document.getElementById('copy-all-btn');
-        const originalText = btn.textContent;
-        
-        // 创建临时文本区域进行复制
-        const textArea = document.createElement('textarea');
-        textArea.value = hashValues;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        // 显示反馈
-        btn.textContent = '已复制全部';
-        setTimeout(() => {
-          btn.textContent = originalText;
-        }, 2000);
-      }
-
-      // 格式化文件大小
       function formatFileSize(bytes) {
         if (bytes === 0) return '0 B';
         const k = 1024;
@@ -1161,66 +930,60 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
       }
 
-      // 初始化页面
-      document.addEventListener('DOMContentLoaded', function() {
-        // 初始化算法选择器
-        initAlgorithmSelector();
-        
-        // 文本计算按钮事件
-        document.getElementById('calculate-text-btn').addEventListener('click', calculateTextHash);
-        
-        // 清空文本按钮事件
-        document.getElementById('clear-text-btn').addEventListener('click', function() {
-          document.getElementById('text-input').value = '';
-        });
-        
-        // 示例文本按钮事件
-        document.getElementById('example-text-btn').addEventListener('click', function() {
-          document.getElementById('text-input').value = 'Hello, World! 这是一个测试文本，用于计算哈希值。\n' +
-            'MD5 哈希通常用于文件完整性校验。\n' +
-            'SHA-256 是比特币和许多区块链系统使用的哈希算法。';
-        });
-        
-        // 文件选择事件
-        document.getElementById('file-input').addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (file) {
-            selectedFile = file;
-            document.getElementById('file-name').textContent = `${file.name} (${formatFileSize(file.size)})`;
-            document.getElementById('calculate-file-btn').disabled = false;
-            document.getElementById('file-info').style.display = 'none';
-          } else {
-            selectedFile = null;
-            document.getElementById('file-name').textContent = '未选择文件';
-            document.getElementById('calculate-file-btn').disabled = true;
-          }
-        });
-        
-        // 文件计算按钮事件
-        document.getElementById('calculate-file-btn').addEventListener('click', calculateFileHash);
-        
-        // 清除文件按钮事件
-        document.getElementById('clear-file-btn').addEventListener('click', function() {
-          document.getElementById('file-input').value = '';
-          selectedFile = null;
-          document.getElementById('file-name').textContent = '未选择文件';
-          document.getElementById('calculate-file-btn').disabled = true;
-          document.getElementById('file-info').style.display = 'none';
-        });
-        
-        // 复制所有按钮事件
-        document.getElementById('copy-all-btn').addEventListener('click', copyAllHashes);
-        
-        // 文本输入框 Ctrl+Enter 计算
-        document.getElementById('text-input').addEventListener('keydown', function(e) {
-          if (e.ctrlKey && e.key === 'Enter') {
-            calculateTextHash();
-          }
-        });
+      function showLoading(type) {
+        if (type === 'text') {
+          document.getElementById('text-loading').style.display = 'flex';
+        } else if (type === 'file') {
+          document.getElementById('file-loading').style.display = 'flex';
+        }
+      }
 
-        // 预加载 BLAKE2b 库
-        loadBlake2b();
-      });
+      function hideLoading(type) {
+        if (type === 'text') {
+          document.getElementById('text-loading').style.display = 'none';
+        } else if (type === 'file') {
+          document.getElementById('file-loading').style.display = 'none';
+        }
+      }
+
+      function showProgress(percent) {
+        const progress = document.getElementById('file-progress');
+        const fill = document.getElementById('progress-fill');
+        const text = document.getElementById('progress-text');
+        
+        progress.style.display = 'block';
+        fill.style.width = `${percent}%`;
+        text.textContent = `${Math.round(percent)}%`;
+      }
+
+      function hideProgress() {
+        document.getElementById('file-progress').style.display = 'none';
+      }
+
+      async function copyToClipboard(text, button) {
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = '已复制';
+          button.classList.add('copied');
+          setTimeout(() => {
+            button.textContent = '复制哈希值';
+            button.classList.remove('copied');
+          }, 2000);
+        } catch (err) {
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          button.textContent = '已复制';
+          button.classList.add('copied');
+          setTimeout(() => {
+            button.textContent = '复制哈希值';
+            button.classList.remove('copied');
+          }, 2000);
+        }
+      }
     </script>
   </body>
 </html>
