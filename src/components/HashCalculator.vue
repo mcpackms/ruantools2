@@ -424,7 +424,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 const inputType = ref('text')
 const inputText = ref('')
 const selectedFile = ref(null)
-const selectedAlgorithm = ref('MD5') // 默认选中 MD5，与图片一致
+const selectedAlgorithm = ref('SHA-256') // 默认选中 MD5，与图片一致
 const outputFormat = ref('hex')
 const hashResult = ref('')
 const calculationTime = ref(0)
