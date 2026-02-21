@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/mcpackms/ruantools2/issues"
   },
-  "homepage": "https://github.com/mcpackms/ruantools2#readme"
+  "homepage": "https://github.com/mcpackms/ruantools2#readme",
+  "devDependencies": {
+    "tailwindcss": "^4.2.0"
+  }
 }

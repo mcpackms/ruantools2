@@ -1,11 +1,113 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+// 页面元数据
+const pageTitle = "RuanTools - 在线工具集合";
+const description = "一个实用的在线工具集合，包含 JSON 格式化、Base64 编解码等常用开发工具。";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// 工具列表数据
+const tools = [
+  {
+    name: "JSON 格式化",
+    description: "格式化、验证和美化 JSON 数据，支持语法高亮和错误提示。",
+    path: "/tools/json-formatter",
+    icon: "🔧"
+  },
+  {
+    name: "Base64/url 编解码",
+    description: "将文本或数据转换为 Base64 格式，或从 Base64 解码回原始内容；也能将URL编码或解码。",
+    path: "/tools/base64-url",
+    icon: "🔐"
+  },
+  // 后续可以继续添加更多工具
+  // { name: "时间戳转换", description: "...", path: "/tools/timestamp", icon: "⏰" },
+];
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{pageTitle}</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f7fafc;
+        color: #2d3748;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+      .header h1 {
+        font-size: 2.5rem;
+        margin: 0 0 0.5rem;
+        color: #1a202c;
+      }
+      .header p {
+        font-size: 1.1rem;
+        color: #718096;
+        margin: 0;
+      }
+      .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+      .tool-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+      .tool-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .tool-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+      .tool-card h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.25rem;
+        color: #2d3748;
+      }
+      .tool-card p {
+        margin: 0;
+        color: #718096;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>RuanTools</h1>
+        <p>简单、实用、高效的在线工具集合</p>
+      </header>
+
+      <main>
+        <div class="tools-grid">
+          {tools.map((tool) => (
+            <a href={tool.path} class="tool-card">
+              <div class="tool-icon">{tool.icon}</div>
+              <h2>{tool.name}</h2>
+              <p>{tool.description}</p>
+            </a>
+          ))}
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
