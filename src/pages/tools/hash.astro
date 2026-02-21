@@ -1,35 +1,7 @@
 ---
 // 页面元数据
 const pageTitle = "哈希计算器 - RuanTools";
-const description = "计算文本和文件的哈希值，从下拉菜单中选择算法";
-
-// 在构建时直接嵌入库代码
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-// 读取本地安装的库文件
-const cryptoJSPath = join(process.cwd(), 'node_modules/crypto-js/crypto-js.js');
-const sha3Path = join(process.cwd(), 'node_modules/js-sha3/build/sha3.js');
-
-// 检查文件是否存在
-let cryptoJSCode = '';
-let sha3Code = '';
-
-try {
-  cryptoJSCode = readFileSync(cryptoJSPath, 'utf-8');
-} catch (error) {
-  console.warn('无法读取 crypto-js 文件:', error);
-  // 使用备用的精简版本
-  cryptoJSCode = `window.CryptoJS = { MD5: () => 'MD5库加载失败', SHA1: () => 'MD5库加载失败', SHA256: () => 'MD5库加载失败', SHA512: () => 'MD5库加载失败' };`;
-}
-
-try {
-  sha3Code = readFileSync(sha3Path, 'utf-8');
-} catch (error) {
-  console.warn('无法读取 js-sha3 文件:', error);
-  // 使用备用的精简版本
-  sha3Code = `window.sha3_256 = () => 'SHA-3库加载失败'; window.sha3_512 = () => 'SHA-3库加载失败';`;
-}
+const description = "使用浏览器原生API计算文本和文件的哈希值";
 ---
 
 <html lang="zh-CN">
@@ -39,16 +11,7 @@ try {
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
     
-    <!-- 构建时直接嵌入库代码 -->
-    <script>
-      {/* 嵌入 crypto-js */}
-      {cryptoJSCode}
-    </script>
-    
-    <script>
-      {/* 嵌入 js-sha3 */}
-      {sha3Code}
-    </script>
+    <!-- 不再需要任何外部库 -->
     
     <style>
       /* 基础样式 */
@@ -500,7 +463,7 @@ try {
       <!-- 头部 -->
       <header class="header">
         <h1>哈希计算器</h1>
-        <p>计算文本和文件的哈希值，从下拉菜单中选择算法</p>
+        <p>使用浏览器原生API计算文本和文件的哈希值</p>
       </header>
 
       <!-- 算法选择 -->
@@ -512,11 +475,9 @@ try {
             <label class="select-label">算法选择：</label>
             <select id="algorithm-select" class="select-field">
               <option value="sha256" selected>SHA-256 (256位)</option>
-              <option value="md5">MD5 (128位)</option>
               <option value="sha1">SHA-1 (160位)</option>
               <option value="sha512">SHA-512 (512位)</option>
-              <option value="sha3-256">SHA-3-256 (256位)</option>
-              <option value="sha3-512">SHA-3-512 (512位)</option>
+              <option value="sha384">SHA-384 (384位)</option>
             </select>
           </div>
           
@@ -600,28 +561,27 @@ try {
         <div style="color: #666; line-height: 1.6; font-size: 0.9rem;">
           <p><strong>支持的哈希算法：</strong></p>
           <ul style="padding-left: 20px; margin-top: 8px;">
-            <li><strong>MD5</strong> - 128位哈希，常用于文件校验</li>
-            <li><strong>SHA-1</strong> - 160位哈希，已不推荐用于安全用途</li>
-            <li><strong>SHA-256</strong> - 256位SHA-2算法，目前广泛使用</li>
+            <li><strong>SHA-256</strong> - 256位SHA-2算法，目前广泛使用（推荐）</li>
+            <li><strong>SHA-1</strong> - 160位哈希算法，已不推荐用于安全用途</li>
             <li><strong>SHA-512</strong> - 512位SHA-2算法，更安全的版本</li>
-            <li><strong>SHA-3-256</strong> - 256位SHA-3算法，新一代标准</li>
-            <li><strong>SHA-3-512</strong> - 512位SHA-3算法</li>
+            <li><strong>SHA-384</strong> - 384位SHA-2算法</li>
           </ul>
           
           <p style="margin-top: 12px;"><strong>技术说明：</strong></p>
           <ul style="padding-left: 20px; margin-top: 8px;">
-            <li>使用 crypto-js 和 js-sha3 库，从本地 npm 包加载</li>
-            <li>完全离线工作，不依赖任何 CDN 或外部网络</li>
+            <li>本工具使用浏览器自带的Web Crypto API，无需加载任何外部库</li>
+            <li>完全离线工作，保证数据安全</li>
             <li>所有计算均在您的浏览器中本地完成</li>
-            <li>文件不会上传到任何服务器，保证数据安全</li>
+            <li>支持所有现代浏览器（Chrome, Firefox, Safari, Edge）</li>
           </ul>
           
           <p style="margin-top: 12px;"><strong>注意事项：</strong></p>
           <ul style="padding-left: 20px; margin-top: 8px;">
+            <li>不支持MD5和SHA-3算法（Web Crypto API不支持）</li>
             <li>每次只能选择一种哈希算法进行计算</li>
             <li>大文件计算可能需要较长时间，请耐心等待</li>
             <li>点击"复制"按钮可以复制哈希值</li>
-            <li>如果库加载失败，请重新构建项目</li>
+            <li>文件不会上传到任何服务器，完全本地处理</li>
           </ul>
         </div>
       </div>
@@ -629,39 +589,33 @@ try {
       <!-- 页脚 -->
       <footer class="footer">
         <p>© 2024 RuanTools · 哈希计算器</p>
-        <p style="margin-top: 5px;">完全离线工作，不依赖任何 CDN，从本地 npm 包加载所有库</p>
+        <p style="margin-top: 5px;">使用原生Web Crypto API，无需外部依赖，完全离线工作</p>
       </footer>
     </div>
 
     <script>
       // 算法信息映射
       const algorithmInfo = {
-        'md5': 'MD5 - 128位哈希算法，常用于文件完整性校验，但已不推荐用于安全用途',
-        'sha1': 'SHA-1 - 160位哈希算法，已发现碰撞攻击，不推荐用于安全用途',
         'sha256': 'SHA-256 - 256位SHA-2算法，目前广泛用于安全应用和区块链技术',
+        'sha1': 'SHA-1 - 160位哈希算法，已发现碰撞攻击，不推荐用于安全用途',
         'sha512': 'SHA-512 - 512位SHA-2算法，提供更高的安全性，适合加密用途',
-        'sha3-256': 'SHA-3-256 - 256位SHA-3算法，新一代哈希标准，安全性更高',
-        'sha3-512': 'SHA-3-512 - 512位SHA-3算法，最高安全级别的哈希算法'
+        'sha384': 'SHA-384 - 384位SHA-2算法，平衡性能与安全性'
       };
 
       // 算法名称映射
       const algorithmNames = {
-        'md5': 'MD5',
         'sha1': 'SHA-1',
         'sha256': 'SHA-256',
-        'sha512': 'SHA-512',
-        'sha3-256': 'SHA-3-256',
-        'sha3-512': 'SHA-3-512'
+        'sha384': 'SHA-384',
+        'sha512': 'SHA-512'
       };
 
       // 算法位数映射
       const algorithmBits = {
-        'md5': '128位',
         'sha1': '160位',
         'sha256': '256位',
-        'sha512': '512位',
-        'sha3-256': '256位',
-        'sha3-512': '512位'
+        'sha384': '384位',
+        'sha512': '512位'
       };
 
       // 当前选择的文件
@@ -690,25 +644,51 @@ try {
         };
       }
 
-      // 检查库是否已加载
-      function areLibrariesLoaded() {
-        if (typeof CryptoJS === 'undefined') {
-          console.error('CryptoJS 未加载');
-          return false;
+      // 检查Web Crypto API是否可用
+      function isWebCryptoAvailable() {
+        return window.crypto && window.crypto.subtle && typeof window.crypto.subtle.digest === 'function';
+      }
+
+      // 使用Web Crypto API计算文本哈希
+      async function calculateTextHash(text, algorithm) {
+        if (!isWebCryptoAvailable()) {
+          throw new Error('您的浏览器不支持Web Crypto API，请使用现代浏览器如Chrome、Firefox、Edge等');
         }
-        if (typeof sha3_256 === 'undefined') {
-          console.error('sha3_256 未加载');
-          return false;
+
+        const encoder = new TextEncoder();
+        const data = encoder.encode(text);
+        
+        // 将算法名称转换为Web Crypto API可识别的格式
+        let cryptoAlgorithm;
+        switch(algorithm) {
+          case 'sha1':
+            cryptoAlgorithm = 'SHA-1';
+            break;
+          case 'sha256':
+            cryptoAlgorithm = 'SHA-256';
+            break;
+          case 'sha384':
+            cryptoAlgorithm = 'SHA-384';
+            break;
+          case 'sha512':
+            cryptoAlgorithm = 'SHA-512';
+            break;
+          default:
+            cryptoAlgorithm = 'SHA-256';
         }
-        if (typeof sha3_512 === 'undefined') {
-          console.error('sha3_512 未加载');
-          return false;
+        
+        try {
+          const hashBuffer = await crypto.subtle.digest(cryptoAlgorithm, data);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        } catch (error) {
+          console.error('计算哈希时出错:', error);
+          throw new Error(`计算${algorithm}哈希失败: ${error.message}`);
         }
-        return true;
       }
 
       // 计算文本哈希
-      async function calculateTextHash() {
+      async function calculateTextHashHandler() {
         const text = document.getElementById('text-input').value.trim();
         if (!text) {
           alert('请输入文本');
@@ -717,40 +697,16 @@ try {
 
         const algorithm = getSelectedAlgorithm();
         
-        // 检查库是否加载完成
-        if (!areLibrariesLoaded()) {
-          alert('哈希计算库加载失败，请刷新页面重试...');
+        // 检查浏览器兼容性
+        if (!isWebCryptoAvailable()) {
+          alert('您的浏览器不支持Web Crypto API，请使用Chrome、Firefox、Edge等现代浏览器');
           return;
         }
 
         showLoading('text');
         
         try {
-          let hash;
-          
-          switch(algorithm.id) {
-            case 'md5':
-              hash = CryptoJS.MD5(text).toString();
-              break;
-            case 'sha1':
-              hash = CryptoJS.SHA1(text).toString();
-              break;
-            case 'sha256':
-              hash = CryptoJS.SHA256(text).toString();
-              break;
-            case 'sha512':
-              hash = CryptoJS.SHA512(text).toString();
-              break;
-            case 'sha3-256':
-              hash = sha3_256(text);
-              break;
-            case 'sha3-512':
-              hash = sha3_512(text);
-              break;
-            default:
-              hash = '不支持该算法';
-          }
-          
+          const hash = await calculateTextHash(text, algorithm.id);
           displayResult(algorithm, hash);
         } catch (error) {
           console.error('计算哈希时出错:', error);
@@ -761,7 +717,7 @@ try {
       }
 
       // 计算文件哈希
-      async function calculateFileHash() {
+      async function calculateFileHashHandler() {
         if (!selectedFile) {
           alert('请选择文件');
           return;
@@ -769,9 +725,9 @@ try {
 
         const algorithm = getSelectedAlgorithm();
         
-        // 检查库是否加载完成
-        if (!areLibrariesLoaded()) {
-          alert('哈希计算库加载失败，请刷新页面重试...');
+        // 检查浏览器兼容性
+        if (!isWebCryptoAvailable()) {
+          alert('您的浏览器不支持Web Crypto API，请使用Chrome、Firefox、Edge等现代浏览器');
           return;
         }
 
@@ -780,37 +736,7 @@ try {
 
         try {
           const file = selectedFile;
-          
-          // 读取文件为 ArrayBuffer
-          const arrayBuffer = await readFileAsArrayBuffer(file);
-          
-          let hash;
-          
-          if (algorithm.id.startsWith('sha3-')) {
-            // SHA-3 需要特殊处理
-            const hexString = arrayBufferToHex(arrayBuffer);
-            hash = algorithm.id === 'sha3-256' ? sha3_256(hexString) : sha3_512(hexString);
-          } else {
-            // 其他算法使用 CryptoJS
-            const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
-            
-            switch(algorithm.id) {
-              case 'md5':
-                hash = CryptoJS.MD5(wordArray).toString();
-                break;
-              case 'sha1':
-                hash = CryptoJS.SHA1(wordArray).toString();
-                break;
-              case 'sha256':
-                hash = CryptoJS.SHA256(wordArray).toString();
-                break;
-              case 'sha512':
-                hash = CryptoJS.SHA512(wordArray).toString();
-                break;
-              default:
-                hash = '不支持该算法';
-            }
-          }
+          const hash = await calculateFileHashWithProgress(file, algorithm.id);
           
           // 显示文件信息
           showFileInfo(file);
@@ -824,6 +750,60 @@ try {
         } finally {
           hideLoading('file');
           hideProgress();
+        }
+      }
+
+      // 计算文件哈希（带进度显示）
+      async function calculateFileHashWithProgress(file, algorithm) {
+        return new Promise((resolve, reject) => {
+          const fileSize = file.size;
+          const chunkSize = 1024 * 1024; // 1MB chunks
+          const chunks = Math.ceil(fileSize / chunkSize);
+          let currentChunk = 0;
+          
+          const reader = new FileReader();
+          const cryptoAlgorithm = getCryptoAlgorithmName(algorithm);
+          
+          // 读取文件并计算哈希
+          reader.onload = async function(e) {
+            const arrayBuffer = e.target.result;
+            
+            try {
+              const hashBuffer = await crypto.subtle.digest(cryptoAlgorithm, arrayBuffer);
+              const hashArray = Array.from(new Uint8Array(hashBuffer));
+              const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+              resolve(hash);
+            } catch (error) {
+              reject(error);
+            }
+          };
+          
+          reader.onerror = reject;
+          
+          // 开始读取文件
+          reader.readAsArrayBuffer(file);
+          
+          // 简单进度模拟
+          const progressInterval = setInterval(() => {
+            if (currentChunk < chunks) {
+              currentChunk++;
+              const progress = Math.min((currentChunk / chunks) * 100, 100);
+              showProgress(progress);
+            } else {
+              clearInterval(progressInterval);
+            }
+          }, 50);
+        });
+      }
+
+      // 获取Web Crypto API算法名称
+      function getCryptoAlgorithmName(algorithm) {
+        switch(algorithm) {
+          case 'sha1': return 'SHA-1';
+          case 'sha256': return 'SHA-256';
+          case 'sha384': return 'SHA-384';
+          case 'sha512': return 'SHA-512';
+          default: return 'SHA-256';
         }
       }
 
@@ -864,21 +844,7 @@ try {
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
-      // 辅助函数
-      function readFileAsArrayBuffer(file) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = e => resolve(e.target.result);
-          reader.onerror = e => reject(new Error('读取文件失败'));
-          reader.readAsArrayBuffer(file);
-        });
-      }
-
-      function arrayBufferToHex(buffer) {
-        const byteArray = new Uint8Array(buffer);
-        return Array.from(byteArray, byte => byte.toString(16).padStart(2, '0')).join('');
-      }
-
+      // 显示文件信息
       function showFileInfo(file) {
         const fileInfo = document.getElementById('file-info');
         fileInfo.style.display = 'block';
@@ -965,13 +931,27 @@ try {
         // 初始化算法选择器
         initAlgorithmSelector();
         
-        // 检查库加载状态
-        console.log('CryptoJS 加载状态:', typeof CryptoJS !== 'undefined' ? '已加载' : '未加载');
-        console.log('sha3_256 加载状态:', typeof sha3_256 !== 'undefined' ? '已加载' : '未加载');
-        console.log('sha3_512 加载状态:', typeof sha3_512 !== 'undefined' ? '已加载' : '未加载');
+        // 检查Web Crypto API可用性
+        if (!isWebCryptoAvailable()) {
+          const warning = document.createElement('div');
+          warning.className = 'card';
+          warning.style.background = '#fff3cd';
+          warning.style.borderColor = '#ffc107';
+          warning.style.color = '#856404';
+          warning.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span>⚠️</span>
+              <div>
+                <strong>警告：</strong>您的浏览器不支持Web Crypto API，哈希计算功能可能无法使用。
+                请使用Chrome、Firefox、Edge等现代浏览器以获得最佳体验。
+              </div>
+            </div>
+          `;
+          document.querySelector('.container').insertBefore(warning, document.querySelector('.card'));
+        }
         
         // 文本计算按钮事件
-        document.getElementById('calculate-text-btn').addEventListener('click', calculateTextHash);
+        document.getElementById('calculate-text-btn').addEventListener('click', calculateTextHashHandler);
         
         // 清空文本按钮事件
         document.getElementById('clear-text-btn').addEventListener('click', function() {
@@ -998,7 +978,7 @@ try {
         });
         
         // 文件计算按钮事件
-        document.getElementById('calculate-file-btn').addEventListener('click', calculateFileHash);
+        document.getElementById('calculate-file-btn').addEventListener('click', calculateFileHashHandler);
         
         // 清除文件按钮事件
         document.getElementById('clear-file-btn').addEventListener('click', function() {
@@ -1011,7 +991,7 @@ try {
         // 文本输入框 Ctrl+Enter 计算
         document.getElementById('text-input').addEventListener('keydown', function(e) {
           if (e.ctrlKey && e.key === 'Enter') {
-            calculateTextHash();
+            calculateTextHashHandler();
           }
         });
       });
