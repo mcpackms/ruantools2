@@ -6,6 +6,7 @@
       <p class="site-description">经作者授权的改版应用集散地</p>
       <p class="site-contact">投稿或建议请联系: <a href="mailto:5haghh49p@mozmail.com">5haghh49p@mozmail.com</a></p>
       <p class="site-notice">请复制网址 https://mcpackms.github.io/ruantools2/tools/ruanDl/ 到浏览器下载</p>
+      <p class="site-notice">sha256在线校验:<a> href="https://mcpackms.github.io/ruantools2/tools/hash/"在线校验</a></p>
     </header>
     
     <!-- 应用列表 -->
