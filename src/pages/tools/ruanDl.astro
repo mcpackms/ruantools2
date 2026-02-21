@@ -19,17 +19,13 @@ import DownloadApp from '../../components/DownloadApp.vue';
     :root {
       --primary-color: #007bff;
       --primary-dark: #0056b3;
-      --secondary-color: #6c757d;
       --background-color: #f8f9fa;
       --card-background: #ffffff;
       --text-primary: #1a1a1a;
       --text-secondary: #666666;
       --border-color: #eaeaea;
       --shadow-color: rgba(0, 0, 0, 0.08);
-      --shadow-hover: rgba(0, 0, 0, 0.12);
-      --success-color: #28a745;
       --border-radius: 12px;
-      --transition-speed: 0.3s;
     }
 
     * {
@@ -44,22 +40,21 @@ import DownloadApp from '../../components/DownloadApp.vue';
       color: var(--text-primary);
       background: var(--background-color);
       min-height: 100vh;
-      /* 移除页面两侧白边 */
-      padding: 0;
     }
 
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      /* 移除容器内边距，通过内部元素控制间距 */
       padding: 0;
     }
 
+    /* 头部样式 - 根据图片调整 */
     .site-header {
       text-align: center;
       margin-bottom: 40px;
-      padding: 40px 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px 20px;
+      /* 根据图片中的紫色渐变背景 */
+      background: linear-gradient(135deg, #8a2be2 0%, #4b0082 100%);
       color: white;
       position: relative;
       overflow: hidden;
@@ -67,118 +62,108 @@ import DownloadApp from '../../components/DownloadApp.vue';
       border-radius: 0;
     }
 
-    .site-header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="white"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="white"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="white"/></svg>');
-      background-size: cover;
-      opacity: 0.1;
-    }
-
     .site-title {
-      font-size: 3rem;
+      font-size: 2.8rem;
       font-weight: 700;
-      margin-bottom: 16px;
-      position: relative;
+      margin-bottom: 12px;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .site-description {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       margin-bottom: 20px;
-      opacity: 0.9;
+      opacity: 0.95;
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
     }
 
     .site-contact {
-      font-size: 1rem;
-      margin-bottom: 12px;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      opacity: 0.9;
     }
 
     .site-contact a {
       color: white;
       text-decoration: none;
       border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-      transition: border-color var(--transition-speed);
+      transition: border-color 0.3s ease;
     }
 
     .site-contact a:hover {
       border-color: white;
     }
 
+    /* 下载提示框样式 - 根据图片调整 */
     .site-notice {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 12px 20px;
-      border-radius: 8px;
-      display: inline-block;
-      margin-top: 16px;
-      font-size: 0.95rem;
-      backdrop-filter: blur(10px);
-    }
-
-    .stats-section {
-      background: var(--card-background);
-      padding: 30px 20px;
-      margin-bottom: 40px;
-      /* 移除阴影和圆角，使其更简洁 */
-      box-shadow: none;
-      border-radius: 0;
-      border-bottom: 1px solid #eee;
-      border-top: 1px solid #eee;
-    }
-
-    .stats-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 30px;
-      color: var(--text-primary);
-      text-align: center;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .stat-item {
-      text-align: center;
-      padding: 20px;
-      background: var(--background-color);
+      background: rgba(255, 255, 255, 0.15);
+      padding: 20px 30px;
       border-radius: 12px;
-      transition: transform 0.3s ease;
+      display: inline-block;
+      margin-top: 20px;
+      font-size: 1.1rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      max-width: 800px;
+      word-break: break-all;
+      line-height: 1.6;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
 
-    .stat-item:hover {
-      transform: translateY(-5px);
+    /* 下载提示中的文字样式 */
+    .notice-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: block;
     }
 
-    .stat-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--primary-color);
-      margin-bottom: 8px;
+    .notice-url {
+      font-size: 1.1rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 12px 0;
+      display: inline-block;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      word-break: break-all;
     }
 
-    .stat-label {
+    .notice-instruction {
       font-size: 1rem;
-      color: var(--text-secondary);
+      opacity: 0.9;
+      margin-top: 10px;
+      display: block;
     }
 
+    .site-notice a {
+      color: #ffcc00;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .site-notice a:hover {
+      text-decoration: underline;
+    }
+
+    /* 应用列表 - 对称的两列布局 */
     .app-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
       margin-bottom: 60px;
       padding: 0 20px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* 确保每个卡片高度一致 */
+    .app-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
 
     .site-footer {
@@ -193,7 +178,7 @@ import DownloadApp from '../../components/DownloadApp.vue';
     .site-footer a {
       color: var(--primary-color);
       text-decoration: none;
-      transition: color var(--transition-speed);
+      transition: color 0.3s ease;
     }
 
     .site-footer a:hover {
@@ -208,6 +193,13 @@ import DownloadApp from '../../components/DownloadApp.vue';
     }
 
     /* 响应式设计 */
+    @media (max-width: 992px) {
+      .app-list {
+        grid-template-columns: 1fr;
+        max-width: 600px;
+      }
+    }
+
     @media (max-width: 768px) {
       .site-title {
         font-size: 2.2rem;
@@ -217,18 +209,23 @@ import DownloadApp from '../../components/DownloadApp.vue';
         font-size: 1.1rem;
       }
       
+      .site-notice {
+        font-size: 1rem;
+        padding: 16px 20px;
+      }
+      
+      .notice-title {
+        font-size: 1.1rem;
+      }
+      
+      .notice-url {
+        font-size: 1rem;
+        padding: 10px 14px;
+      }
+      
       .app-list {
-        grid-template-columns: 1fr;
         padding: 0 16px;
-      }
-      
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-      }
-      
-      .stat-value {
-        font-size: 2rem;
+        gap: 24px;
       }
     }
 
@@ -238,15 +235,16 @@ import DownloadApp from '../../components/DownloadApp.vue';
       }
       
       .site-header {
-        padding: 30px 16px;
+        padding: 40px 16px;
       }
       
-      .stats-grid {
-        grid-template-columns: 1fr;
+      .site-notice {
+        padding: 14px 16px;
       }
       
       .app-list {
         padding: 0 12px;
+        gap: 20px;
       }
     }
 
@@ -278,31 +276,14 @@ import DownloadApp from '../../components/DownloadApp.vue';
     <header class="site-header">
       <h1 class="site-title">RuanTools</h1>
       <p class="site-description">经作者授权的改版应用集散地</p>
-      <p class="site-contact">投稿或建议请联系: <a href="mailto:5haghh49p@mozmail.com">5haghh49p@mozmail.com</a></p>
-      <p class="site-notice">请复制网址 https://ruantools.pages.dev/files/apk/ruansky 到浏览器下载</p>
-    </header>
-
-    <section class="stats-section">
-      <h2 class="stats-title">下载统计</h2>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-value">{apps.length}</div>
-          <div class="stat-label">可用版本</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value">100%</div>
-          <div class="stat-label">授权应用</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value">24/7</div>
-          <div class="stat-label">持续更新</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value">SHA256</div>
-          <div class="stat-label">安全验证</div>
-        </div>
+      <p class="site-contact">投稿或建议请联系: <a href="mailto:318940921@qq.com">318940921@qq.com</a></p>
+      
+      <div class="site-notice">
+        <span class="notice-title">请复制网址</span>
+        <div class="notice-url">https://ruantools.pages.dev/files/apk/ruansky</div>
+        <span class="notice-instruction">到浏览器下载</span>
       </div>
-    </section>
+    </header>
 
     <main class="app-list">
       {apps.map(app => (
@@ -318,13 +299,18 @@ import DownloadApp from '../../components/DownloadApp.vue';
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // 添加下载统计
       document.querySelectorAll('.download-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
           const appName = this.getAttribute('title') || '未知应用';
           console.log(`用户点击下载: ${appName}`);
+          
+          // 这里可以添加实际的统计代码
+          // 例如: fetch('/api/download-stats', { method: 'POST', body: JSON.stringify({ app: appName }) });
         });
       });
       
+      // 添加滚动动画
       const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -339,12 +325,43 @@ import DownloadApp from '../../components/DownloadApp.vue';
         });
       }, observerOptions);
       
+      // 观察所有应用卡片
       document.querySelectorAll('.app-card').forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
         card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(card);
       });
+      
+      // 添加URL点击复制功能
+      const urlElement = document.querySelector('.notice-url');
+      if (urlElement) {
+        urlElement.style.cursor = 'pointer';
+        urlElement.title = '点击复制URL';
+        
+        urlElement.addEventListener('click', async () => {
+          const url = urlElement.textContent.trim();
+          try {
+            await navigator.clipboard.writeText(url);
+            const originalText = urlElement.textContent;
+            urlElement.textContent = '已复制到剪贴板!';
+            urlElement.style.background = 'rgba(76, 175, 80, 0.2)';
+            urlElement.style.borderColor = '#4CAF50';
+            
+            setTimeout(() => {
+              urlElement.textContent = originalText;
+              urlElement.style.background = 'rgba(255, 255, 255, 0.1)';
+              urlElement.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            }, 2000);
+          } catch (err) {
+            console.error('复制失败:', err);
+            urlElement.textContent = '复制失败，请手动复制';
+            setTimeout(() => {
+              urlElement.textContent = url;
+            }, 2000);
+          }
+        });
+      }
     });
   </script>
 </body>
