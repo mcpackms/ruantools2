@@ -2,6 +2,34 @@
 // 页面元数据
 const pageTitle = "哈希计算器 - RuanTools";
 const description = "计算文本和文件的哈希值，从下拉菜单中选择算法";
+
+// 在构建时直接嵌入库代码
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+// 读取本地安装的库文件
+const cryptoJSPath = join(process.cwd(), 'node_modules/crypto-js/crypto-js.js');
+const sha3Path = join(process.cwd(), 'node_modules/js-sha3/build/sha3.js');
+
+// 检查文件是否存在
+let cryptoJSCode = '';
+let sha3Code = '';
+
+try {
+  cryptoJSCode = readFileSync(cryptoJSPath, 'utf-8');
+} catch (error) {
+  console.warn('无法读取 crypto-js 文件:', error);
+  // 使用备用的精简版本
+  cryptoJSCode = `window.CryptoJS = { MD5: () => 'MD5库加载失败', SHA1: () => 'MD5库加载失败', SHA256: () => 'MD5库加载失败', SHA512: () => 'MD5库加载失败' };`;
+}
+
+try {
+  sha3Code = readFileSync(sha3Path, 'utf-8');
+} catch (error) {
+  console.warn('无法读取 js-sha3 文件:', error);
+  // 使用备用的精简版本
+  sha3Code = `window.sha3_256 = () => 'SHA-3库加载失败'; window.sha3_512 = () => 'SHA-3库加载失败';`;
+}
 ---
 
 <html lang="zh-CN">
@@ -11,34 +39,15 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
     
-    <!-- 使用 hash-wasm 库 -->
+    <!-- 构建时直接嵌入库代码 -->
     <script>
-      // 动态加载 hash-wasm
-      let hashWasmLoaded = false;
-      
-      async function loadHashWasm() {
-        if (!hashWasmLoaded) {
-          try {
-            // 加载 hash-wasm
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/hash-wasm@4.11.2/dist/hash-wasm.min.js';
-            script.onload = () => {
-              hashWasmLoaded = true;
-              console.log('hash-wasm 加载成功');
-            };
-            script.onerror = () => {
-              console.error('hash-wasm 加载失败');
-              alert('哈希计算库加载失败，请刷新页面重试');
-            };
-            document.head.appendChild(script);
-          } catch (error) {
-            console.error('加载 hash-wasm 时出错:', error);
-          }
-        }
-      }
-      
-      // 页面加载时立即开始加载库
-      loadHashWasm();
+      {/* 嵌入 crypto-js */}
+      {cryptoJSCode}
+    </script>
+    
+    <script>
+      {/* 嵌入 js-sha3 */}
+      {sha3Code}
     </script>
     
     <style>
@@ -506,7 +515,6 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
               <option value="md5">MD5 (128位)</option>
               <option value="sha1">SHA-1 (160位)</option>
               <option value="sha512">SHA-512 (512位)</option>
-              <option value="sha384">SHA-384 (384位)</option>
               <option value="sha3-256">SHA-3-256 (256位)</option>
               <option value="sha3-512">SHA-3-512 (512位)</option>
             </select>
@@ -592,21 +600,20 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
         <div style="color: #666; line-height: 1.6; font-size: 0.9rem;">
           <p><strong>支持的哈希算法：</strong></p>
           <ul style="padding-left: 20px; margin-top: 8px;">
-            <li><strong>MD5</strong> - 128位哈希算法，常用于文件校验</li>
-            <li><strong>SHA-1</strong> - 160位哈希算法，已不推荐用于安全用途</li>
+            <li><strong>MD5</strong> - 128位哈希，常用于文件校验</li>
+            <li><strong>SHA-1</strong> - 160位哈希，已不推荐用于安全用途</li>
             <li><strong>SHA-256</strong> - 256位SHA-2算法，目前广泛使用</li>
-            <li><strong>SHA-384</strong> - 384位SHA-2算法，平衡性能与安全性</li>
             <li><strong>SHA-512</strong> - 512位SHA-2算法，更安全的版本</li>
             <li><strong>SHA-3-256</strong> - 256位SHA-3算法，新一代标准</li>
-            <li><strong>SHA-3-512</strong> - 512位SHA-3算法，最高安全性</li>
+            <li><strong>SHA-3-512</strong> - 512位SHA-3算法</li>
           </ul>
           
           <p style="margin-top: 12px;"><strong>技术说明：</strong></p>
           <ul style="padding-left: 20px; margin-top: 8px;">
-            <li>使用 hash-wasm 库，基于 WebAssembly，性能极高</li>
-            <li>完全离线工作，保证数据安全</li>
+            <li>使用 crypto-js 和 js-sha3 库，从本地 npm 包加载</li>
+            <li>完全离线工作，不依赖任何 CDN 或外部网络</li>
             <li>所有计算均在您的浏览器中本地完成</li>
-            <li>支持所有现代浏览器（Chrome, Firefox, Safari, Edge）</li>
+            <li>文件不会上传到任何服务器，保证数据安全</li>
           </ul>
           
           <p style="margin-top: 12px;"><strong>注意事项：</strong></p>
@@ -614,7 +621,7 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
             <li>每次只能选择一种哈希算法进行计算</li>
             <li>大文件计算可能需要较长时间，请耐心等待</li>
             <li>点击"复制"按钮可以复制哈希值</li>
-            <li>文件不会上传到任何服务器，完全本地处理</li>
+            <li>如果库加载失败，请重新构建项目</li>
           </ul>
         </div>
       </div>
@@ -622,18 +629,17 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
       <!-- 页脚 -->
       <footer class="footer">
         <p>© 2024 RuanTools · 哈希计算器</p>
-        <p style="margin-top: 5px;">使用 hash-wasm 库，基于 WebAssembly 技术，性能极高</p>
+        <p style="margin-top: 5px;">完全离线工作，不依赖任何 CDN，从本地 npm 包加载所有库</p>
       </footer>
     </div>
 
     <script>
       // 算法信息映射
       const algorithmInfo = {
-        'sha256': 'SHA-256 - 256位SHA-2算法，目前广泛用于安全应用和区块链技术',
         'md5': 'MD5 - 128位哈希算法，常用于文件完整性校验，但已不推荐用于安全用途',
         'sha1': 'SHA-1 - 160位哈希算法，已发现碰撞攻击，不推荐用于安全用途',
+        'sha256': 'SHA-256 - 256位SHA-2算法，目前广泛用于安全应用和区块链技术',
         'sha512': 'SHA-512 - 512位SHA-2算法，提供更高的安全性，适合加密用途',
-        'sha384': 'SHA-384 - 384位SHA-2算法，平衡性能与安全性',
         'sha3-256': 'SHA-3-256 - 256位SHA-3算法，新一代哈希标准，安全性更高',
         'sha3-512': 'SHA-3-512 - 512位SHA-3算法，最高安全级别的哈希算法'
       };
@@ -643,7 +649,6 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
         'md5': 'MD5',
         'sha1': 'SHA-1',
         'sha256': 'SHA-256',
-        'sha384': 'SHA-384',
         'sha512': 'SHA-512',
         'sha3-256': 'SHA-3-256',
         'sha3-512': 'SHA-3-512'
@@ -654,7 +659,6 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
         'md5': '128位',
         'sha1': '160位',
         'sha256': '256位',
-        'sha384': '384位',
         'sha512': '512位',
         'sha3-256': '256位',
         'sha3-512': '512位'
@@ -687,8 +691,20 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
       }
 
       // 检查库是否已加载
-      function isHashWasmLoaded() {
-        return typeof hashwasm !== 'undefined';
+      function areLibrariesLoaded() {
+        if (typeof CryptoJS === 'undefined') {
+          console.error('CryptoJS 未加载');
+          return false;
+        }
+        if (typeof sha3_256 === 'undefined') {
+          console.error('sha3_256 未加载');
+          return false;
+        }
+        if (typeof sha3_512 === 'undefined') {
+          console.error('sha3_512 未加载');
+          return false;
+        }
+        return true;
       }
 
       // 计算文本哈希
@@ -702,8 +718,8 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
         const algorithm = getSelectedAlgorithm();
         
         // 检查库是否加载完成
-        if (!isHashWasmLoaded()) {
-          alert('哈希计算库正在加载中，请稍后再试...');
+        if (!areLibrariesLoaded()) {
+          alert('哈希计算库加载失败，请刷新页面重试...');
           return;
         }
 
@@ -712,28 +728,24 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
         try {
           let hash;
           
-          // 使用 hash-wasm 计算哈希
           switch(algorithm.id) {
             case 'md5':
-              hash = await hashwasm.md5(text);
+              hash = CryptoJS.MD5(text).toString();
               break;
             case 'sha1':
-              hash = await hashwasm.sha1(text);
+              hash = CryptoJS.SHA1(text).toString();
               break;
             case 'sha256':
-              hash = await hashwasm.sha256(text);
-              break;
-            case 'sha384':
-              hash = await hashwasm.sha384(text);
+              hash = CryptoJS.SHA256(text).toString();
               break;
             case 'sha512':
-              hash = await hashwasm.sha512(text);
+              hash = CryptoJS.SHA512(text).toString();
               break;
             case 'sha3-256':
-              hash = await hashwasm.sha3_256(text);
+              hash = sha3_256(text);
               break;
             case 'sha3-512':
-              hash = await hashwasm.sha3_512(text);
+              hash = sha3_512(text);
               break;
             default:
               hash = '不支持该算法';
@@ -758,8 +770,8 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
         const algorithm = getSelectedAlgorithm();
         
         // 检查库是否加载完成
-        if (!isHashWasmLoaded()) {
-          alert('哈希计算库正在加载中，请稍后再试...');
+        if (!areLibrariesLoaded()) {
+          alert('哈希计算库加载失败，请刷新页面重试...');
           return;
         }
 
@@ -769,36 +781,36 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
         try {
           const file = selectedFile;
           
-          // 获取对应的哈希函数
-          let hashFunction;
-          switch(algorithm.id) {
-            case 'md5':
-              hashFunction = hashwasm.md5;
-              break;
-            case 'sha1':
-              hashFunction = hashwasm.sha1;
-              break;
-            case 'sha256':
-              hashFunction = hashwasm.sha256;
-              break;
-            case 'sha384':
-              hashFunction = hashwasm.sha384;
-              break;
-            case 'sha512':
-              hashFunction = hashwasm.sha512;
-              break;
-            case 'sha3-256':
-              hashFunction = hashwasm.sha3_256;
-              break;
-            case 'sha3-512':
-              hashFunction = hashwasm.sha3_512;
-              break;
-            default:
-              throw new Error('不支持的算法');
-          }
+          // 读取文件为 ArrayBuffer
+          const arrayBuffer = await readFileAsArrayBuffer(file);
           
-          // 计算文件哈希
-          const hash = await calculateFileHashWithHashWasm(file, hashFunction, algorithm.id);
+          let hash;
+          
+          if (algorithm.id.startsWith('sha3-')) {
+            // SHA-3 需要特殊处理
+            const hexString = arrayBufferToHex(arrayBuffer);
+            hash = algorithm.id === 'sha3-256' ? sha3_256(hexString) : sha3_512(hexString);
+          } else {
+            // 其他算法使用 CryptoJS
+            const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
+            
+            switch(algorithm.id) {
+              case 'md5':
+                hash = CryptoJS.MD5(wordArray).toString();
+                break;
+              case 'sha1':
+                hash = CryptoJS.SHA1(wordArray).toString();
+                break;
+              case 'sha256':
+                hash = CryptoJS.SHA256(wordArray).toString();
+                break;
+              case 'sha512':
+                hash = CryptoJS.SHA512(wordArray).toString();
+                break;
+              default:
+                hash = '不支持该算法';
+            }
+          }
           
           // 显示文件信息
           showFileInfo(file);
@@ -813,46 +825,6 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
           hideLoading('file');
           hideProgress();
         }
-      }
-
-      // 使用 hash-wasm 计算文件哈希
-      async function calculateFileHashWithHashWasm(file, hashFunction, algorithm) {
-        return new Promise((resolve, reject) => {
-          const fileSize = file.size;
-          const chunkSize = 1024 * 1024; // 1MB chunks
-          const chunks = Math.ceil(fileSize / chunkSize);
-          let currentChunk = 0;
-          
-          const reader = new FileReader();
-          const hashInstance = hashwasm.createHash(algorithm);
-          
-          reader.onload = function(e) {
-            const arrayBuffer = e.target.result;
-            hashInstance.update(new Uint8Array(arrayBuffer));
-            
-            currentChunk++;
-            showProgress((currentChunk / chunks) * 100);
-            
-            if (currentChunk < chunks) {
-              loadNextChunk();
-            } else {
-              // 所有块读取完成
-              const hash = hashInstance.digest('hex');
-              resolve(hash);
-            }
-          };
-          
-          reader.onerror = reject;
-          
-          function loadNextChunk() {
-            const start = currentChunk * chunkSize;
-            const end = Math.min(start + chunkSize, fileSize);
-            const slice = file.slice(start, end);
-            reader.readAsArrayBuffer(slice);
-          }
-          
-          loadNextChunk();
-        });
       }
 
       // 显示单个结果
@@ -892,7 +864,21 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
-      // 显示文件信息
+      // 辅助函数
+      function readFileAsArrayBuffer(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = e => reject(new Error('读取文件失败'));
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      function arrayBufferToHex(buffer) {
+        const byteArray = new Uint8Array(buffer);
+        return Array.from(byteArray, byte => byte.toString(16).padStart(2, '0')).join('');
+      }
+
       function showFileInfo(file) {
         const fileInfo = document.getElementById('file-info');
         fileInfo.style.display = 'block';
@@ -979,6 +965,11 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
         // 初始化算法选择器
         initAlgorithmSelector();
         
+        // 检查库加载状态
+        console.log('CryptoJS 加载状态:', typeof CryptoJS !== 'undefined' ? '已加载' : '未加载');
+        console.log('sha3_256 加载状态:', typeof sha3_256 !== 'undefined' ? '已加载' : '未加载');
+        console.log('sha3_512 加载状态:', typeof sha3_512 !== 'undefined' ? '已加载' : '未加载');
+        
         // 文本计算按钮事件
         document.getElementById('calculate-text-btn').addEventListener('click', calculateTextHash);
         
@@ -1023,19 +1014,6 @@ const description = "计算文本和文件的哈希值，从下拉菜单中选�
             calculateTextHash();
           }
         });
-        
-        // 页面加载时检查库加载状态
-        const checkHashWasm = setInterval(() => {
-          if (isHashWasmLoaded()) {
-            console.log('hash-wasm 已成功加载');
-            clearInterval(checkHashWasm);
-          }
-        }, 500);
-        
-        // 10秒后停止检查
-        setTimeout(() => {
-          clearInterval(checkHashWasm);
-        }, 10000);
       });
     </script>
   </body>

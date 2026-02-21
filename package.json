@@ -6,14 +6,19 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "deploy": "npx gh-pages -d dist"
   },
   "dependencies": {
     "astro": "^5.17.3",
-    "blake2b-wasm": "^2.4.0",
     "crypto-js": "^4.2.0",
-    "hash-wasm": "^4.12.0",
     "js-sha3": "^0.9.3"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "tailwindcss": "^3.4.19",
+    "vite-plugin-wasm": "^3.3.0",
+    "vite-plugin-top-level-await": "^1.4.1"
   },
   "description": "```sh npm create astro@latest -- --template basics ```",
   "main": "index.js",
@@ -27,9 +32,5 @@
   "bugs": {
     "url": "https://github.com/mcpackms/ruantools2/issues"
   },
-  "homepage": "https://github.com/mcpackms/ruantools2#readme",
-  "devDependencies": {
-    "@astrojs/tailwind": "^6.0.2",
-    "tailwindcss": "^3.4.19"
-  }
+  "homepage": "https://mcpackms.github.io/ruantools2"
 }
