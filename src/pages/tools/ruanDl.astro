@@ -3,8 +3,9 @@
 const pageTitle = "软天空改版下载站 | Ruantools";
 const description = "经作者授权的改版应用集散地，提供软天空系列改版应用的下载和验证";
 
-// 从同级目录导入组件
+// 导入Vue组件和应用数据
 import DownloadApp from '../../components/DownloadApp.vue';
+import { apps } from '../../data/apps.js';
 ---
 
 <!DOCTYPE html>
@@ -44,8 +45,8 @@ import DownloadApp from '../../components/DownloadApp.vue';
 </head>
 <body>
     <div class="container">
-        <!-- Vue 组件 -->
-        <DownloadApp client:load />
+        <!-- Vue 组件，传递应用数据 -->
+        <DownloadApp client:load :apps-data="{apps}" />
     </div>
 </body>
 </html>
