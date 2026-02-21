@@ -1,7 +1,8 @@
 ---
 // 页面元数据
 const pageTitle = "哈希计算器 - RuanTools";
-const description = "使用浏览器原生API计算文本和文件的哈希值";
+const description = "在线计算文本和文件的哈希值，支持 SHA-256、SHA-512、MD5 等多种算法";
+import HashCalculator from '../components/HashCalculator.vue';
 ---
 
 <html lang="zh-CN">
@@ -11,10 +12,8 @@ const description = "使用浏览器原生API计算文本和文件的哈希值";
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
     
-    <!-- 不再需要任何外部库 -->
-    
+    <!-- 全局样式 -->
     <style>
-      /* 基础样式 */
       * {
         margin: 0;
         padding: 0;
@@ -25,976 +24,221 @@ const description = "使用浏览器原生API计算文本和文件的哈希值";
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         line-height: 1.6;
         color: #333;
-        background: #f8f9fa;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         min-height: 100vh;
       }
 
-      .container {
-        max-width: 900px;
+      .page-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* 导航栏 */
+      .navbar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 1rem 2rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .nav-content {
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
 
-      /* 头部样式 */
-      .header {
-        margin-bottom: 30px;
-        text-align: center;
-      }
-
-      .header h1 {
-        font-size: 2rem;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: #1a1a1a;
-      }
-
-      .header p {
-        color: #666;
-        font-size: 0.95rem;
-        max-width: 600px;
-        margin: 0 auto;
-      }
-
-      /* 卡片样式 */
-      .card {
-        background: white;
-        border-radius: 10px;
-        padding: 25px;
-        margin-bottom: 20px;
-        border: 1px solid #e0e0e0;
-      }
-
-      .section-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 20px;
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
         color: #2c3e50;
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border-radius: 8px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
       }
 
-      .section-title::before {
-        content: "🔒";
-        font-size: 1.1rem;
-      }
-
-      /* 算法选择器 */
-      .algorithm-selector {
-        margin-bottom: 20px;
-      }
-
-      .select-group {
+      .nav-links {
         display: flex;
-        gap: 10px;
+        gap: 24px;
         align-items: center;
       }
 
-      .select-label {
-        font-size: 0.9rem;
-        color: #555;
+      .nav-link {
+        color: #495057;
+        text-decoration: none;
         font-weight: 500;
-        min-width: 100px;
-      }
-
-      .select-field {
-        flex: 1;
-        padding: 10px 15px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        background: white;
-        cursor: pointer;
-        appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 10px center;
-        background-size: 16px;
-        padding-right: 35px;
-      }
-
-      .select-field:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-      }
-
-      .algorithm-info {
-        font-size: 0.8rem;
-        color: #666;
-        margin-top: 8px;
+        transition: color 0.2s;
         padding: 8px 12px;
+        border-radius: 6px;
+      }
+
+      .nav-link:hover {
+        color: #007bff;
         background: #f8f9fa;
-        border-radius: 4px;
-        border-left: 3px solid #007bff;
       }
 
-      /* 输入区域 */
-      .input-group {
-        margin-bottom: 20px;
+      .nav-link.active {
+        color: #007bff;
+        background: #e7f5ff;
       }
 
-      .input-label {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 0.9rem;
-        color: #555;
-        font-weight: 500;
-      }
-
-      .textarea-field {
-        width: 100%;
-        min-height: 120px;
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        font-size: 0.9rem;
-        resize: vertical;
-        background: #fafafa;
-        transition: border-color 0.2s;
-      }
-
-      .textarea-field:focus {
-        outline: none;
-        border-color: #007bff;
-        background: white;
-      }
-
-      .textarea-field::placeholder {
-        color: #999;
-      }
-
-      /* 文件上传 */
-      .file-upload {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-        padding: 15px;
-        border: 2px dashed #ddd;
-        border-radius: 6px;
-        background: #fafafa;
-      }
-
-      .file-input {
-        display: none;
-      }
-
-      .file-label {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 20px;
-        background: #007bff;
-        color: white;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: background 0.2s;
-      }
-
-      .file-label:hover {
-        background: #0056b3;
-      }
-
-      .file-name {
-        font-size: 0.9rem;
-        color: #666;
+      /* 主内容 */
+      .main-content {
         flex: 1;
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
       }
 
-      /* 按钮组 */
-      .button-group {
+      /* 页脚 */
+      .footer {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-top: auto;
+      }
+
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+        color: #6c757d;
+      }
+
+      .footer-links {
         display: flex;
-        gap: 10px;
+        justify-content: center;
+        gap: 24px;
+        margin-bottom: 1rem;
         flex-wrap: wrap;
-        margin-top: 15px;
       }
 
-      .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 6px;
+      .footer-link {
+        color: #6c757d;
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .footer-link:hover {
+        color: #007bff;
+      }
+
+      .copyright {
         font-size: 0.9rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
+        opacity: 0.8;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 1rem;
+        }
+        
+        .nav-content {
+          flex-direction: column;
+          gap: 1rem;
+        }
+        
+        .nav-links {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+        
+        .main-content {
+          padding: 1rem;
+        }
+      }
+
+      /* 加载状态 */
+      .loading-container {
+        display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 6px;
-      }
-
-      .btn-primary {
-        background: #007bff;
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #0056b3;
-      }
-
-      .btn-outline {
-        background: white;
-        color: #555;
-        border: 1px solid #ddd;
-      }
-
-      .btn-outline:hover {
-        background: #f8f9fa;
-        border-color: #bbb;
-      }
-
-      /* 加载指示器 */
-      .loading {
-        display: none;
-        align-items: center;
-        gap: 10px;
-        margin: 15px 0;
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        color: #666;
+        justify-content: center;
+        min-height: 400px;
+        gap: 20px;
       }
 
       .loading-spinner {
-        width: 20px;
-        height: 20px;
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #007bff;
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #007bff;
         border-radius: 50%;
         animation: spin 1s linear infinite;
+      }
+
+      .loading-text {
+        color: #6c757d;
+        font-size: 1.1rem;
       }
 
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
-
-      /* 结果展示 */
-      .results {
-        margin-top: 25px;
-        display: none;
-      }
-
-      .result-title {
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: #2c3e50;
-      }
-
-      .hash-item {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 15px;
-        border: 1px solid #e0e0e0;
-      }
-
-      .hash-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-
-      .hash-name {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .hash-bits {
-        font-size: 0.75rem;
-        color: #666;
-        background: #e9ecef;
-        padding: 2px 6px;
-        border-radius: 10px;
-      }
-
-      .hash-value {
-        font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        font-size: 0.85rem;
-        color: #333;
-        word-break: break-all;
-        margin-bottom: 10px;
-        line-height: 1.4;
-      }
-
-      .hash-actions {
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      .copy-btn {
-        padding: 6px 12px;
-        font-size: 0.8rem;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .copy-btn:hover {
-        background: #0056b3;
-      }
-
-      .copy-btn.copied {
-        background: #28a745;
-      }
-
-      /* 文件信息 */
-      .file-info {
-        display: none;
-        margin-top: 20px;
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
-      }
-
-      .file-info-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin-bottom: 10px;
-        color: #2c3e50;
-      }
-
-      .file-details {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 10px;
-        font-size: 0.85rem;
-      }
-
-      .file-detail {
-        display: flex;
-        justify-content: space-between;
-        padding: 5px 0;
-        border-bottom: 1px solid #e9ecef;
-      }
-
-      .file-detail:last-child {
-        border-bottom: none;
-      }
-
-      .detail-label {
-        color: #666;
-      }
-
-      .detail-value {
-        font-weight: 500;
-        color: #333;
-      }
-
-      /* 进度条 */
-      .progress {
-        display: none;
-        margin: 15px 0;
-      }
-
-      .progress-bar {
-        width: 100%;
-        height: 6px;
-        background: #e9ecef;
-        border-radius: 3px;
-        overflow: hidden;
-      }
-
-      .progress-fill {
-        height: 100%;
-        background: #007bff;
-        width: 0%;
-        transition: width 0.3s;
-      }
-
-      .progress-text {
-        font-size: 0.8rem;
-        color: #666;
-        margin-top: 5px;
-        text-align: center;
-      }
-
-      /* 页脚 */
-      .footer {
-        text-align: center;
-        margin-top: 40px;
-        padding-top: 20px;
-        border-top: 1px solid #e0e0e0;
-        color: #666;
-        font-size: 0.9rem;
-      }
-
-      /* 响应式设计 */
-      @media (max-width: 768px) {
-        .container {
-          padding: 15px;
-        }
-
-        .select-group {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 8px;
-        }
-
-        .select-label {
-          min-width: auto;
-        }
-
-        .button-group {
-          flex-direction: column;
-        }
-
-        .btn {
-          width: 100%;
-          justify-content: center;
-        }
-      }
     </style>
   </head>
   <body>
-    <div class="container">
-      <!-- 头部 -->
-      <header class="header">
-        <h1>哈希计算器</h1>
-        <p>使用浏览器原生API计算文本和文件的哈希值</p>
-      </header>
-
-      <!-- 算法选择 -->
-      <div class="card">
-        <h2 class="section-title">选择哈希算法</h2>
-        
-        <div class="algorithm-selector">
-          <div class="select-group">
-            <label class="select-label">算法选择：</label>
-            <select id="algorithm-select" class="select-field">
-              <option value="sha256" selected>SHA-256 (256位)</option>
-              <option value="sha1">SHA-1 (160位)</option>
-              <option value="sha512">SHA-512 (512位)</option>
-              <option value="sha384">SHA-384 (384位)</option>
-            </select>
-          </div>
+    <div class="page-container">
+      <!-- 导航栏 -->
+      <nav class="navbar">
+        <div class="nav-content">
+          <a href="/" class="logo">
+            <div class="logo-icon">R</div>
+            <span>RuanTools</span>
+          </a>
           
-          <div class="algorithm-info" id="algorithm-info">
-            <strong>SHA-256</strong> - 256位SHA-2算法，目前广泛用于安全应用和区块链技术
+          <div class="nav-links">
+            <a href="/" class="nav-link">首页</a>
+            <a href="/tools" class="nav-link">工具集</a>
+            <a href="/hash-calculator" class="nav-link active">哈希计算器</a>
+            <a href="/regex" class="nav-link">正则测试</a>
+            <a href="/about" class="nav-link">关于</a>
           </div>
         </div>
-      </div>
+      </nav>
 
-      <!-- 文本哈希计算 -->
-      <div class="card">
-        <h2 class="section-title">文本哈希计算</h2>
-        
-        <div class="input-group">
-          <label for="text-input" class="input-label">输入文本</label>
-          <textarea 
-            id="text-input" 
-            class="textarea-field" 
-            placeholder="在此输入要计算哈希的文本..."
-            rows="6"
-          ></textarea>
-        </div>
-
-        <div class="button-group">
-          <button id="calculate-text-btn" class="btn btn-primary">计算文本哈希</button>
-          <button id="clear-text-btn" class="btn btn-outline">清空文本</button>
-          <button id="example-text-btn" class="btn btn-outline">使用示例</button>
-        </div>
-
-        <div id="text-loading" class="loading">
-          <div class="loading-spinner"></div>
-          <span>正在计算哈希值...</span>
-        </div>
-      </div>
-
-      <!-- 文件哈希计算 -->
-      <div class="card">
-        <h2 class="section-title">文件哈希计算</h2>
-        
-        <div class="file-upload">
-          <input type="file" id="file-input" class="file-input" />
-          <label for="file-input" class="file-label">
-            <span>📁 选择文件</span>
-          </label>
-          <div id="file-name" class="file-name">未选择文件</div>
-        </div>
-
-        <div class="progress" id="file-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill"></div>
-          </div>
-          <div class="progress-text" id="progress-text">0%</div>
-        </div>
-
-        <div class="button-group">
-          <button id="calculate-file-btn" class="btn btn-primary" disabled>计算文件哈希</button>
-          <button id="clear-file-btn" class="btn btn-outline">清除文件</button>
-        </div>
-
-        <div id="file-loading" class="loading">
-          <div class="loading-spinner"></div>
-          <span>正在计算文件哈希...</span>
-        </div>
-
-        <div id="file-info" class="file-info">
-          <!-- 文件信息将在这里动态显示 -->
-        </div>
-      </div>
-
-      <!-- 结果显示 -->
-      <div id="results-section" class="card" style="display: none;">
-        <h3 class="result-title">哈希计算结果</h3>
-        <div id="hash-results">
-          <!-- 哈希结果将在这里动态显示 -->
-        </div>
-      </div>
-
-      <!-- 使用说明 -->
-      <div class="card">
-        <h2 class="section-title">使用说明</h2>
-        <div style="color: #666; line-height: 1.6; font-size: 0.9rem;">
-          <p><strong>支持的哈希算法：</strong></p>
-          <ul style="padding-left: 20px; margin-top: 8px;">
-            <li><strong>SHA-256</strong> - 256位SHA-2算法，目前广泛使用（推荐）</li>
-            <li><strong>SHA-1</strong> - 160位哈希算法，已不推荐用于安全用途</li>
-            <li><strong>SHA-512</strong> - 512位SHA-2算法，更安全的版本</li>
-            <li><strong>SHA-384</strong> - 384位SHA-2算法</li>
-          </ul>
-          
-          <p style="margin-top: 12px;"><strong>技术说明：</strong></p>
-          <ul style="padding-left: 20px; margin-top: 8px;">
-            <li>本工具使用浏览器自带的Web Crypto API，无需加载任何外部库</li>
-            <li>完全离线工作，保证数据安全</li>
-            <li>所有计算均在您的浏览器中本地完成</li>
-            <li>支持所有现代浏览器（Chrome, Firefox, Safari, Edge）</li>
-          </ul>
-          
-          <p style="margin-top: 12px;"><strong>注意事项：</strong></p>
-          <ul style="padding-left: 20px; margin-top: 8px;">
-            <li>不支持MD5和SHA-3算法（Web Crypto API不支持）</li>
-            <li>每次只能选择一种哈希算法进行计算</li>
-            <li>大文件计算可能需要较长时间，请耐心等待</li>
-            <li>点击"复制"按钮可以复制哈希值</li>
-            <li>文件不会上传到任何服务器，完全本地处理</li>
-          </ul>
-        </div>
-      </div>
+      <!-- 主内容 -->
+      <main class="main-content">
+        <!-- Vue 组件 -->
+        <HashCalculator client:load />
+      </main>
 
       <!-- 页脚 -->
       <footer class="footer">
-        <p>© 2024 RuanTools · 哈希计算器</p>
-        <p style="margin-top: 5px;">使用原生Web Crypto API，无需外部依赖，完全离线工作</p>
+        <div class="footer-content">
+          <div class="footer-links">
+            <a href="/privacy" class="footer-link">隐私政策</a>
+            <a href="/terms" class="footer-link">服务条款</a>
+            <a href="/contact" class="footer-link">联系我们</a>
+            <a href="/github" class="footer-link">GitHub</a>
+          </div>
+          <p class="copyright">
+            © 2024 RuanTools · 哈希计算器 · 所有计算均在浏览器本地完成，确保数据安全
+          </p>
+        </div>
       </footer>
     </div>
-
-    <script>
-      // 算法信息映射
-      const algorithmInfo = {
-        'sha256': 'SHA-256 - 256位SHA-2算法，目前广泛用于安全应用和区块链技术',
-        'sha1': 'SHA-1 - 160位哈希算法，已发现碰撞攻击，不推荐用于安全用途',
-        'sha512': 'SHA-512 - 512位SHA-2算法，提供更高的安全性，适合加密用途',
-        'sha384': 'SHA-384 - 384位SHA-2算法，平衡性能与安全性'
-      };
-
-      // 算法名称映射
-      const algorithmNames = {
-        'sha1': 'SHA-1',
-        'sha256': 'SHA-256',
-        'sha384': 'SHA-384',
-        'sha512': 'SHA-512'
-      };
-
-      // 算法位数映射
-      const algorithmBits = {
-        'sha1': '160位',
-        'sha256': '256位',
-        'sha384': '384位',
-        'sha512': '512位'
-      };
-
-      // 当前选择的文件
-      let selectedFile = null;
-
-      // 初始化下拉菜单
-      function initAlgorithmSelector() {
-        const select = document.getElementById('algorithm-select');
-        const info = document.getElementById('algorithm-info');
-        
-        // 监听选择变化
-        select.addEventListener('change', function() {
-          const selected = this.value;
-          info.innerHTML = `<strong>${algorithmNames[selected] || selected}</strong> - ${algorithmInfo[selected] || ''}`;
-        });
-      }
-
-      // 获取当前选中的算法
-      function getSelectedAlgorithm() {
-        const select = document.getElementById('algorithm-select');
-        const algoId = select.value;
-        return {
-          id: algoId,
-          name: algorithmNames[algoId] || algoId,
-          bits: algorithmBits[algoId] || ''
-        };
-      }
-
-      // 检查Web Crypto API是否可用
-      function isWebCryptoAvailable() {
-        return window.crypto && window.crypto.subtle && typeof window.crypto.subtle.digest === 'function';
-      }
-
-      // 使用Web Crypto API计算文本哈希
-      async function calculateTextHash(text, algorithm) {
-        if (!isWebCryptoAvailable()) {
-          throw new Error('您的浏览器不支持Web Crypto API，请使用现代浏览器如Chrome、Firefox、Edge等');
-        }
-
-        const encoder = new TextEncoder();
-        const data = encoder.encode(text);
-        
-        // 将算法名称转换为Web Crypto API可识别的格式
-        let cryptoAlgorithm;
-        switch(algorithm) {
-          case 'sha1':
-            cryptoAlgorithm = 'SHA-1';
-            break;
-          case 'sha256':
-            cryptoAlgorithm = 'SHA-256';
-            break;
-          case 'sha384':
-            cryptoAlgorithm = 'SHA-384';
-            break;
-          case 'sha512':
-            cryptoAlgorithm = 'SHA-512';
-            break;
-          default:
-            cryptoAlgorithm = 'SHA-256';
-        }
-        
-        try {
-          const hashBuffer = await crypto.subtle.digest(cryptoAlgorithm, data);
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        } catch (error) {
-          console.error('计算哈希时出错:', error);
-          throw new Error(`计算${algorithm}哈希失败: ${error.message}`);
-        }
-      }
-
-      // 计算文本哈希
-      async function calculateTextHashHandler() {
-        const text = document.getElementById('text-input').value.trim();
-        if (!text) {
-          alert('请输入文本');
-          return;
-        }
-
-        const algorithm = getSelectedAlgorithm();
-        
-        // 检查浏览器兼容性
-        if (!isWebCryptoAvailable()) {
-          alert('您的浏览器不支持Web Crypto API，请使用Chrome、Firefox、Edge等现代浏览器');
-          return;
-        }
-
-        showLoading('text');
-        
-        try {
-          const hash = await calculateTextHash(text, algorithm.id);
-          displayResult(algorithm, hash);
-        } catch (error) {
-          console.error('计算哈希时出错:', error);
-          alert('计算哈希时出错: ' + error.message);
-        } finally {
-          hideLoading('text');
-        }
-      }
-
-      // 计算文件哈希
-      async function calculateFileHashHandler() {
-        if (!selectedFile) {
-          alert('请选择文件');
-          return;
-        }
-
-        const algorithm = getSelectedAlgorithm();
-        
-        // 检查浏览器兼容性
-        if (!isWebCryptoAvailable()) {
-          alert('您的浏览器不支持Web Crypto API，请使用Chrome、Firefox、Edge等现代浏览器');
-          return;
-        }
-
-        showLoading('file');
-        showProgress(0);
-
-        try {
-          const file = selectedFile;
-          const hash = await calculateFileHashWithProgress(file, algorithm.id);
-          
-          // 显示文件信息
-          showFileInfo(file);
-          
-          // 显示结果
-          displayResult(algorithm, hash);
-          
-        } catch (error) {
-          console.error('处理文件时出错:', error);
-          alert('处理文件时出错: ' + error.message);
-        } finally {
-          hideLoading('file');
-          hideProgress();
-        }
-      }
-
-      // 计算文件哈希（带进度显示）
-      async function calculateFileHashWithProgress(file, algorithm) {
-        return new Promise((resolve, reject) => {
-          const fileSize = file.size;
-          const chunkSize = 1024 * 1024; // 1MB chunks
-          const chunks = Math.ceil(fileSize / chunkSize);
-          let currentChunk = 0;
-          
-          const reader = new FileReader();
-          const cryptoAlgorithm = getCryptoAlgorithmName(algorithm);
-          
-          // 读取文件并计算哈希
-          reader.onload = async function(e) {
-            const arrayBuffer = e.target.result;
-            
-            try {
-              const hashBuffer = await crypto.subtle.digest(cryptoAlgorithm, arrayBuffer);
-              const hashArray = Array.from(new Uint8Array(hashBuffer));
-              const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-              resolve(hash);
-            } catch (error) {
-              reject(error);
-            }
-          };
-          
-          reader.onerror = reject;
-          
-          // 开始读取文件
-          reader.readAsArrayBuffer(file);
-          
-          // 简单进度模拟
-          const progressInterval = setInterval(() => {
-            if (currentChunk < chunks) {
-              currentChunk++;
-              const progress = Math.min((currentChunk / chunks) * 100, 100);
-              showProgress(progress);
-            } else {
-              clearInterval(progressInterval);
-            }
-          }, 50);
-        });
-      }
-
-      // 获取Web Crypto API算法名称
-      function getCryptoAlgorithmName(algorithm) {
-        switch(algorithm) {
-          case 'sha1': return 'SHA-1';
-          case 'sha256': return 'SHA-256';
-          case 'sha384': return 'SHA-384';
-          case 'sha512': return 'SHA-512';
-          default: return 'SHA-256';
-        }
-      }
-
-      // 显示单个结果
-      function displayResult(algorithm, hash) {
-        const resultsSection = document.getElementById('results-section');
-        const hashResults = document.getElementById('hash-results');
-        
-        resultsSection.style.display = 'block';
-        hashResults.innerHTML = '';
-        
-        const hashItem = document.createElement('div');
-        hashItem.className = 'hash-item';
-        hashItem.innerHTML = `
-          <div class="hash-header">
-            <div class="hash-name">
-              <span>${algorithm.name}</span>
-              <span class="hash-bits">${algorithm.bits}</span>
-            </div>
-            <span style="font-size: 0.8rem; color: #666;">${hash.length} 字符</span>
-          </div>
-          <div class="hash-value">${hash}</div>
-          <div class="hash-actions">
-            <button class="copy-btn" data-hash="${hash}">复制哈希值</button>
-          </div>
-        `;
-        
-        hashResults.appendChild(hashItem);
-        
-        // 为复制按钮添加事件监听器
-        const copyBtn = hashItem.querySelector('.copy-btn');
-        copyBtn.addEventListener('click', function() {
-          const hash = this.getAttribute('data-hash');
-          copyToClipboard(hash, this);
-        });
-        
-        // 滚动到结果区域
-        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-
-      // 显示文件信息
-      function showFileInfo(file) {
-        const fileInfo = document.getElementById('file-info');
-        fileInfo.style.display = 'block';
-        fileInfo.innerHTML = `
-          <div class="file-info-title">文件信息</div>
-          <div class="file-details">
-            <div class="file-detail">
-              <span class="detail-label">文件名:</span>
-              <span class="detail-value">${file.name}</span>
-            </div>
-            <div class="file-detail">
-              <span class="detail-label">文件大小:</span>
-              <span class="detail-value">${formatFileSize(file.size)}</span>
-            </div>
-            <div class="file-detail">
-              <span class="detail-label">修改时间:</span>
-              <span class="detail-value">${new Date(file.lastModified).toLocaleString()}</span>
-            </div>
-            <div class="file-detail">
-              <span class="detail-label">文件类型:</span>
-              <span class="detail-value">${file.type || '未知'}</span>
-            </div>
-          </div>
-        `;
-      }
-
-      function formatFileSize(bytes) {
-        if (bytes === 0) return '0 B';
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-      }
-
-      function showLoading(type) {
-        document.getElementById(`${type}-loading`).style.display = 'flex';
-      }
-
-      function hideLoading(type) {
-        document.getElementById(`${type}-loading`).style.display = 'none';
-      }
-
-      function showProgress(percent) {
-        const progress = document.getElementById('file-progress');
-        const fill = document.getElementById('progress-fill');
-        const text = document.getElementById('progress-text');
-        
-        progress.style.display = 'block';
-        fill.style.width = `${percent}%`;
-        text.textContent = `${Math.round(percent)}%`;
-      }
-
-      function hideProgress() {
-        document.getElementById('file-progress').style.display = 'none';
-      }
-
-      async function copyToClipboard(text, button) {
-        try {
-          await navigator.clipboard.writeText(text);
-          button.textContent = '已复制';
-          button.classList.add('copied');
-          setTimeout(() => {
-            button.textContent = '复制哈希值';
-            button.classList.remove('copied');
-          }, 2000);
-        } catch (err) {
-          const textArea = document.createElement('textarea');
-          textArea.value = text;
-          document.body.appendChild(textArea);
-          textArea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textArea);
-          button.textContent = '已复制';
-          button.classList.add('copied');
-          setTimeout(() => {
-            button.textContent = '复制哈希值';
-            button.classList.remove('copied');
-          }, 2000);
-        }
-      }
-
-      // 初始化页面
-      document.addEventListener('DOMContentLoaded', function() {
-        // 初始化算法选择器
-        initAlgorithmSelector();
-        
-        // 检查Web Crypto API可用性
-        if (!isWebCryptoAvailable()) {
-          const warning = document.createElement('div');
-          warning.className = 'card';
-          warning.style.background = '#fff3cd';
-          warning.style.borderColor = '#ffc107';
-          warning.style.color = '#856404';
-          warning.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span>⚠️</span>
-              <div>
-                <strong>警告：</strong>您的浏览器不支持Web Crypto API，哈希计算功能可能无法使用。
-                请使用Chrome、Firefox、Edge等现代浏览器以获得最佳体验。
-              </div>
-            </div>
-          `;
-          document.querySelector('.container').insertBefore(warning, document.querySelector('.card'));
-        }
-        
-        // 文本计算按钮事件
-        document.getElementById('calculate-text-btn').addEventListener('click', calculateTextHashHandler);
-        
-        // 清空文本按钮事件
-        document.getElementById('clear-text-btn').addEventListener('click', function() {
-          document.getElementById('text-input').value = '';
-        });
-        
-        // 示例文本按钮事件
-        document.getElementById('example-text-btn').addEventListener('click', function() {
-          document.getElementById('text-input').value = 'Hello, World! 这是一个测试文本，用于计算哈希值。';
-        });
-        
-        // 文件选择事件
-        document.getElementById('file-input').addEventListener('change', function(e) {
-          const file = e.target.files[0];
-          if (file) {
-            selectedFile = file;
-            document.getElementById('file-name').textContent = `${file.name} (${formatFileSize(file.size)})`;
-            document.getElementById('calculate-file-btn').disabled = false;
-          } else {
-            selectedFile = null;
-            document.getElementById('file-name').textContent = '未选择文件';
-            document.getElementById('calculate-file-btn').disabled = true;
-          }
-        });
-        
-        // 文件计算按钮事件
-        document.getElementById('calculate-file-btn').addEventListener('click', calculateFileHashHandler);
-        
-        // 清除文件按钮事件
-        document.getElementById('clear-file-btn').addEventListener('click', function() {
-          document.getElementById('file-input').value = '';
-          selectedFile = null;
-          document.getElementById('file-name').textContent = '未选择文件';
-          document.getElementById('calculate-file-btn').disabled = true;
-        });
-        
-        // 文本输入框 Ctrl+Enter 计算
-        document.getElementById('text-input').addEventListener('keydown', function(e) {
-          if (e.ctrlKey && e.key === 'Enter') {
-            calculateTextHashHandler();
-          }
-        });
-      });
-    </script>
   </body>
 </html>
