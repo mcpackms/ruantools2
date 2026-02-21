@@ -9,7 +9,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.17.3"
+    "astro": "^5.17.3",
+    "blake2b-wasm": "^2.4.0",
+    "crypto-js": "^4.2.0",
+    "js-sha3": "^0.9.3"
   },
   "description": "```sh npm create astro@latest -- --template basics ```",
   "main": "index.js",
