@@ -1,52 +1,131 @@
 ---
+// src/pages/tools/ruanDl.astro
 // 页面元数据
 const pageTitle = "软天空改版下载站 | Ruantools";
 const description = "经作者授权的改版应用集散地，提供软天空系列改版应用的下载和验证";
 
 // 导入Vue组件和应用数据
-import DownloadApp from '../../components/DownloadApp.vue';
-import { apps } from '../../data/apps.js';
+import DownloadApp from '../../../components/DownloadApp.vue';
+import { apps } from '../../../data/apps.js';
 ---
 
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <!-- SPDX-FileCopyrightText: 2026 联电远连 <work_rrvv@hotmi@hotmail.com> -->
-    <!-- SPDX-License-Identifier: Apache-2.0 -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{pageTitle}</title>
+  <!-- SPDX-FileCopyrightText: 2026 联电远连 <work_rrvv@hotmi@hotmail.com> -->
+  <!-- SPDX-License-Identifier: Apache-2.0 -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content={description}>
+  <title>{pageTitle}</title>
+  
+  <!-- 引入 Font Awesome 6.0.0 (与原始页面一致) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <!-- 全局样式 -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     
-    <!-- 引入 Font Awesome 6.0.0 (与原始页面一致) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+      min-height: 100vh;
+      padding: 20px;
+    }
     
-    <!-- 全局样式 -->
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #f5f5f5;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-    </style>
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    /* 添加一些全局动画效果 */
+    .download-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+    }
+    
+    /* 添加加载动画 */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .app-card {
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    /* 为每个卡片添加延迟动画 */
+    .app-card:nth-child(1) { animation-delay: 0.1s; }
+    .app-card:nth-child(2) { animation-delay: 0.2s; }
+    .app-card:nth-child(3) { animation-delay: 0.3s; }
+    .app-card:nth-child(4) { animation-delay: 0.4s; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Vue 组件，传递应用数据 -->
-        <DownloadApp client:load :apps-data="{apps}" />
-    </div>
+  <div class="container">
+    <!-- Vue 组件，传递应用数据 -->
+    <DownloadApp client:load :apps-data={apps} />
+  </div>
+  
+  <!-- 添加一些交互脚本 -->
+  <script>
+    // 添加复制哈希值功能
+    document.addEventListener('DOMContentLoaded', function() {
+      // 为每个哈希值添加点击复制功能
+      const hashCodes = document.querySelectorAll('.file-hash code');
+      
+      hashCodes.forEach(code => {
+        code.style.cursor = 'pointer';
+        code.title = '点击复制哈希值';
+        
+        code.addEventListener('click', function() {
+          const hash = this.textContent;
+          navigator.clipboard.writeText(hash).then(() => {
+            const originalText = this.textContent;
+            this.textContent = '已复制!';
+            this.style.color = '#28a745';
+            
+            setTimeout(() => {
+              this.textContent = originalText;
+              this.style.color = '#e83e8c';
+            }, 2000);
+          });
+        });
+      });
+      
+      // 添加下载统计
+      const downloadButtons = document.querySelectorAll('.download-btn');
+      
+      downloadButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          const appName = this.getAttribute('title') || '未知应用';
+          console.log(`用户下载了: ${appName}`);
+          
+          // 这里可以添加实际的统计代码
+          // 例如: sendAnalytics('download', { app: appName });
+        });
+      });
+    });
+  </script>
 </body>
 </html>

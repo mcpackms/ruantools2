@@ -1,3 +1,4 @@
+<!-- src/components/DownloadApp.vue -->
 <template>
   <div class="download-app">
     <!-- 网站头部 - 完全按照图片样式 -->
@@ -7,76 +8,68 @@
       <p class="site-contact">投稿或建议请联系: <a href="mailto:5haghh49p@mozmail.com">5haghh49p@mozmail.com</a></p>
       <p class="site-notice">请复制网址 https://mcpackms.github.io/ruantools2/tools/ruanDl/ 到浏览器下载</p>
     </header>
-    
+
     <!-- 应用列表 -->
     <main class="app-list">
-      <!-- 应用卡片 1 -->
-      <article class="app-card">
+      <!-- 动态渲染应用卡片 -->
+      <article 
+        v-for="app in appsData" 
+        :key="app.id" 
+        class="app-card"
+      >
         <div class="app-header">
-          <h2 class="app-name">软天空 NEXT</h2>
-          <span class="app-version">v1.01</span>
+          <h2 class="app-name">{{ app.name }}</h2>
+          <span class="app-version">{{ app.version }}</span>
         </div>
-        <p class="app-author">作者: 一支电笔 / sl_ly</p>
-        <p class="app-desc">主打精简，包体积小，使用流畅，功能较少，超稳定 <s>本站作者的改版</s></p>
+        
+        <p class="app-author">作者: {{ app.author }}</p>
+        
+        <p 
+          class="app-desc" 
+          v-html="app.description"
+        ></p>
+        
         <div class="app-download">
-          <a class="download-btn" href="https://ruantools.pages.dev/files/apk/ruansky/sl_ly/RUANSKY_NEXT_E_1.01.apk" title="下载 软天空 NEXT v1.01">
-            <i class="fas fa-download"></i> 下载 APK 
+          <a 
+            class="download-btn" 
+            :href="app.downloadUrl" 
+            :title="`下载 ${app.name} ${app.version}`"
+            :download="`${app.name}_${app.version}.apk`"
+          >
+            <i class="fas fa-download"></i> {{ app.downloadText }}
           </a>
+          
           <p class="file-hash">
             <strong>SHA256:</strong>
-            <code>f0956ea4890fadb038e26438644d883bfe9e5dd2ebc5c2ac88789f003b1275de</code>
-          </p>
-        </div>
-      </article>
-      
-      <!-- 应用卡片 2 -->
-      <article class="app-card">
-        <div class="app-header">
-          <h2 class="app-name">满级软天空</h2>
-          <span class="app-version">v20.0</span>
-        </div>
-        <p class="app-author">作者: 莎士比亚</p>
-        <p class="app-desc">拥有多特色功能，如家族自动审核回复和动态修改昵称等等集合所有改版的趣味功能，开挂一般的存在，界面简洁好看</p>
-        <div class="app-download">
-          <a class="download-btn" href="https://ruantools.pages.dev/files/apk/ruansky/ssby/MaxRuan20.0.apk" title="下载 满级软天空 v20.0">
-            <i class="fas fa-download"></i> 下载 APK 
-          </a>
-          <p class="file-hash">
-            <strong>SHA256:</strong>
-            <code>864dc0222f12029f034ad71ab40b5e204e8ecc1746f807e825ad830030e6309b</code>
-          </p>
-        </div>
-      </article>
-      
-      <!-- 应用卡片 3 -->
-      <article class="app-card">
-        <div class="app-header">
-          <h2 class="app-name">软天空（解锁版）</h2>
-          <span class="app-version">2.1</span>
-        </div>
-        <p class="app-author">作者: k点</p>
-        <p class="app-desc">极其精简，界面好看(真的好看!)，适合使用社区功能的用户使用</p>
-        <div class="app-download">
-          <a class="download-btn" href="https://ruantools.pages.dev/files/apk/ruansky/k_dian/kDianUnlock.apk" title="下载 k点解锁版 v2.1">
-            <i class="fas fa-download"></i> 下载 APK 
-          </a>
-          <p class="file-hash">
-            <strong>SHA256:</strong>
-            <code>7c605fee22b75691566bc1f7fd294c0248b00b653622509300221a368b5becf9</code>
+            <code>{{ app.sha256 }}</code>
           </p>
         </div>
       </article>
     </main>
-    
+
     <!-- 页脚 -->
     <footer class="site-footer">
-      <p>© 2023-2025 sl_ly. Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache 2.0</a>.</p>
+      <p>© 2023-2025 sl_ly. Licensed under 
+        <a 
+          href="https://www.apache.org/licenses/LICENSE-2.0" 
+          target="_blank" 
+          rel="noopener noreferrer"
+        >
+          Apache 2.0
+        </a>.
+      </p>
     </footer>
   </div>
 </template>
 
 <script setup>
-// 组件逻辑保持不变
+// 定义 props
+const props = defineProps({
+  appsData: {
+    type: Array,
+    default: () => []
+  }
+});
 </script>
 
 <style scoped>
