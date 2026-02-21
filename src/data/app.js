@@ -31,7 +31,7 @@ export const apps = [
     downloadText: '下载 APK'
   },
   {
-    id: 1,
+    id: 4,
     name: 'qweerr软天空',
     version: 'v2.3',
     author: 'qweerr',
