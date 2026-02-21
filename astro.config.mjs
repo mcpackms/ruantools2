@@ -16,5 +16,11 @@ export default defineConfig({
     format: 'directory'
   },
   
-  // 可选：配置Tailwind CSS内容扫描
+  // 移除复杂的Vite插件配置，简化构建
+  vite: {
+    // 确保库能正确导入
+    ssr: {
+      noExternal: ['crypto-js', 'js-sha3']
+    }
+  }
 });

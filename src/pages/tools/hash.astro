@@ -2,14 +2,6 @@
 // 页面元数据
 const pageTitle = "哈希计算器 - RuanTools";
 const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、SHA-3 等多种哈希值。";
-
-// 正确导入 npm 模块
-import * as CryptoJS from 'crypto-js';
-// 使用默认导入而不是命名导入
-import jsSha3 from 'js-sha3';
-
-// 从默认导入中提取需要的函数
-const { sha3_256, sha3_512 } = jsSha3;
 ---
 
 <html lang="zh-CN">
@@ -19,19 +11,9 @@ const { sha3_256, sha3_512 } = jsSha3;
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
     
-    <!-- 客户端脚本 - 直接定义全局函数 -->
-    <script>
-      // 定义全局哈希计算函数
-      window.CryptoJS = {
-        MD5: (text) => CryptoJS.MD5(text).toString(),
-        SHA1: (text) => CryptoJS.SHA1(text).toString(),
-        SHA256: (text) => CryptoJS.SHA256(text).toString(),
-        SHA512: (text) => CryptoJS.SHA512(text).toString()
-      };
-      
-      window.sha3_256 = (text) => sha3_256(text);
-      window.sha3_512 = (text) => sha3_512(text);
-    </script>
+    <!-- 使用可靠的 CDN 链接，避免构建问题 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha3/0.8.0/sha3.min.js"></script>
     
     <style>
       /* 基础样式 */
@@ -279,7 +261,7 @@ const { sha3_256, sha3_512 } = jsSha3;
       }
 
       .loading-spinner {
-        width: 20px;  /* 修复：原来是 0px */
+        width: 20px; /* 修复：改为20px */
         height: 20px;
         border: 3px solid #f3f3f3;
         border-top: 3px solid #007bff;
@@ -656,9 +638,14 @@ const { sha3_256, sha3_512 } = jsSha3;
 
         const algorithm = getSelectedAlgorithm();
         
-        // 检查库是否可用
-        if (typeof window.CryptoJS === 'undefined' || typeof window.sha3_256 === 'undefined') {
-          alert('哈希库加载失败，请刷新页面重试...');
+        // 检查库是否加载完成
+        if (typeof CryptoJS === 'undefined') {
+          alert('CryptoJS 库加载失败，请刷新页面重试...');
+          return;
+        }
+        
+        if (typeof sha3_256 === 'undefined') {
+          alert('SHA-3 库加载失败，请刷新页面重试...');
           return;
         }
 
@@ -669,22 +656,24 @@ const { sha3_256, sha3_512 } = jsSha3;
           
           switch(algorithm.id) {
             case 'md5':
-              hash = window.CryptoJS.MD5(text);
+              // 直接使用全局的 CryptoJS 库
+              hash = CryptoJS.MD5(text).toString();
               break;
             case 'sha1':
-              hash = window.CryptoJS.SHA1(text);
+              hash = CryptoJS.SHA1(text).toString();
               break;
             case 'sha256':
-              hash = window.CryptoJS.SHA256(text);
+              hash = CryptoJS.SHA256(text).toString();
               break;
             case 'sha512':
-              hash = window.CryptoJS.SHA512(text);
+              hash = CryptoJS.SHA512(text).toString();
               break;
             case 'sha3-256':
-              hash = window.sha3_256(text);
+              // 直接使用全局的 sha3_256 函数
+              hash = sha3_256(text);
               break;
             case 'sha3-512':
-              hash = window.sha3_512(text);
+              hash = sha3_512(text);
               break;
             default:
               hash = '不支持该算法';
@@ -708,9 +697,14 @@ const { sha3_256, sha3_512 } = jsSha3;
 
         const algorithm = getSelectedAlgorithm();
         
-        // 检查库是否可用
-        if (typeof window.CryptoJS === 'undefined' || typeof window.sha3_256 === 'undefined') {
-          alert('哈希库加载失败，请刷新页面重试...');
+        // 检查库是否加载完成
+        if (typeof CryptoJS === 'undefined') {
+          alert('CryptoJS 库加载失败，请刷新页面重试...');
+          return;
+        }
+        
+        if (typeof sha3_256 === 'undefined') {
+          alert('SHA-3 库加载失败，请刷新页面重试...');
           return;
         }
 
@@ -719,6 +713,8 @@ const { sha3_256, sha3_512 } = jsSha3;
 
         try {
           const file = selectedFile;
+          
+          // 读取文件为 ArrayBuffer
           const arrayBuffer = await readFileAsArrayBuffer(file);
           
           let hash;
@@ -726,23 +722,23 @@ const { sha3_256, sha3_512 } = jsSha3;
           if (algorithm.id.startsWith('sha3-')) {
             // SHA-3 需要特殊处理
             const hexString = arrayBufferToHex(arrayBuffer);
-            hash = algorithm.id === 'sha3-256' ? window.sha3_256(hexString) : window.sha3_512(hexString);
+            hash = algorithm.id === 'sha3-256' ? sha3_256(hexString) : sha3_512(hexString);
           } else {
             // 其他算法使用 CryptoJS
-            const wordArray = window.CryptoJS.lib.WordArray.create(arrayBuffer);
+            const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
             
             switch(algorithm.id) {
               case 'md5':
-                hash = window.CryptoJS.MD5(wordArray);
+                hash = CryptoJS.MD5(wordArray).toString();
                 break;
               case 'sha1':
-                hash = window.CryptoJS.SHA1(wordArray);
+                hash = CryptoJS.SHA1(wordArray).toString();
                 break;
               case 'sha256':
-                hash = window.CryptoJS.SHA256(wordArray);
+                hash = CryptoJS.SHA256(wordArray).toString();
                 break;
               case 'sha512':
-                hash = window.CryptoJS.SHA512(wordArray);
+                hash = CryptoJS.SHA512(wordArray).toString();
                 break;
               default:
                 hash = '不支持该算法';
