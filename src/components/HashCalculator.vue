@@ -4,10 +4,10 @@
     <!-- 标题和描述 -->
     <div class="header">
       <h1>哈希计算器</h1>
-      <p class="description">支持20+种哈希算法，计算文本和文件的哈希值</p>
+      <p class="description">支持多种哈希算法，计算文本和文件的哈希值</p>
     </div>
 
-    <!-- 主内容区域 - 使用固定比例布局 -->
+    <!-- 主内容区域 -->
     <div class="calculator-container">
       <!-- 左侧：输入和控制区域 -->
       <div class="left-panel">
@@ -99,52 +99,154 @@
             </div>
           </div>
 
-          <!-- 算法选择 -->
+          <!-- 算法选择 - 按照图片中的分组 -->
           <div class="input-group">
-            <label for="algorithm" class="input-label">哈希算法</label>
-            <div class="algorithm-select-container">
-              <select 
-                id="algorithm" 
-                v-model="selectedAlgorithm" 
-                class="select-input"
-                @change="calculateHash"
-              >
-                <optgroup label="MD 系列">
-                  <option v-for="algo in algorithms.filter(a => a.category === 'md')" 
-                          :key="algo.value" 
-                          :value="algo.value">
-                    {{ algo.label }}
-                  </option>
-                </optgroup>
-                <optgroup label="SHA-1 系列">
-                  <option v-for="algo in algorithms.filter(a => a.category === 'sha1')" 
-                          :key="algo.value" 
-                          :value="algo.value">
-                    {{ algo.label }}
-                  </option>
-                </optgroup>
-                <optgroup label="SHA-2 系列">
-                  <option v-for="algo in algorithms.filter(a => a.category === 'sha2')" 
-                          :key="algo.value" 
-                          :value="algo.value">
-                    {{ algo.label }}
-                  </option>
-                </optgroup>
-                <optgroup label="SHA-3 系列">
-                  <option v-for="algo in algorithms.filter(a => a.category === 'sha3')" 
-                          :key="algo.value" 
-                          :value="algo.value">
-                    {{ algo.label }}
-                  </option>
-                </optgroup>
-                <optgroup label="其他算法">
-                  <option v-for="algo in algorithms.filter(a => a.category === 'other')" 
-                          :key="algo.value" 
-                          :value="algo.value">
-                    {{ algo.label }}
-                  </option>
-                </optgroup>
-              </select>
+            <label class="input-label">哈希算法</label>
+            <div class="algorithm-radio-group">
+              <!-- MD 系列 -->
+              <div class="algorithm-group">
+                <div class="group-label">MD 系列</div>
+                <div class="group-options">
+                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'MD5' }">
+                    <input 
+                      type="radio" 
+                      v-model="selectedAlgorithm" 
+                      value="MD5" 
+                      @change="calculateHash"
+                      hidden
+                    />
+                    <div class="radio-dot"></div>
+                    <span class="radio-text">MD5</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- SHA-1 系列 -->
+              <div class="algorithm-group">
+                <div class="group-label">SHA-1 系列</div>
+                <div class="group-options">
+                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'SHA-1' }">
+                    <input 
+                      type="radio" 
+                      v-model="selectedAlgorithm" 
+                      value="SHA-1" 
+                      @change="calculateHash"
+                      hidden
+                    />
+                    <div class="radio-dot"></div>
+                    <span class="radio-text">SHA-1</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- SHA-2 系列 -->
+              <div class="algorithm-group">
+                <div class="group-label">SHA-2 系列</div>
+                <div class="group-options">
+                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'SHA-256' }">
+                    <input 
+                      type="radio" 
+                      v-model="selectedAlgorithm" 
+                      value="SHA-256" 
+                      @change="calculateHash"
+                      hidden
+                    />
+                    <div class="radio-dot"></div>
+                    <span class="radio-text">SHA-256</span>
+                  </label>
+                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'SHA-512' }">
+                    <input 
+                      type="radio" 
+                      v-model="selectedAlgorithm" 
+                      value="SHA-512" 
+                      @change="calculateHash"
+                      hidden
+                    />
+                    <div class="radio-dot"></div>
+                    <span class="radio-text">SHA-512</span>
+                  </label>
+                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'SHA-384' }">
+                    <input 
+                      type="radio" 
+                      v-model="selectedAlgorithm" 
+                      value="SHA-384" 
+                      @change="calculateHash"
+                      hidden
+                    />
+                    <div class="radio-dot"></div>
+                    <span class="radio-text">SHA-384</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- SHA-3 系列 -->
+              <div class="algorithm-group">
+                <div class="group-label">SHA-3 系列</div>
+                <div class="group-options">
+                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'SHA3-256' }">
+                    <input 
+                      type="radio" 
+                      v-model="selectedAlgorithm" 
+                      value="SHA3-256" 
+                      @change="calculateHash"
+                      hidden
+                    />
+                    <div class="radio-dot"></div>
+                    <span class="radio-text">SHA3-256</span>
+                  </label>
+                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'SHA3-512' }">
+                    <input 
+                      type="radio" 
+                      v-model="selectedAlgorithm" 
+                      value="SHA3-512" 
+                      @change="calculateHash"
+                      hidden
+                    />
+                    <div class="radio-dot"></div>
+                    <span class="radio-text">SHA3-512</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 其他算法 -->
+              <div class="algorithm-group">
+                <div class="group-label">其他算法</div>
+                <div class="group-options">
+                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'RIPEMD-160' }">
+                    <input 
+                      type="radio" 
+                      v-model="selectedAlgorithm" 
+                      value="RIPEMD-160" 
+                      @change="calculateHash"
+                      hidden
+                    />
+                    <div class="radio-dot"></div>
+                    <span class="radio-text">RIPEMD-160</span>
+                  </label>
+                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'Whirlpool' }">
+                    <input 
+                      type="radio" 
+                      v-model="selectedAlgorithm" 
+                      value="Whirlpool" 
+                      @change="calculateHash"
+                      hidden
+                    />
+                    <div class="radio-dot"></div>
+                    <span class="radio-text">Whirlpool</span>
+                  </label>
+                  <label class="radio-option" :class="{ 'selected': selectedAlgorithm === 'HMAC-MD5' }">
+                    <input 
+                      type="radio" 
+                      v-model="selectedAlgorithm" 
+                      value="HMAC-MD5" 
+                      @change="calculateHash"
+                      hidden
+                    />
+                    <div class="radio-dot"></div>
+                    <span class="radio-text">HMAC-MD5</span>
+                  </label>
+                </div>
+              </div>
             </div>
             <div class="algorithm-info">
               <span class="info-text">{{ selectedAlgorithmInfo.description }}</span>
@@ -254,6 +356,56 @@
             <p>计算结果将显示在这里</p>
             <p class="empty-hint">输入文本或选择文件后点击"计算哈希值"</p>
           </div>
+
+          <!-- 验证功能 -->
+          <div v-if="hashResult && inputType === 'text'" class="verification-section">
+            <h4>哈希验证</h4>
+            <div class="verification-input">
+              <input
+                type="text"
+                v-model="verificationHash"
+                class="text-input-sm"
+                placeholder="输入要验证的哈希值..."
+                @keyup.enter="verifyHash"
+              />
+              <button 
+                class="btn btn-outline btn-sm" 
+                @click="verifyHash"
+                :disabled="!verificationHash"
+              >
+                验证
+              </button>
+            </div>
+            <div v-if="verificationResult !== null" class="verification-result">
+              <span :class="['verification-badge', verificationResult ? 'success' : 'error']">
+                {{ verificationResult ? '✓ 匹配' : '✗ 不匹配' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 算法说明 -->
+        <div class="info-section">
+          <h3>算法说明</h3>
+          <div class="algorithms-info">
+            <div v-for="algo in algorithms" :key="algo.value" class="algorithm-card">
+              <div class="algorithm-header">
+                <h4>{{ algo.label }}</h4>
+                <span :class="['security-badge', algo.securityLevel]">{{ algo.security }}</span>
+              </div>
+              <p class="algorithm-desc">{{ algo.description }}</p>
+              <div class="algorithm-stats">
+                <span class="stat">输出长度: {{ algo.outputLength }}</span>
+                <button 
+                  class="btn btn-sm btn-try"
+                  @click="selectedAlgorithm = algo.value; calculateHash()"
+                  :disabled="!canCalculate"
+                >
+                  计算
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -272,19 +424,46 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 const inputType = ref('text')
 const inputText = ref('')
 const selectedFile = ref(null)
-const selectedAlgorithm = ref('SHA-256')
+const selectedAlgorithm = ref('MD5') // 默认选中 MD5，与图片一致
 const outputFormat = ref('hex')
 const hashResult = ref('')
 const calculationTime = ref(0)
 const isCalculating = ref(false)
+const verificationHash = ref('')
+const verificationResult = ref(null)
 const copyButtonText = ref('复制到剪贴板')
 const notification = ref({ show: false, message: '', type: 'success' })
 
 // 文件输入引用
 const fileInput = ref(null)
 
-// 支持的算法
+// 算法列表（根据图片中的分组）
 const algorithms = [
+  // MD 系列
+  { 
+    value: 'MD5', 
+    label: 'MD5', 
+    description: '消息摘要算法 5，广泛用于文件完整性校验',
+    category: 'md',
+    outputLength: '32字符 (Hex)',
+    security: '不安全',
+    securityLevel: 'low',
+    byteLength: 16
+  },
+
+  // SHA-1 系列
+  { 
+    value: 'SHA-1', 
+    label: 'SHA-1', 
+    description: '安全哈希算法 1，已不推荐用于安全场景',
+    category: 'sha1',
+    outputLength: '40字符 (Hex)',
+    security: '不安全',
+    securityLevel: 'low',
+    byteLength: 20
+  },
+
+  // SHA-2 系列
   { 
     value: 'SHA-256', 
     label: 'SHA-256', 
@@ -292,7 +471,8 @@ const algorithms = [
     category: 'sha2',
     outputLength: '64字符 (Hex)',
     security: '高安全性',
-    securityLevel: 'high'
+    securityLevel: 'high',
+    byteLength: 32
   },
   { 
     value: 'SHA-512', 
@@ -301,7 +481,8 @@ const algorithms = [
     category: 'sha2',
     outputLength: '128字符 (Hex)',
     security: '极高安全性',
-    securityLevel: 'high'
+    securityLevel: 'high',
+    byteLength: 64
   },
   { 
     value: 'SHA-384', 
@@ -310,25 +491,62 @@ const algorithms = [
     category: 'sha2',
     outputLength: '96字符 (Hex)',
     security: '高安全性',
-    securityLevel: 'high'
+    securityLevel: 'high',
+    byteLength: 48
+  },
+
+  // SHA-3 系列
+  { 
+    value: 'SHA3-256', 
+    label: 'SHA3-256', 
+    description: 'SHA-3 系列，256位哈希值',
+    category: 'sha3',
+    outputLength: '64字符 (Hex)',
+    security: '高安全性',
+    securityLevel: 'high',
+    byteLength: 32
   },
   { 
-    value: 'SHA-1', 
-    label: 'SHA-1', 
-    description: '安全哈希算法 1，已不推荐用于安全场景',
-    category: 'sha1',
+    value: 'SHA3-512', 
+    label: 'SHA3-512', 
+    description: 'SHA-3 系列，512位哈希值',
+    category: 'sha3',
+    outputLength: '128字符 (Hex)',
+    security: '极高安全性',
+    securityLevel: 'high',
+    byteLength: 64
+  },
+
+  // 其他算法
+  { 
+    value: 'RIPEMD-160', 
+    label: 'RIPEMD-160', 
+    description: 'RACE完整性原语评估消息摘要，比特币地址生成',
+    category: 'other',
     outputLength: '40字符 (Hex)',
-    security: '不安全',
-    securityLevel: 'low'
+    security: '中等安全性',
+    securityLevel: 'medium',
+    byteLength: 20
   },
   { 
-    value: 'MD5', 
-    label: 'MD5', 
-    description: '消息摘要算法 5，仅用于非安全场景如文件校验',
-    category: 'md',
+    value: 'Whirlpool', 
+    label: 'Whirlpool', 
+    description: '基于AES设计的哈希函数，512位输出',
+    category: 'other',
+    outputLength: '128字符 (Hex)',
+    security: '高安全性',
+    securityLevel: 'high',
+    byteLength: 64
+  },
+  { 
+    value: 'HMAC-MD5', 
+    label: 'HMAC-MD5', 
+    description: '基于MD5的HMAC，带密钥的消息认证码',
+    category: 'other',
     outputLength: '32字符 (Hex)',
-    security: '不安全',
-    securityLevel: 'low'
+    security: '低安全性',
+    securityLevel: 'low',
+    byteLength: 16
   }
 ]
 
@@ -382,15 +600,21 @@ const clearFile = () => {
     fileInput.value.value = ''
   }
   hashResult.value = ''
+  verificationHash.value = ''
+  verificationResult.value = null
 }
 
 const clearInput = () => {
   inputText.value = ''
   hashResult.value = ''
+  verificationHash.value = ''
+  verificationResult.value = null
 }
 
 const clearResults = () => {
   hashResult.value = ''
+  verificationHash.value = ''
+  verificationResult.value = null
 }
 
 const clearAll = () => {
@@ -411,7 +635,36 @@ const getAlgorithmLabel = (algorithm) => {
   return algo ? algo.label : algorithm
 }
 
-// 使用 CryptoJS 计算哈希
+// 使用 Web Crypto API 计算哈希（支持基础算法）
+const calculateHashWithWebCrypto = async (data, algorithm) => {
+  try {
+    const startTime = performance.now()
+    
+    // Web Crypto API 支持的算法映射
+    const algorithmMap = {
+      'SHA-256': 'SHA-256',
+      'SHA-384': 'SHA-384',
+      'SHA-512': 'SHA-512',
+      'SHA-1': 'SHA-1'
+    }
+    
+    const webCryptoAlgorithm = algorithmMap[algorithm]
+    if (!webCryptoAlgorithm) {
+      throw new Error('Web Crypto API 不支持该算法')
+    }
+    
+    const hashBuffer = await crypto.subtle.digest(webCryptoAlgorithm, data)
+    const endTime = performance.now()
+    calculationTime.value = Math.round(endTime - startTime)
+    
+    return hashBuffer
+  } catch (error) {
+    console.error('Web Crypto 计算错误:', error)
+    throw error
+  }
+}
+
+// 使用 CryptoJS 计算哈希（支持更多算法）
 const calculateHashWithCryptoJS = async (data, algorithm) => {
   const startTime = performance.now()
   let hash
@@ -432,8 +685,42 @@ const calculateHashWithCryptoJS = async (data, algorithm) => {
         case 'MD5': hash = CryptoJS.MD5(wordArray); break
         case 'SHA-1': hash = CryptoJS.SHA1(wordArray); break
         case 'SHA-256': hash = CryptoJS.SHA256(wordArray); break
-        case 'SHA-512': hash = CryptoJS.SHA512(wordArray); break
         case 'SHA-384': hash = CryptoJS.SHA384(wordArray); break
+        case 'SHA-512': hash = CryptoJS.SHA512(wordArray); break
+        case 'SHA3-256': 
+          if (CryptoJS.SHA3) {
+            hash = CryptoJS.SHA3(wordArray, { outputLength: 256 })
+          } else {
+            throw new Error('CryptoJS.SHA3 未加载，请确保加载了 sha3.js')
+          }
+          break
+        case 'SHA3-512': 
+          if (CryptoJS.SHA3) {
+            hash = CryptoJS.SHA3(wordArray, { outputLength: 512 })
+          } else {
+            throw new Error('CryptoJS.SHA3 未加载，请确保加载了 sha3.js')
+          }
+          break
+        case 'RIPEMD-160': 
+          if (CryptoJS.RIPEMD160) {
+            hash = CryptoJS.RIPEMD160(wordArray)
+          } else {
+            throw new Error('CryptoJS.RIPEMD160 未加载，请确保加载了 ripemd160.js')
+          }
+          break
+        case 'Whirlpool': 
+          if (CryptoJS.Whirlpool) {
+            hash = CryptoJS.Whirlpool(wordArray)
+          } else {
+            throw new Error('CryptoJS.Whirlpool 未加载，请确保加载了 whirlpool.js')
+          }
+          break
+        case 'HMAC-MD5': 
+          // 使用默认密钥 'key'
+          const key = CryptoJS.enc.Utf8.parse('ruantools-hmac-key')
+          const hmacData = CryptoJS.enc.Hex.parse(wordArray.toString())
+          hash = CryptoJS.HmacMD5(hmacData, key)
+          break
         default: hash = CryptoJS.SHA256(wordArray)
       }
     } else {
@@ -442,14 +729,47 @@ const calculateHashWithCryptoJS = async (data, algorithm) => {
         case 'MD5': hash = CryptoJS.MD5(data); break
         case 'SHA-1': hash = CryptoJS.SHA1(data); break
         case 'SHA-256': hash = CryptoJS.SHA256(data); break
-        case 'SHA-512': hash = CryptoJS.SHA512(data); break
         case 'SHA-384': hash = CryptoJS.SHA384(data); break
+        case 'SHA-512': hash = CryptoJS.SHA512(data); break
+        case 'SHA3-256': 
+          if (CryptoJS.SHA3) {
+            hash = CryptoJS.SHA3(data, { outputLength: 256 })
+          } else {
+            throw new Error('CryptoJS.SHA3 未加载，请确保加载了 sha3.js')
+          }
+          break
+        case 'SHA3-512': 
+          if (CryptoJS.SHA3) {
+            hash = CryptoJS.SHA3(data, { outputLength: 512 })
+          } else {
+            throw new Error('CryptoJS.SHA3 未加载，请确保加载了 sha3.js')
+          }
+          break
+        case 'RIPEMD-160': 
+          if (CryptoJS.RIPEMD160) {
+            hash = CryptoJS.RIPEMD160(data)
+          } else {
+            throw new Error('CryptoJS.RIPEMD160 未加载，请确保加载了 ripemd160.js')
+          }
+          break
+        case 'Whirlpool': 
+          if (CryptoJS.Whirlpool) {
+            hash = CryptoJS.Whirlpool(data)
+          } else {
+            throw new Error('CryptoJS.Whirlpool 未加载，请确保加载了 whirlpool.js')
+          }
+          break
+        case 'HMAC-MD5': 
+          // 使用默认密钥
+          const key = CryptoJS.enc.Utf8.parse('ruantools-hmac-key')
+          hash = CryptoJS.HmacMD5(data, key)
+          break
         default: hash = CryptoJS.SHA256(data)
       }
     }
 
     const endTime = performance.now()
-    const calculationTime = Math.round(endTime - startTime)
+    calculationTime.value = Math.round(endTime - startTime)
     
     // 转换为输出格式
     let hashString
@@ -459,10 +779,7 @@ const calculateHashWithCryptoJS = async (data, algorithm) => {
       hashString = hash.toString(CryptoJS.enc.Base64)
     }
     
-    return {
-      hash: hashString,
-      time: calculationTime
-    }
+    return hashString
     
   } catch (error) {
     console.error('CryptoJS 计算错误:', error)
@@ -475,19 +792,57 @@ const calculateHash = async () => {
   if (!canCalculate.value) return
   
   isCalculating.value = true
+  verificationResult.value = null
   
   try {
-    let result
+    let hashString
+    let startTime
     
-    if (inputType.value === 'text') {
-      result = await calculateHashWithCryptoJS(inputText.value, selectedAlgorithm.value)
-    } else {
-      result = await calculateHashWithCryptoJS(selectedFile.value, selectedAlgorithm.value)
+    // 尝试使用 Web Crypto API（性能更好）
+    try {
+      let data
+      if (inputType.value === 'text') {
+        const encoder = new TextEncoder()
+        data = encoder.encode(inputText.value)
+      } else {
+        const arrayBuffer = await selectedFile.value.arrayBuffer()
+        data = new Uint8Array(arrayBuffer)
+      }
+      
+      // Web Crypto API 支持的算法
+      const webCryptoAlgorithms = ['SHA-256', 'SHA-384', 'SHA-512', 'SHA-1']
+      
+      if (webCryptoAlgorithms.includes(selectedAlgorithm.value)) {
+        const hashBuffer = await calculateHashWithWebCrypto(data, selectedAlgorithm.value)
+        
+        // 转换为输出格式
+        if (outputFormat.value === 'hex') {
+          const hashArray = Array.from(new Uint8Array(hashBuffer))
+          hashString = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+        } else {
+          const binary = String.fromCharCode.apply(null, new Uint8Array(hashBuffer))
+          hashString = btoa(binary)
+        }
+      } else {
+        // 使用 CryptoJS 计算
+        if (inputType.value === 'text') {
+          hashString = await calculateHashWithCryptoJS(inputText.value, selectedAlgorithm.value)
+        } else {
+          hashString = await calculateHashWithCryptoJS(selectedFile.value, selectedAlgorithm.value)
+        }
+      }
+    } catch (webCryptoError) {
+      console.log('Web Crypto API 失败，回退到 CryptoJS:', webCryptoError)
+      
+      // 使用 CryptoJS 计算
+      if (inputType.value === 'text') {
+        hashString = await calculateHashWithCryptoJS(inputText.value, selectedAlgorithm.value)
+      } else {
+        hashString = await calculateHashWithCryptoJS(selectedFile.value, selectedAlgorithm.value)
+      }
     }
     
-    hashResult.value = result.hash
-    calculationTime.value = result.time
-    
+    hashResult.value = hashString
     showNotification('哈希计算完成', 'success')
     
   } catch (error) {
@@ -507,6 +862,21 @@ const debouncedCalculateHash = () => {
       calculateHash()
     }
   }, 500)
+}
+
+// 验证哈希
+const verifyHash = () => {
+  if (!hashResult.value || !verificationHash.value) return
+  
+  const normalizedResult = hashResult.value.toLowerCase().trim()
+  const normalizedVerification = verificationHash.value.toLowerCase().trim()
+  
+  verificationResult.value = normalizedResult === normalizedVerification
+  
+  showNotification(
+    verificationResult.value ? '哈希验证通过' : '哈希验证失败',
+    verificationResult.value ? 'success' : 'error'
+  )
 }
 
 // 复制到剪贴板
@@ -534,17 +904,55 @@ const showNotification = (message, type = 'success') => {
   }, 3000)
 }
 
+// 加载 CryptoJS 及其扩展
+const loadCryptoJS = () => {
+  return new Promise((resolve) => {
+    if (typeof window.CryptoJS !== 'undefined') {
+      resolve()
+      return
+    }
+    
+    const baseScript = document.createElement('script')
+    baseScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js'
+    baseScript.onload = () => {
+      console.log('CryptoJS 基础库已加载')
+      
+      // 加载扩展算法
+      const extensions = [
+        'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/sha3.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/ripemd160.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/whirlpool.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/hmac-md5.min.js'
+      ]
+      
+      let loaded = 0
+      const checkAllLoaded = () => {
+        loaded++
+        if (loaded === extensions.length) {
+          console.log('所有 CryptoJS 扩展已加载')
+          resolve()
+        }
+      }
+      
+      extensions.forEach(src => {
+        const script = document.createElement('script')
+        script.src = src
+        script.onload = checkAllLoaded
+        script.onerror = checkAllLoaded
+        document.head.appendChild(script)
+      })
+    }
+    
+    document.head.appendChild(baseScript)
+  })
+}
+
 // 生命周期
 onMounted(() => {
-  // 动态加载 CryptoJS
-  if (typeof window !== 'undefined' && !window.CryptoJS) {
-    const script = document.createElement('script')
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js'
-    script.onload = () => {
-      console.log('CryptoJS 已加载')
-    }
-    document.head.appendChild(script)
-  }
+  // 预加载 CryptoJS
+  loadCryptoJS().then(() => {
+    showNotification('CryptoJS 库已加载，支持所有哈希算法', 'success')
+  })
 })
 
 onUnmounted(() => {
@@ -648,7 +1056,7 @@ onUnmounted(() => {
   font-size: 0.9rem;
   font-weight: 600;
   color: #495057;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .radio-group {
@@ -679,6 +1087,89 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
+/* 算法选择 - 按照图片样式 */
+.algorithm-radio-group {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.algorithm-group {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.algorithm-group:last-child {
+  border-bottom: none;
+}
+
+.group-label {
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #495057;
+  background: #f1f3f5;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.group-options {
+  padding: 8px 16px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  margin-bottom: 4px;
+}
+
+.radio-option:hover {
+  background-color: #edf2ff;
+}
+
+.radio-option.selected {
+  background-color: #e6f7ff;
+}
+
+.radio-option.selected .radio-dot {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.radio-option.selected .radio-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.radio-dot {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #adb5bd;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.radio-text {
+  font-size: 0.95rem;
+  color: #212529;
+}
+
+.radio-option input[type="radio"] {
+  display: none;
+}
+
 .text-input-container {
   display: flex;
   flex-direction: column;
@@ -704,6 +1195,20 @@ onUnmounted(() => {
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
   background: white;
+}
+
+.text-input-sm {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.text-input-sm:focus {
+  outline: none;
+  border-color: #007bff;
 }
 
 .input-footer {
@@ -989,6 +1494,160 @@ onUnmounted(() => {
   font-size: 0.9rem;
   color: #adb5bd;
   margin-top: 8px;
+}
+
+/* 验证功能 */
+.verification-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #f8f9fa;
+}
+
+.verification-section h4 {
+  font-size: 1rem;
+  color: #495057;
+  margin-bottom: 12px;
+}
+
+.verification-input {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.verification-result {
+  text-align: center;
+}
+
+.verification-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.verification-badge.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.verification-badge.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* 算法说明 */
+.info-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.info-section h3 {
+  font-size: 1.2rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.algorithms-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.algorithm-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e9ecef;
+  transition: transform 0.2s;
+}
+
+.algorithm-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.algorithm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.algorithm-header h4 {
+  font-size: 1rem;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.security-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.security-badge.high {
+  background: #d4edda;
+  color: #155724;
+}
+
+.security-badge.medium {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.security-badge.low {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.algorithm-desc {
+  font-size: 0.85rem;
+  color: #6c757d;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.algorithm-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.stat {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: white;
+}
+
+.btn-try {
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-try:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.btn-try:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* 通知 */
