@@ -1,10 +1,11 @@
 // src/data/tools.js
 export const tools = [
   { 
-    id: "json-formatter", 
-    name: "JSON 格式化工具", 
-    description: "格式化、验证和美化 JSON 数据，支持语法高亮和错误提示。", 
-    path: "/ruantools2/tools/json-formatter", 
+    id: "j
+    code-formatter", 
+    name: "代码格式化工具", 
+    description: "格式化、验证和美化", 
+    path: "/ruantools2/tools/code-formatter", 
     category: "数据格式",
     comingSoon: false
   },
