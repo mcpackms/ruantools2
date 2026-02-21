@@ -1,7 +1,7 @@
 ---
 // 页面元数据
 const pageTitle = "正则表达式测试工具 - RuanTools";
-const description = "在线测试、调试和验证正则表达式，支持多种匹配模式和实时高亮";
+const description = "在线测试、调试和验证正则表达式";
 ---
 
 <html lang="zh-CN">
@@ -11,1036 +11,182 @@ const description = "在线测试、调试和验证正则表达式，支持多�
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
     
-    <!-- 代码高亮样式 -->
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        line-height: 1.6;
-        color: #333;
-        background: #f8f9fa;
-        min-height: 100vh;
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-
-      /* 头部样式 */
-      .header {
-        margin-bottom: 30px;
-        text-align: center;
-      }
-
-      .header h1 {
-        font-size: 2rem;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: #1a1a1a;
-      }
-
-      .header p {
-        color: #666;
-        font-size: 0.95rem;
-        max-width: 600px;
-        margin: 0 auto;
-      }
-
-      /* 卡片样式 */
-      .card {
-        background: white;
-        border-radius: 10px;
-        padding: 25px;
-        margin-bottom: 20px;
-        border: 1px solid #e0e0e0;
-      }
-
-      .section-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 20px;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .section-title::before {
-        content: "🔍";
-        font-size: 1.1rem;
-      }
-
-      /* 输入区域 */
-      .input-group {
-        margin-bottom: 20px;
-      }
-
-      .input-label {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 0.9rem;
-        color: #555;
-        font-weight: 500;
-      }
-
-      .input-field {
-        width: 100%;
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        font-size: 0.9rem;
-        background: #fafafa;
-        transition: border-color 0.2s;
-      }
-
-      .input-field:focus {
-        outline: none;
-        border-color: #007bff;
-        background: white;
-      }
-
-      .input-field::placeholder {
-        color: #999;
-      }
-
-      /* 文本区域 */
-      .textarea-field {
-        width: 100%;
-        min-height: 150px;
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        font-size: 0.9rem;
-        resize: vertical;
-        background: #fafafa;
-        line-height: 1.5;
-        white-space: pre;
-        overflow-x: auto;
-        transition: border-color 0.2s;
-      }
-
-      .textarea-field:focus {
-        outline: none;
-        border-color: #007bff;
-        background: white;
-      }
-
-      /* 模式选择器 */
-      .mode-selector {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 20px;
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 6px;
-      }
-
-      .mode-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.85rem;
-      }
-
-      .mode-checkbox {
-        width: 16px;
-        height: 16px;
-        cursor: pointer;
-      }
-
-      .mode-label {
-        color: #555;
-        cursor: pointer;
-        font-size: 0.85rem;
-      }
-
-      /* 按钮组 */
-      .button-group {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 15px;
-      }
-
-      .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      .btn-primary {
-        background: #007bff;
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #0056b3;
-      }
-
-      .btn-outline {
-        background: white;
-        color: #555;
-        border: 1px solid #ddd;
-      }
-
-      .btn-outline:hover {
-        background: #f8f9fa;
-        border-color: #bbb;
-      }
-
-      /* 结果展示 */
-      .results {
-        margin-top: 25px;
-        display: none;
-      }
-
-      .result-title {
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: #2c3e50;
-      }
-
-      .result-item {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 15px;
-        border: 1px solid #e0e0e0;
-      }
-
-      .result-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #e9ecef;
-      }
-
-      .result-name {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .result-value {
-        font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        font-size: 0.85rem;
-        color: #333;
-        word-break: break-all;
-        line-height: 1.4;
-      }
-
-      .result-value.highlighted {
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 4px;
-        border-left: 3px solid #007bff;
-      }
-
-      /* 匹配结果展示 */
-      .matches-container {
-        max-height: 300px;
-        overflow-y: auto;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        margin-top: 10px;
-      }
-
-      .match-item {
-        padding: 10px 15px;
-        border-bottom: 1px solid #e9ecef;
-        font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        font-size: 0.85rem;
-      }
-
-      .match-item:last-child {
-        border-bottom: none;
-      }
-
-      .match-item:nth-child(odd) {
-        background: #f8f9fa;
-      }
-
-      .match-item:nth-child(even) {
-        background: white;
-      }
-
-      .match-highlight {
-        background: #fff3cd;
-        padding: 0 2px;
-        border-radius: 2px;
-        border: 1px solid #ffc107;
-      }
-
-      .match-index {
-        font-size: 0.75rem;
-        color: #666;
-        margin-right: 10px;
-      }
-
-      .match-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 5px;
-        font-size: 0.8rem;
-        color: #666;
-      }
-
-      /* 加载指示器 */
-      .loading {
-        display: none;
-        align-items: center;
-        gap: 10px;
-        margin: 15px 0;
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        color: #666;
-      }
-
-      .loading-spinner {
-        width: 20px;
-        height: 20px;
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #007bff;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-
-      /* 快速示例 */
-      .quick-examples {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 10px;
-        margin-top: 15px;
-      }
-
-      .example-btn {
-        padding: 8px 12px;
-        background: #e9ecef;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        color: #555;
-        font-size: 0.85rem;
-        cursor: pointer;
-        text-align: left;
-        transition: all 0.2s;
-      }
-
-      .example-btn:hover {
-        background: #dee2e6;
-        border-color: #adb5bd;
-      }
-
-      /* 页脚 */
-      .footer {
-        text-align: center;
-        margin-top: 40px;
-        padding-top: 20px;
-        border-top: 1px solid #e0e0e0;
-        color: #666;
-        font-size: 0.9rem;
-      }
-
-      /* 响应式设计 */
-      @media (max-width: 768px) {
-        .container {
-          padding: 15px;
-        }
-
-        .button-group {
-          flex-direction: column;
-        }
-
-        .btn {
-          width: 100%;
-          justify-content: center;
-        }
-
-        .quick-examples {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      /* 高亮样式 */
-      .highlight-container {
-        position: relative;
-        min-height: 150px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        overflow: hidden;
-      }
-
-      .highlight-textarea {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        padding: 12px 15px;
-        border: none;
-        background: transparent;
-        color: transparent;
-        caret-color: #333;
-        font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        font-size: 0.9rem;
-        line-height: 1.5;
-        resize: none;
-        overflow: auto;
-        white-space: pre;
-        z-index: 1;
-      }
-
-      .highlight-output {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        padding: 12px 15px;
-        overflow: auto;
-        font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        font-size: 0.9rem;
-        line-height: 1.5;
-        white-space: pre;
-        z-index: 0;
-      }
-
-      .highlight-match {
-        background: #fff3cd;
-        padding: 0 2px;
-        border-radius: 2px;
-        border: 1px solid #ffc107;
-      }
-
-      .highlight-group-0 { background: #d4edda; border-color: #c3e6cb; }
-      .highlight-group-1 { background: #cce5ff; border-color: #b8daff; }
-      .highlight-group-2 { background: #e2e3e5; border-color: #d6d8db; }
-      .highlight-group-3 { background: #f8d7da; border-color: #f5c6cb; }
-      .highlight-group-4 { background: #d1ecf1; border-color: #bee5eb; }
-      .highlight-group-5 { background: #fff3cd; border-color: #ffeaa7; }
-      .highlight-group-6 { background: #d6d8d9; border-color: #c6c8ca; }
-      .highlight-group-7 { background: #d7e4f5; border-color: #c7d9f1; }
-      .highlight-group-8 { background: #e9e9e9; border-color: #d9d9d9; }
-      .highlight-group-9 { background: #e8e4f5; border-color: #d8d4f1; }
-
-      /* 替换结果 */
-      .replace-result {
-        background: #e7f5ff;
-        border-left: 3px solid #007bff;
-        padding: 15px;
-        border-radius: 4px;
-        font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        white-space: pre-wrap;
-        word-break: break-all;
-      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: sans-serif; background: #f5f5f5; }
+      .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+      .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+      h1, h2 { margin-bottom: 16px; color: #333; }
+      .input-group { margin-bottom: 20px; }
+      label { display: block; margin-bottom: 8px; font-weight: 500; }
+      input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+      textarea { min-height: 120px; font-family: monospace; }
+      .button-group { display: flex; gap: 10px; margin-top: 20px; }
+      button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+      .primary { background: #007bff; color: white; }
+      .secondary { background: #6c757d; color: white; }
+      .outline { background: white; border: 1px solid #ddd; }
+      .result { background: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 20px; font-family: monospace; white-space: pre-wrap; }
+      .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-top: 10px; }
+      .hidden { display: none; }
     </style>
   </head>
   <body>
     <div class="container">
-      <!-- 头部 -->
-      <header class="header">
-        <h1>正则表达式测试工具</h1>
-        <p>在线测试、调试和验证正则表达式，支持多种匹配模式和实时高亮</p>
-      </header>
-
-      <!-- 主内容区域 -->
+      <h1>正则表达式测试器</h1>
+      
       <div class="card">
-        <h2 class="section-title">正则表达式测试</h2>
+        <h2>输入正则表达式</h2>
+        <div class="input-group">
+          <label for="regex-input">正则表达式：</label>
+          <input type="text" id="regex-input" value="\w+@\w+\.\w+" placeholder="例如：\d{3}-\d{3}-\d{4}">
+        </div>
         
-        <!-- 正则表达式输入 -->
         <div class="input-group">
-          <label for="regex-input" class="input-label">正则表达式</label>
-          <input 
-            type="text" 
-            id="regex-input" 
-            class="input-field" 
-            placeholder="输入正则表达式，例如：\d{3}-\d{3}-\d{4}"
-            value="\w+@\w+\.\w+"
-          />
+          <label for="test-text">测试文本：</label>
+          <textarea id="test-text" placeholder="输入要测试的文本...">请发送邮件到 test@example.com 或联系 admin@domain.com</textarea>
         </div>
-
-        <!-- 测试文本输入 -->
+        
         <div class="input-group">
-          <label for="test-text" class="input-label">测试文本</label>
-          <div class="highlight-container">
-            <textarea 
-              id="test-text" 
-              class="highlight-textarea" 
-              placeholder="输入要测试的文本..."
-              rows="8"
-            >请发送邮件到 test@example.com 或联系 admin@domain.com 获取更多信息。</textarea>
-            <div id="highlight-output" class="highlight-output"></div>
+          <label>模式：</label>
+          <div>
+            <input type="checkbox" id="global" checked> <label for="global" style="display: inline;">全局匹配 (g)</label>
+            <input type="checkbox" id="ignoreCase" style="margin-left: 20px;"> <label for="ignoreCase" style="display: inline;">忽略大小写 (i)</label>
+            <input type="checkbox" id="multiline" style="margin-left: 20px;"> <label for="multiline" style="display: inline;">多行模式 (m)</label>
           </div>
         </div>
-
-        <!-- 替换文本输入 -->
-        <div class="input-group">
-          <label for="replace-text" class="input-label">替换文本（可选）</label>
-          <input 
-            type="text" 
-            id="replace-text" 
-            class="input-field" 
-            placeholder="输入替换文本，例如：[邮箱]"
-          />
-        </div>
-
-        <!-- 模式选择 -->
-        <div class="mode-selector">
-          <div class="mode-item">
-            <input type="checkbox" id="mode-g" class="mode-checkbox" checked />
-            <label for="mode-g" class="mode-label" title="全局匹配">全局匹配 (g)</label>
-          </div>
-          <div class="mode-item">
-            <input type="checkbox" id="mode-i" class="mode-checkbox" />
-            <label for="mode-i" class="mode-label" title="忽略大小写">忽略大小写 (i)</label>
-          </div>
-          <div class="mode-item">
-            <input type="checkbox" id="mode-m" class="mode-checkbox" />
-            <label for="mode-m" class="mode-label" title="多行模式">多行模式 (m)</label>
-          </div>
-          <div class="mode-item">
-            <input type="checkbox" id="mode-s" class="mode-checkbox" />
-            <label for="mode-s" class="mode-label" title="点号匹配所有字符">点号匹配所有 (s)</label>
-          </div>
-          <div class="mode-item">
-            <input type="checkbox" id="mode-u" class="mode-checkbox" />
-            <label for="mode-u" class="mode-label" title="Unicode模式">Unicode (u)</label>
-          </div>
-        </div>
-
-        <!-- 快速示例 -->
-        <div class="input-group">
-          <label class="input-label">快速示例</label>
-          <div class="quick-examples">
-            <button class="example-btn" data-regex="\d+" data-text="我的电话号码是 123-456-7890">匹配数字：\d+</button>
-            <button class="example-btn" data-regex="[A-Za-z]+" data-text="Hello World 123">匹配字母：[A-Za-z]+</button>
-            <button class="example-btn" data-regex="\w+@\w+\.\w+" data-text="联系邮箱：test@example.com">匹配邮箱：\w+@\w+\.\w+</button>
-            <button class="example-btn" data-regex="https?://[^\s]+" data-text="访问 https://example.com">匹配URL：https?://[^\s]+</button>
-            <button class="example-btn" data-regex="\d{4}-\d{2}-\d{2}" data-text="日期：2024-01-15">匹配日期：\d{4}-\d{2}-\d{2}</button>
-            <button class="example-btn" data-regex="\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b" data-text="IP地址：192.168.1.1">匹配IP：\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b</button>
-          </div>
-        </div>
-
-        <!-- 按钮组 -->
+        
         <div class="button-group">
-          <button id="test-btn" class="btn btn-primary">测试正则表达式</button>
-          <button id="replace-btn" class="btn btn-outline">执行替换</button>
-          <button id="clear-btn" class="btn btn-outline">清空所有</button>
+          <button id="test-btn" class="primary">测试正则表达式</button>
+          <button id="clear-btn" class="outline">清空</button>
         </div>
-
-        <div id="loading" class="loading">
-          <div class="loading-spinner"></div>
-          <span>正在处理...</span>
-        </div>
-
-        <!-- 错误信息 -->
-        <div id="error-message" style="display: none; margin-top: 15px; padding: 10px; background: #f8d7da; color: #721c24; border-radius: 4px; border: 1px solid #f5c6cb;"></div>
-      </div>
-
-      <!-- 结果显示 -->
-      <div id="results-section" class="card" style="display: none;">
-        <h3 class="result-title">测试结果</h3>
-        <div id="results-container">
-          <!-- 结果将在这里动态显示 -->
+        
+        <div id="error" class="error hidden"></div>
+        
+        <div id="results" class="hidden">
+          <h2>匹配结果</h2>
+          <div class="result" id="result-content"></div>
         </div>
       </div>
-
-      <!-- 使用说明 -->
-      <div class="card">
-        <h2 class="section-title">使用说明</h2>
-        <div style="color: #666; line-height: 1.6; font-size: 0.9rem;">
-          <p><strong>常用正则表达式语法：</strong></p>
-          <ul style="padding-left: 20px; margin-top: 8px;">
-            <li><code>\d</code> - 匹配数字（0-9）</li>
-            <li><code>\w</code> - 匹配单词字符（字母、数字、下划线）</li>
-            <li><code>\s</code> - 匹配空白字符（空格、制表符等）</li>
-            <li><code>.</code> - 匹配任意字符（除换行符）</li>
-            <li><code>[abc]</code> - 匹配方括号中的任意字符</li>
-            <li><code>[^abc]</code> - 匹配不在方括号中的任意字符</li>
-            <li><code>*</code> - 匹配0次或多次</li>
-            <li><code>+</code> - 匹配1次或多次</li>
-            <li><code>?</code> - 匹配0次或1次</li>
-            <li><code>{n}</code> - 匹配恰好n次</li>
-            <li><code>{n,}</code> - 匹配至少n次</li>
-            <li><code>{n,m}</code> - 匹配n到m次</li>
-            <li><code>^</code> - 匹配字符串开头（多行模式下匹配行首）</li>
-            <li><code>$</code> - 匹配字符串结尾（多行模式下匹配行尾）</li>
-            <li><code>(...)</code> - 捕获分组</li>
-            <li><code>(?:...)</code> - 非捕获分组</li>
-            <li><code>\b</code> - 单词边界</li>
-            <li><code>|</code> - 或操作</li>
-          </ul>
-          
-          <p style="margin-top: 12px;"><strong>模式说明：</strong></p>
-          <ul style="padding-left: 20px; margin-top: 8px;">
-            <li><strong>全局匹配 (g)</strong> - 查找所有匹配，而不是在第一个匹配后停止</li>
-            <li><strong>忽略大小写 (i)</strong> - 匹配时忽略字母大小写</li>
-            <li><strong>多行模式 (m)</strong> - 使 ^ 和 $ 匹配每行的开头和结尾</li>
-            <li><strong>点号匹配所有 (s)</strong> - 使 . 匹配包括换行符在内的所有字符</li>
-            <li><strong>Unicode模式 (u)</strong> - 正确处理 Unicode 字符</li>
-          </ul>
-          
-          <p style="margin-top: 12px;"><strong>注意事项：</strong></p>
-          <ul style="padding-left: 20px; margin-top: 8px;">
-            <li>正则表达式测试完全在浏览器本地完成，无需网络连接</li>
-            <li>点击"快速示例"按钮可以快速填充示例</li>
-            <li>支持实时高亮显示匹配结果</li>
-            <li>点击匹配结果可以查看详细信息</li>
-            <li>可以在替换文本中使用 $1、$2 等引用捕获组</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- 页脚 -->
-      <footer class="footer">
-        <p>© 2024 RuanTools · 正则表达式测试工具</p>
-        <p style="margin-top: 5px;">使用原生JavaScript正则表达式引擎，完全离线工作</p>
-      </footer>
     </div>
 
     <script>
-      // DOM元素
-      const regexInput = document.getElementById('regex-input');
-      const testText = document.getElementById('test-text');
-      const replaceText = document.getElementById('replace-text');
-      const highlightOutput = document.getElementById('highlight-output');
-      const testBtn = document.getElementById('test-btn');
-      const replaceBtn = document.getElementById('replace-btn');
-      const clearBtn = document.getElementById('clear-btn');
-      const resultsSection = document.getElementById('results-section');
-      const resultsContainer = document.getElementById('results-container');
-      const errorMessage = document.getElementById('error-message');
-      const loading = document.getElementById('loading');
-      const quickExampleBtns = document.querySelectorAll('.example-btn');
-
-      // 模式复选框
-      const modeG = document.getElementById('mode-g');
-      const modeI = document.getElementById('mode-i');
-      const modeM = document.getElementById('mode-m');
-      const modeS = document.getElementById('mode-s');
-      const modeU = document.getElementById('mode-u');
-
-      // 获取选中的模式
-      function getSelectedModes() {
-        const modes = [];
-        if (modeG.checked) modes.push('g');
-        if (modeI.checked) modes.push('i');
-        if (modeM.checked) modes.push('m');
-        if (modeS.checked) modes.push('s');
-        if (modeU.checked) modes.push('u');
-        return modes.join('');
-      }
-
-      // 显示错误信息
-      function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
-        resultsSection.style.display = 'none';
-      }
-
-      // 隐藏错误信息
-      function hideError() {
-        errorMessage.style.display = 'none';
-      }
-
-      // 显示加载动画
-      function showLoading() {
-        loading.style.display = 'flex';
-      }
-
-      // 隐藏加载动画
-      function hideLoading() {
-        loading.style.display = 'none';
-      }
-
-      // 高亮匹配的文本
-      function highlightMatches(text, regex) {
-        if (!regex) return text;
+      document.addEventListener('DOMContentLoaded', function() {
+        const regexInput = document.getElementById('regex-input');
+        const testText = document.getElementById('test-text');
+        const testBtn = document.getElementById('test-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const errorDiv = document.getElementById('error');
+        const resultsDiv = document.getElementById('results');
+        const resultContent = document.getElementById('result-content');
         
-        try {
-          const flags = getSelectedModes();
-          const pattern = new RegExp(regex, flags);
+        const globalCheck = document.getElementById('global');
+        const ignoreCaseCheck = document.getElementById('ignoreCase');
+        const multilineCheck = document.getElementById('multiline');
+        
+        testBtn.addEventListener('click', testRegex);
+        clearBtn.addEventListener('click', clearAll);
+        
+        function testRegex() {
+          // 清空之前的错误和结果
+          errorDiv.classList.add('hidden');
+          resultsDiv.classList.add('hidden');
           
-          // 创建高亮HTML
-          let highlighted = '';
-          let lastIndex = 0;
+          const regexStr = regexInput.value;
+          const text = testText.value;
           
-          if (flags.includes('g')) {
-            const matches = [...text.matchAll(pattern)];
-            
-            matches.forEach((match, matchIndex) => {
-              // 添加匹配前的文本
-              highlighted += escapeHtml(text.substring(lastIndex, match.index));
-              
-              // 添加匹配文本
-              const matchText = match[0];
-              highlighted += `<span class="highlight-match">${escapeHtml(matchText)}</span>`;
-              
-              lastIndex = match.index + matchText.length;
-            });
-          } else {
-            const match = pattern.exec(text);
-            if (match) {
-              highlighted += escapeHtml(text.substring(0, match.index));
-              highlighted += `<span class="highlight-match">${escapeHtml(match[0])}</span>`;
-              lastIndex = match.index + match[0].length;
-            }
+          if (!regexStr) {
+            showError('请输入正则表达式');
+            return;
           }
           
-          // 添加剩余文本
-          highlighted += escapeHtml(text.substring(lastIndex));
-          return highlighted;
-        } catch (error) {
-          return escapeHtml(text);
-        }
-      }
-
-      // 转义HTML特殊字符
-      function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-      }
-
-      // 测试正则表达式
-      function testRegex() {
-        hideError();
-        showLoading();
-        
-        setTimeout(() => {
+          if (!text) {
+            showError('请输入测试文本');
+            return;
+          }
+          
           try {
-            const regexStr = regexInput.value.trim();
-            const text = testText.value;
+            // 构建标志
+            let flags = '';
+            if (globalCheck.checked) flags += 'g';
+            if (ignoreCaseCheck.checked) flags += 'i';
+            if (multilineCheck.checked) flags += 'm';
             
-            if (!regexStr) {
-              showError('请输入正则表达式');
-              hideLoading();
-              return;
-            }
-            
-            if (!text) {
-              showError('请输入测试文本');
-              hideLoading();
-              return;
-            }
-            
-            const flags = getSelectedModes();
             const regex = new RegExp(regexStr, flags);
-            
-            // 更新高亮显示
-            highlightOutput.innerHTML = highlightMatches(text, regexStr);
             
             // 执行匹配
             let matches = [];
-            if (flags.includes('g')) {
-              matches = [...text.matchAll(regex)];
+            if (globalCheck.checked) {
+              // 全局匹配
+              const allMatches = text.matchAll(regex);
+              for (const match of allMatches) {
+                matches.push({
+                  text: match[0],
+                  index: match.index,
+                  groups: match.slice(1)
+                });
+              }
             } else {
+              // 单次匹配
               const match = regex.exec(text);
               if (match) {
-                matches = [match];
+                matches.push({
+                  text: match[0],
+                  index: match.index,
+                  groups: match.slice(1)
+                });
               }
             }
             
             // 显示结果
-            displayResults(matches, text, regex);
+            displayResults(matches, regex);
             
-            hideLoading();
-          } catch (error) {
-            hideLoading();
-            showError(`正则表达式错误: ${error.message}`);
-            highlightOutput.innerHTML = escapeHtml(testText.value);
+          } catch (err) {
+            showError('正则表达式错误: ' + err.message);
           }
-        }, 50);
-      }
-
-      // 执行替换
-      function replaceTextHandler() {
-        hideError();
-        showLoading();
+        }
         
-        setTimeout(() => {
-          try {
-            const regexStr = regexInput.value.trim();
-            const text = testText.value;
-            const replaceStr = replaceText.value;
-            
-            if (!regexStr) {
-              showError('请输入正则表达式');
-              hideLoading();
-              return;
-            }
-            
-            if (!text) {
-              showError('请输入测试文本');
-              hideLoading();
-              return;
-            }
-            
-            const flags = getSelectedModes();
-            const regex = new RegExp(regexStr, flags);
-            
-            // 执行替换
-            const replacedText = text.replace(regex, replaceStr);
-            
-            // 显示替换结果
-            displayReplaceResult(text, replacedText, regex);
-            
-            hideLoading();
-          } catch (error) {
-            hideLoading();
-            showError(`替换错误: ${error.message}`);
+        function displayResults(matches, regex) {
+          if (matches.length === 0) {
+            resultContent.textContent = '没有找到匹配项。';
+            resultsDiv.classList.remove('hidden');
+            return;
           }
-        }, 50);
-      }
-
-      // 显示匹配结果
-      function displayResults(matches, originalText, regex) {
-        resultsContainer.innerHTML = '';
-        
-        if (matches.length === 0) {
-          const noResult = document.createElement('div');
-          noResult.className = 'result-item';
-          noResult.innerHTML = `
-            <div class="result-header">
-              <div class="result-name">没有找到匹配</div>
-            </div>
-            <div class="result-value">在输入文本中没有找到匹配项。</div>
-          `;
-          resultsContainer.appendChild(noResult);
-        } else {
-          // 匹配统计
-          const stats = document.createElement('div');
-          stats.className = 'result-item';
-          stats.innerHTML = `
-            <div class="result-header">
-              <div class="result-name">匹配统计</div>
-            </div>
-            <div class="result-value">
-              找到 ${matches.length} 个匹配项<br>
-              正则表达式: <code>${escapeHtml(regex.source)}</code><br>
-              标志: ${regex.flags || '(无)'}
-            </div>
-          `;
-          resultsContainer.appendChild(stats);
           
-          // 匹配详情
-          const matchesContainer = document.createElement('div');
-          matchesContainer.className = 'result-item';
-          matchesContainer.innerHTML = `
-            <div class="result-header">
-              <div class="result-name">匹配详情</div>
-              <span style="font-size: 0.8rem; color: #666;">共 ${matches.length} 个匹配</span>
-            </div>
-            <div class="matches-container" id="matches-list"></div>
-          `;
-          resultsContainer.appendChild(matchesContainer);
-          
-          const matchesList = document.getElementById('matches-list');
+          let resultText = `找到 ${matches.length} 个匹配项\n\n`;
           
           matches.forEach((match, index) => {
-            const matchItem = document.createElement('div');
-            matchItem.className = 'match-item';
+            resultText += `匹配 #${index + 1}:\n`;
+            resultText += `  文本: "${match.text}"\n`;
+            resultText += `  位置: ${match.index}\n`;
             
-            const matchInfo = document.createElement('div');
-            matchInfo.className = 'match-info';
-            matchInfo.innerHTML = `
-              <span>匹配 #${index + 1}</span>
-              <span>位置: ${match.index} - ${match.index + match[0].length}</span>
-            `;
-            
-            const matchText = document.createElement('div');
-            matchText.innerHTML = `<span class="match-index">[${index}]</span> <span class="highlight-match">${escapeHtml(match[0])}</span>`;
-            
-            // 如果有分组
-            if (match.length > 1) {
-              const groups = document.createElement('div');
-              groups.style.marginTop = '8px';
-              groups.style.fontSize = '0.8rem';
-              groups.style.color = '#666';
-              
-              let groupsHtml = '<strong>捕获组:</strong><br>';
-              for (let i = 1; i < match.length; i++) {
-                const groupClass = `highlight-group-${(i-1) % 10}`;
-                groupsHtml += `  $${i}: <span class="${groupClass}" style="padding: 0 2px; border-radius: 2px;">${escapeHtml(match[i] || '(空)')}</span><br>`;
-              }
-              groups.innerHTML = groupsHtml;
-              
-              matchItem.appendChild(matchInfo);
-              matchItem.appendChild(matchText);
-              matchItem.appendChild(groups);
-            } else {
-              matchItem.appendChild(matchInfo);
-              matchItem.appendChild(matchText);
+            if (match.groups.length > 0) {
+              resultText += `  捕获组:\n`;
+              match.groups.forEach((group, groupIndex) => {
+                resultText += `    $${groupIndex + 1}: "${group || '(空)'}"\n`;
+              });
             }
-            
-            matchesList.appendChild(matchItem);
+            resultText += '\n';
           });
-        }
-        
-        resultsSection.style.display = 'block';
-      }
-
-      // 显示替换结果
-      function displayReplaceResult(originalText, replacedText, regex) {
-        resultsContainer.innerHTML = '';
-        
-        const originalItem = document.createElement('div');
-        originalItem.className = 'result-item';
-        originalItem.innerHTML = `
-          <div class="result-header">
-            <div class="result-name">原始文本</div>
-            <span style="font-size: 0.8rem; color: #666;">${originalText.length} 字符</span>
-          </div>
-          <div class="result-value highlighted">${escapeHtml(originalText)}</div>
-        `;
-        
-        const replacedItem = document.createElement('div');
-        replacedItem.className = 'result-item';
-        replacedItem.innerHTML = `
-          <div class="result-header">
-            <div class="result-name">替换结果</div>
-            <span style="font-size: 0.8rem; color: #666;">${replacedText.length} 字符</span>
-          </div>
-          <div class="replace-result">${escapeHtml(replacedText)}</div>
-        `;
-        
-        const statsItem = document.createElement('div');
-        statsItem.className = 'result-item';
-        statsItem.innerHTML = `
-          <div class="result-header">
-            <div class="result-name">替换统计</div>
-          </div>
-          <div class="result-value">
-            正则表达式: <code>${escapeHtml(regex.source)}</code><br>
-            替换文本: <code>${escapeHtml(replaceText.value || '(空)')}</code><br>
-            标志: ${regex.flags || '(无)'}
-          </div>
-        `;
-        
-        resultsContainer.appendChild(originalItem);
-        resultsContainer.appendChild(replacedItem);
-        resultsContainer.appendChild(statsItem);
-        
-        resultsSection.style.display = 'block';
-      }
-
-      // 清空所有
-      function clearAll() {
-        regexInput.value = '';
-        testText.value = '';
-        replaceText.value = '';
-        highlightOutput.innerHTML = '';
-        resultsSection.style.display = 'none';
-        hideError();
-        
-        // 重置模式
-        modeG.checked = true;
-        modeI.checked = false;
-        modeM.checked = false;
-        modeS.checked = false;
-        modeU.checked = false;
-      }
-
-      // 实时更新高亮
-      function updateHighlight() {
-        const regexStr = regexInput.value.trim();
-        const text = testText.value;
-        
-        if (regexStr && text) {
-          try {
-            highlightOutput.innerHTML = highlightMatches(text, regexStr);
-            hideError();
-          } catch (error) {
-            highlightOutput.innerHTML = escapeHtml(text);
-          }
-        } else {
-          highlightOutput.innerHTML = escapeHtml(text);
-        }
-      }
-
-      // 事件监听器
-      testBtn.addEventListener('click', testRegex);
-      replaceBtn.addEventListener('click', replaceTextHandler);
-      clearBtn.addEventListener('click', clearAll);
-
-      // 实时更新
-      regexInput.addEventListener('input', updateHighlight);
-      testText.addEventListener('input', updateHighlight);
-      testText.addEventListener('scroll', function() {
-        highlightOutput.scrollTop = this.scrollTop;
-        highlightOutput.scrollLeft = this.scrollLeft;
-      });
-
-      // 模式切换时更新
-      [modeG, modeI, modeM, modeS, modeU].forEach(mode => {
-        mode.addEventListener('change', updateHighlight);
-      });
-
-      // 快速示例按钮
-      quickExampleBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-          const regex = this.getAttribute('data-regex');
-          const text = this.getAttribute('data-text');
           
-          regexInput.value = regex;
-          testText.value = text;
-          updateHighlight();
-          
-          // 滚动到输入框
-          regexInput.focus();
-        });
-      });
-
-      // 初始化高亮
-      updateHighlight();
-
-      // 添加键盘快捷键
-      document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-          e.preventDefault();
-          testRegex();
+          resultContent.textContent = resultText;
+          resultsDiv.classList.remove('hidden');
         }
-      });
-
-      // 初始化页面
-      document.addEventListener('DOMContentLoaded', function() {
-        // 初始高亮
-        updateHighlight();
         
-        // 自动调整高度
-        testText.addEventListener('input', function() {
-          this.style.height = 'auto';
-          this.style.height = (this.scrollHeight) + 'px';
-        });
+        function showError(message) {
+          errorDiv.textContent = message;
+          errorDiv.classList.remove('hidden');
+        }
+        
+        function clearAll() {
+          regexInput.value = '';
+          testText.value = '';
+          errorDiv.classList.add('hidden');
+          resultsDiv.classList.add('hidden');
+          globalCheck.checked = true;
+          ignoreCaseCheck.checked = false;
+          multilineCheck.checked = false;
+        }
       });
     </script>
   </body>
