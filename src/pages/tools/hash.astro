@@ -10,9 +10,27 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
-    <!-- 引入所需的 JavaScript 库 -->
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-sha3@0.8.0/dist/sha3.min.js"></script>
+    
+    <!-- 从 npm 包加载样式 -->
+    <script>
+      // 动态加载所需的库
+      window.loadHashLibraries = async function() {
+        if (typeof CryptoJS === 'undefined') {
+          // 加载 crypto-js
+          const script = document.createElement('script');
+          script.src = '/libs/crypto-js.min.js';
+          document.head.appendChild(script);
+        }
+        
+        if (typeof sha3_256 === 'undefined') {
+          // 加载 js-sha3
+          const script = document.createElement('script');
+          script.src = '/libs/js-sha3.min.js';
+          document.head.appendChild(script);
+        }
+      };
+    </script>
+    
     <style>
       /* 基础样式 */
       * {
@@ -79,61 +97,54 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         font-size: 1.1rem;
       }
 
-      /* 算法选择器 - 单选按钮样式 */
+      /* 算法选择器 - 改为下拉菜单 */
       .algorithm-selector {
         margin-bottom: 20px;
       }
 
-      .algorithm-radio-group {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      .select-group {
+        display: flex;
         gap: 10px;
-        margin-top: 10px;
+        align-items: center;
       }
 
-      .algorithm-radio-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px;
+      .select-label {
+        font-size: 0.9rem;
+        color: #555;
+        font-weight: 500;
+        min-width: 100px;
+      }
+
+      .select-field {
+        flex: 1;
+        padding: 10px 15px;
         border: 1px solid #ddd;
         border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s;
         font-size: 0.9rem;
-        position: relative;
+        background: white;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px;
+        padding-right: 35px;
       }
 
-      .algorithm-radio-item:hover {
-        background: #f8f9fa;
-        border-color: #bbb;
-      }
-
-      .algorithm-radio-item.selected {
-        background: #007bff;
-        color: white;
+      .select-field:focus {
+        outline: none;
         border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
       }
 
-      .algorithm-radio-item input[type="radio"] {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-
-      .algorithm-name {
-        font-weight: 500;
-      }
-
-      .algorithm-bits {
+      .algorithm-info {
         font-size: 0.8rem;
-        opacity: 0.7;
-        margin-left: auto;
-      }
-
-      .algorithm-radio-item.selected .algorithm-bits {
-        color: rgba(255, 255, 255, 0.9);
+        color: #666;
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        border-left: 3px solid #007bff;
       }
 
       /* 输入区域 */
@@ -320,16 +331,16 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         font-size: 0.75rem;
         color: #666;
         background: #e9ecef;
-        padding: 3px 8px;
-        border-radius: 12px;
+        padding: 2px 6px;
+        border-radius: 10px;
       }
 
       .hash-value {
         font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: #333;
         word-break: break-all;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         line-height: 1.4;
       }
 
@@ -444,8 +455,14 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
           padding: 15px;
         }
 
-        .algorithm-radio-group {
-          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        .select-group {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+        }
+
+        .select-label {
+          min-width: auto;
         }
 
         .button-group {
@@ -456,36 +473,36 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
           width: 100%;
           justify-content: center;
         }
-
-        .file-upload {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 10px;
-        }
-
-        .file-name {
-          text-align: center;
-        }
       }
     </style>
   </head>
-  <body>
+  <body onload="loadHashLibraries()">
     <div class="container">
       <!-- 头部 -->
       <header class="header">
         <h1>哈希计算器</h1>
-        <p>计算文本和文件的哈希值，每次只能选择一种算法</p>
+        <p>计算文本和文件的哈希值，从下拉菜单中选择算法</p>
       </header>
 
-      <!-- 算法选择 - 改为单选 -->
+      <!-- 算法选择 - 改为下拉菜单 -->
       <div class="card">
         <h2 class="section-title">选择哈希算法</h2>
+        
         <div class="algorithm-selector">
-          <p style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">
-            请选择一种哈希算法（单选）：
-          </p>
-          <div class="algorithm-radio-group" id="algorithm-radio-group">
-            <!-- 算法选项将通过 JavaScript 动态生成 -->
+          <div class="select-group">
+            <label class="select-label">算法选择：</label>
+            <select id="algorithm-select" class="select-field">
+              <option value="sha256" selected>SHA-256 (256位)</option>
+              <option value="md5">MD5 (128位)</option>
+              <option value="sha1">SHA-1 (160位)</option>
+              <option value="sha512">SHA-512 (512位)</option>
+              <option value="sha3-256">SHA-3-256 (256位)</option>
+              <option value="sha3-512">SHA-3-512 (512位)</option>
+            </select>
+          </div>
+          
+          <div class="algorithm-info" id="algorithm-info">
+            <strong>SHA-256</strong> - 256位SHA-2算法，目前广泛用于安全应用和区块链技术
           </div>
         </div>
       </div>
@@ -505,7 +522,7 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         </div>
 
         <div class="button-group">
-          <button id="calculate-text-btn" class="btn btn-primary">计算哈希</button>
+          <button id="calculate-text-btn" class="btn btn-primary">计算文本哈希</button>
           <button id="clear-text-btn" class="btn btn-outline">清空文本</button>
           <button id="example-text-btn" class="btn btn-outline">使用示例</button>
         </div>
@@ -590,76 +607,41 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
     </div>
 
     <script>
-      // 初始化算法列表 - 移除了 BLAKE2b
-      const algorithms = [
-        { id: 'md5', name: 'MD5', bits: '128位' },
-        { id: 'sha1', name: 'SHA-1', bits: '160位' },
-        { id: 'sha256', name: 'SHA-256', bits: '256位' },
-        { id: 'sha512', name: 'SHA-512', bits: '512位' },
-        { id: 'sha3-256', name: 'SHA-3-256', bits: '256位' },
-        { id: 'sha3-512', name: 'SHA-3-512', bits: '512位' }
-      ];
+      // 算法信息映射
+      const algorithmInfo = {
+        'md5': 'MD5 - 128位哈希算法，常用于文件完整性校验，但已不推荐用于安全用途',
+        'sha1': 'SHA-1 - 160位哈希算法，已发现碰撞攻击，不推荐用于安全用途',
+        'sha256': 'SHA-256 - 256位SHA-2算法，目前广泛用于安全应用和区块链技术',
+        'sha512': 'SHA-512 - 512位SHA-2算法，提供更高的安全性，适合加密用途',
+        'sha3-256': 'SHA-3-256 - 256位SHA-3算法，新一代哈希标准，安全性更高',
+        'sha3-512': 'SHA-3-512 - 512位SHA-3算法，最高安全级别的哈希算法'
+      };
 
-      // 当前选择的算法
-      let selectedAlgorithm = 'sha256';
       // 当前选择的文件
       let selectedFile = null;
 
-      // 初始化算法选择器 - 改为单选
+      // 初始化下拉菜单
       function initAlgorithmSelector() {
-        const radioGroup = document.getElementById('algorithm-radio-group');
-        radioGroup.innerHTML = '';
+        const select = document.getElementById('algorithm-select');
+        const info = document.getElementById('algorithm-info');
         
-        algorithms.forEach(algo => {
-          const item = document.createElement('label');
-          item.className = `algorithm-radio-item ${selectedAlgorithm === algo.id ? 'selected' : ''}`;
-          item.innerHTML = `
-            <input 
-              type="radio" 
-              name="hash-algorithm" 
-              value="${algo.id}" 
-              ${selectedAlgorithm === algo.id ? 'checked' : ''}
-            >
-            <span class="algorithm-name">${algo.name}</span>
-            <span class="algorithm-bits">${algo.bits}</span>
-          `;
-          
-          // 点击选择算法
-          item.addEventListener('click', (e) => {
-            if (e.target.type !== 'radio') {
-              const radio = item.querySelector('input[type="radio"]');
-              radio.checked = true;
-              selectedAlgorithm = radio.value;
-              
-              // 更新所有选项的选中状态
-              document.querySelectorAll('.algorithm-radio-item').forEach(el => {
-                el.classList.remove('selected');
-              });
-              item.classList.add('selected');
-            }
-          });
-          
-          // 直接点击radio按钮
-          const radio = item.querySelector('input[type="radio"]');
-          radio.addEventListener('change', (e) => {
-            if (e.target.checked) {
-              selectedAlgorithm = e.target.value;
-              
-              // 更新所有选项的选中状态
-              document.querySelectorAll('.algorithm-radio-item').forEach(el => {
-                el.classList.remove('selected');
-              });
-              item.classList.add('selected');
-            }
-          });
-          
-          radioGroup.appendChild(item);
+        // 监听选择变化
+        select.addEventListener('change', function() {
+          const selected = this.value;
+          info.innerHTML = `<strong>${this.options[this.selectedIndex].text}</strong> - ${algorithmInfo[selected]}`;
         });
       }
 
       // 获取当前选中的算法
       function getSelectedAlgorithm() {
-        return algorithms.find(algo => algo.id === selectedAlgorithm);
+        const select = document.getElementById('algorithm-select');
+        return {
+          id: select.value,
+          name: select.options[select.selectedIndex].text.split(' ')[0],
+          bits: select.value.includes('512') ? '512位' : 
+                select.value.includes('256') ? '256位' : 
+                select.value.includes('160') ? '160位' : '128位'
+        };
       }
 
       // 计算文本哈希
@@ -671,8 +653,10 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         }
 
         const algorithm = getSelectedAlgorithm();
-        if (!algorithm) {
-          alert('请选择一个哈希算法');
+        
+        // 检查库是否加载完成
+        if (typeof CryptoJS === 'undefined' || typeof sha3_256 === 'undefined') {
+          alert('哈希库正在加载中，请稍后再试...');
           return;
         }
 
@@ -721,8 +705,10 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         }
 
         const algorithm = getSelectedAlgorithm();
-        if (!algorithm) {
-          alert('请选择一个哈希算法');
+        
+        // 检查库是否加载完成
+        if (typeof CryptoJS === 'undefined' || typeof sha3_256 === 'undefined') {
+          alert('哈希库正在加载中，请稍后再试...');
           return;
         }
 
@@ -731,16 +717,18 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
 
         try {
           const file = selectedFile;
-          
-          // 读取文件为 ArrayBuffer
           const arrayBuffer = await readFileAsArrayBuffer(file);
-          
-          // 转换为 CryptoJS 可用的格式
-          const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
           
           let hash;
           
-          try {
+          if (algorithm.id.startsWith('sha3-')) {
+            // SHA-3 需要特殊处理
+            const hexString = arrayBufferToHex(arrayBuffer);
+            hash = algorithm.id === 'sha3-256' ? sha3_256(hexString) : sha3_512(hexString);
+          } else {
+            // 其他算法使用 CryptoJS
+            const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
+            
             switch(algorithm.id) {
               case 'md5':
                 hash = CryptoJS.MD5(wordArray).toString();
@@ -754,36 +742,21 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
               case 'sha512':
                 hash = CryptoJS.SHA512(wordArray).toString();
                 break;
-              case 'sha3-256':
-                // 将 ArrayBuffer 转换为十六进制字符串
-                const hexString256 = arrayBufferToHex(arrayBuffer);
-                hash = sha3_256(hexString256);
-                break;
-              case 'sha3-512':
-                const hexString512 = arrayBufferToHex(arrayBuffer);
-                hash = sha3_512(hexString512);
-                break;
               default:
                 hash = '不支持该算法';
             }
-            
-            // 显示文件信息
-            showFileInfo(file);
-            
-            // 显示结果
-            displayResult(algorithm, hash);
-            
-          } catch (error) {
-            console.error(`计算 ${algorithm.name} 哈希时出错:`, error);
-            alert(`计算 ${algorithm.name} 哈希时出错: ${error.message}`);
           }
           
-          hideLoading('file');
-          hideProgress();
+          // 显示文件信息
+          showFileInfo(file);
+          
+          // 显示结果
+          displayResult(algorithm, hash);
           
         } catch (error) {
           console.error('处理文件时出错:', error);
           alert('处理文件时出错: ' + error.message);
+        } finally {
           hideLoading('file');
           hideProgress();
         }
@@ -826,9 +799,101 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
-      // 其他辅助函数保持不变...
-      // 包括：readFileAsArrayBuffer, arrayBufferToHex, showFileInfo, formatFileSize,
-      // showLoading, hideLoading, showProgress, hideProgress, copyToClipboard 等
+      // 辅助函数
+      function readFileAsArrayBuffer(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = e => reject(new Error('读取文件失败'));
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      function arrayBufferToHex(buffer) {
+        const byteArray = new Uint8Array(buffer);
+        return Array.from(byteArray, byte => byte.toString(16).padStart(2, '0')).join('');
+      }
+
+      function showFileInfo(file) {
+        const fileInfo = document.getElementById('file-info');
+        fileInfo.style.display = 'block';
+        fileInfo.innerHTML = `
+          <div class="file-info-title">文件信息</div>
+          <div class="file-details">
+            <div class="file-detail">
+              <span class="detail-label">文件名:</span>
+              <span class="detail-value">${file.name}</span>
+            </div>
+            <div class="file-detail">
+              <span class="detail-label">文件大小:</span>
+              <span class="detail-value">${formatFileSize(file.size)}</span>
+            </div>
+            <div class="file-detail">
+              <span class="detail-label">修改时间:</span>
+              <span class="detail-value">${new Date(file.lastModified).toLocaleString()}</span>
+            </div>
+            <div class="file-detail">
+              <span class="detail-label">文件类型:</span>
+              <span class="detail-value">${file.type || '未知'}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+
+      function showLoading(type) {
+        document.getElementById(`${type}-loading`).style.display = 'flex';
+      }
+
+      function hideLoading(type) {
+        document.getElementById(`${type}-loading`).style.display = 'none';
+      }
+
+      function showProgress(percent) {
+        const progress = document.getElementById('file-progress');
+        const fill = document.getElementById('progress-fill');
+        const text = document.getElementById('progress-text');
+        
+        progress.style.display = 'block';
+        fill.style.width = `${percent}%`;
+        text.textContent = `${Math.round(percent)}%`;
+      }
+
+      function hideProgress() {
+        document.getElementById('file-progress').style.display = 'none';
+      }
+
+      async function copyToClipboard(text, button) {
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = '已复制';
+          button.classList.add('copied');
+          setTimeout(() => {
+            button.textContent = '复制哈希值';
+            button.classList.remove('copied');
+          }, 2000);
+        } catch (err) {
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          button.textContent = '已复制';
+          button.classList.add('copied');
+          setTimeout(() => {
+            button.textContent = '复制哈希值';
+            button.classList.remove('copied');
+          }, 2000);
+        }
+      }
 
       // 初始化页面
       document.addEventListener('DOMContentLoaded', function() {
@@ -880,110 +945,6 @@ const description = "计算文本和文件的 MD5、SHA-1、SHA-256、SHA-512、
           }
         });
       });
-
-      // 其他工具函数保持不变...
-      function readFileAsArrayBuffer(file) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = e => resolve(e.target.result);
-          reader.onerror = e => reject(new Error('读取文件失败'));
-          reader.readAsArrayBuffer(file);
-        });
-      }
-
-      function arrayBufferToHex(buffer) {
-        const byteArray = new Uint8Array(buffer);
-        return Array.from(byteArray, byte => byte.toString(16).padStart(2, '0')).join('');
-      }
-
-      function showFileInfo(file) {
-        const fileInfo = document.getElementById('file-info');
-        fileInfo.style.display = 'block';
-        fileInfo.innerHTML = `
-          <div class="file-info-title">文件信息</div>
-          <div class="file-details">
-            <div class="file-detail">
-              <span class="detail-label">文件名:</span>
-              <span class="detail-value">${file.name}</span>
-            </div>
-            <div class="file-detail">
-              <span class="detail-label">文件大小:</span>
-              <span class="detail-value">${formatFileSize(file.size)}</span>
-            </div>
-            <div class="file-detail">
-              <span class="detail-label">修改时间:</span>
-              <span class="detail-value">${new Date(file.lastModified).toLocaleString()}</span>
-            </div>
-            <div class="file-detail">
-              <span class="detail-label">文件类型:</span>
-              <span class="detail-value">${file.type || '未知'}</span>
-            </div>
-          </div>
-        `;
-      }
-
-      function formatFileSize(bytes) {
-        if (bytes === 0) return '0 B';
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-      }
-
-      function showLoading(type) {
-        if (type === 'text') {
-          document.getElementById('text-loading').style.display = 'flex';
-        } else if (type === 'file') {
-          document.getElementById('file-loading').style.display = 'flex';
-        }
-      }
-
-      function hideLoading(type) {
-        if (type === 'text') {
-          document.getElementById('text-loading').style.display = 'none';
-        } else if (type === 'file') {
-          document.getElementById('file-loading').style.display = 'none';
-        }
-      }
-
-      function showProgress(percent) {
-        const progress = document.getElementById('file-progress');
-        const fill = document.getElementById('progress-fill');
-        const text = document.getElementById('progress-text');
-        
-        progress.style.display = 'block';
-        fill.style.width = `${percent}%`;
-        text.textContent = `${Math.round(percent)}%`;
-      }
-
-      function hideProgress() {
-        document.getElementById('file-progress').style.display = 'none';
-      }
-
-      async function copyToClipboard(text, button) {
-        try {
-          await navigator.clipboard.writeText(text);
-          button.textContent = '已复制';
-          button.classList.add('copied');
-          setTimeout(() => {
-            button.textContent = '复制哈希值';
-            button.classList.remove('copied');
-          }, 2000);
-        } catch (err) {
-          const textArea = document.createElement('textarea');
-          textArea.value = text;
-          document.body.appendChild(textArea);
-          textArea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textArea);
-          button.textContent = '已复制';
-          button.classList.add('copied');
-          setTimeout(() => {
-            button.textContent = '复制哈希值';
-            button.classList.remove('copied');
-          }, 2000);
-        }
-      }
     </script>
   </body>
 </html>
