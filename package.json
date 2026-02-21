@@ -9,6 +9,19 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.17.1"
-  }
+    "astro": "^5.17.3"
+  },
+  "description": "```sh npm create astro@latest -- --template basics ```",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcpackms/ruantools2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mcpackms/ruantools2/issues"
+  },
+  "homepage": "https://github.com/mcpackms/ruantools2#readme"
 }
