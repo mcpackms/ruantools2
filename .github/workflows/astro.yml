@@ -15,7 +15,6 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  BUILD_PATH: "."
   NODE_VERSION: "20"
   PNPM_VERSION: "8"
 
@@ -31,7 +30,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
-        id: pnpm-setup
         with:
           version: ${{ env.PNPM_VERSION }}
 
@@ -40,76 +38,29 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-          cache-dependency-path: '**/pnpm-lock.yaml'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        id: pnpm-cache
-        with:
-          path: |
-            ~/.local/share/pnpm/store
-            ~/.pnpm-store
-            node_modules
-            .next
-            .astro
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
-      - name: Verify lock file exists
-        id: check-lockfile
+      - name: Debug file list
         run: |
+          echo "Current directory:"
+          pwd
+          echo "Files in repository:"
+          ls -la
+          echo "Checking pnpm-lock.yaml:"
           if [ -f "pnpm-lock.yaml" ]; then
-            echo "lockfile=pnpm-lock.yaml" >> $GITHUB_OUTPUT
-            echo "has-lockfile=true" >> $GITHUB_OUTPUT
+            echo "✅ pnpm-lock.yaml exists"
+            echo "File size: $(ls -lh pnpm-lock.yaml | awk '{print $5}')"
           else
-            echo "lockfile=package.json" >> $GITHUB_OUTPUT
-            echo "has-lockfile=false" >> $GITHUB_OUTPUT
+            echo "❌ pnpm-lock.yaml NOT found"
           fi
 
       - name: Install dependencies
-        id: install-deps
-        run: |
-          if [ "${{ steps.check-lockfile.outputs.has-lockfile }}" = "true" ]; then
-            echo "Using pnpm-lock.yaml"
-            pnpm install --frozen-lockfile
-          else
-            echo "Warning: No pnpm-lock.yaml found, generating one..."
-            pnpm install
-          fi
-
-      - name: Verify installation
-        run: |
-          echo "PNPM version: $(pnpm --version)"
-          echo "Node version: $(node --version)"
-          echo "Project dependencies:"
-          pnpm list --depth=0 || true
-
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
+        run: pnpm install --frozen-lockfile
 
       - name: Build with Astro
-        run: |
-          pnpm run build -- --site "https://mcpackms.github.io" --base "/ruantools2/"
+        run: pnpm run build
         env:
           NODE_ENV: production
-          CI: true
-
-      - name: Check build output
-        run: |
-          echo "Build directory contents:"
-          ls -la dist/ || echo "No dist directory found"
-          
-          if [ -d "dist" ]; then
-            echo "Build output size:"
-            du -sh dist
-            echo "Number of files:"
-            find dist -type f | wc -l
-          else
-            echo "Error: Build directory 'dist' not found"
-            exit 1
-          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
