@@ -32,17 +32,28 @@ function Base64UrlTool() {
     }
   };
 
-  // URL 编码
+  // URL 编码 - 修复版本
   const handleUrlEncode = () => {
     try {
-      const encoded = encodeURIComponent(urlInput);
+      // 只编码必要的字符：空格、特殊符号等
+      let encoded = urlInput;
+      
+      // 替换空格为 %20
+      encoded = encoded.replace(/ /g, '%20');
+      
+      // 编码其他特殊字符
+      const specialChars = /[^\w\-\.~!$&'()*+,;=:@\/]/g;
+      encoded = encoded.replace(specialChars, function(match) {
+        return encodeURIComponent(match);
+      });
+      
       setUrlOutput(encoded);
     } catch (error) {
       setUrlOutput('❌ 编码错误');
     }
   };
 
-  // URL 解码
+  // URL 解码 - 修复版本
   const handleUrlDecode = () => {
     try {
       const decoded = decodeURIComponent(urlInput);
@@ -267,7 +278,7 @@ function Base64UrlTool() {
               </div>
               
               <div className="text-xs text-gray-500 dark:text-gray-400 pt-2">
-                <p>URL 编码用于确保特殊字符（如空格、中文、&、=等）在 URL 中安全传输。</p>
+                <p>URL 编码用于确保特殊字符（如空格、中文等）在 URL 中安全传输，保留常用标点符号。</p>
               </div>
             </div>
           </div>
@@ -284,7 +295,7 @@ function Base64UrlTool() {
             <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">使用提示</h3>
             <ul className="mt-2 text-sm text-blue-700 dark:text-blue-400 space-y-1">
               <li>• Base64 编码：将二进制数据转换为可打印 ASCII 字符，常用于数据存储和传输</li>
-              <li>• URL 编码：将 URL 中的特殊字符转换为 % 后跟两位十六进制数的形式</li>
+              <li>• URL 编码：将 URL 中的特殊字符转换为 % 后跟两位十六进制数的形式，保留常用标点</li>
               <li>• 解码时，请确保输入格式正确，否则可能导致解码失败</li>
               <li>• 所有操作均在浏览器本地完成，数据不会上传服务器</li>
             </ul>
