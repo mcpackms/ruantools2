@@ -121,11 +121,15 @@ export default function AESEncryptor() {
         throw new Error(`密钥长度不正确。AES-${keyLength} 需要 ${expectedLength} 字节，当前为 ${keyData.byteLength} 字节。`);
       }
 
+      // 修复：使用完整的算法名称，而不是只取第一部分
+      // Web Crypto API 需要完整的算法名称，如 'AES-CBC'、'AES-GCM' 等
+      const algorithmName = algorithm; // 直接使用完整的算法名称
+      
       // 导入密钥
       return await crypto.subtle.importKey(
         'raw',
         keyData,
-        { name: algorithm.split('-')[0] },
+        { name: algorithmName },  // 使用完整的算法名称
         false,
         ['encrypt', 'decrypt']
       );
