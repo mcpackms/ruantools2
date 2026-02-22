@@ -49,7 +49,7 @@ export const tools = [
     comingSoon: false
   },
   { 
-    id: "aes", 
+    id: "aes-openssl", 
     name: "AES在线加解密", 
     description: "AES在线加解密工具", 
     path: "/ruantools2/tools/aes", 
