@@ -1,0 +1,172 @@
+---
+// src/pages/tools/aes-openssl.astro
+import Layout from '../../layouts/Layout.astro';
+import AESEncryptorOpenSSL from '../../components/AESEncryptorOpenSSL.jsx';
+
+const pageTitle = 'AES 加密解密工具 (OpenSSL 兼容)';
+const description = '专业 AES 加解密工具，支持 CBC、ECB、CTR 模式，兼容 OpenSSL 格式，使用 PBKDF2 密钥派生';
+---
+
+<Layout title={`${pageTitle} | 软糖工具`}>
+  <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- 页面标题和描述 -->
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        {pageTitle}
+      </h1>
+      <p class="text-lg text-gray-600 dark:text-gray-400">
+        {description}
+      </p>
+    </div>
+
+    <!-- AES 工具组件 -->
+    <AESEncryptorOpenSSL client:load />
+
+    <!-- 工具说明 -->
+    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- AES 算法说明 -->
+      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          AES 加密算法
+        </h2>
+        <div class="space-y-3 text-gray-700 dark:text-gray-300">
+          <p>
+            <strong>高级加密标准（AES）</strong> 是一种对称加密算法，被美国国家标准与技术研究院（NIST）采用为联邦信息处理标准（FIPS）。
+          </p>
+          <div class="space-y-2">
+            <h3 class="font-semibold text-gray-800 dark:text-gray-200">支持的模式：</h3>
+            <ul class="list-disc pl-5 space-y-1">
+              <li><strong>CBC（密码块链接）</strong>：每个明文块先与前一个密文块进行异或操作，然后再进行加密</li>
+              <li><strong>ECB（电子密码本）</strong>：将每个明文块独立加密，简单但不安全</li>
+              <li><strong>CTR（计数器）</strong>：将块密码转换为流密码，适合并行处理</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- OpenSSL 兼容性说明 -->
+      <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          OpenSSL 兼容模式
+        </h2>
+        <div class="space-y-3 text-gray-700 dark:text-gray-300">
+          <p>
+            本工具支持与 OpenSSL 命令行工具完全兼容的加密格式。
+          </p>
+          <div class="space-y-2">
+            <h3 class="font-semibold text-gray-800 dark:text-gray-200">兼容特性：</h3>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>使用 PBKDF2 密钥派生函数（Password-Based Key Derivation Function 2）</li>
+              <li>支持 Salted__ 前缀的 OpenSSL 格式</li>
+              <li>兼容 OpenSSL 的 EVP_BytesToKey 函数行为</li>
+              <li>支持 PKCS7 填充模式</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 使用示例 -->
+    <div class="mt-8">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">使用示例</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 示例1：加密 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">加密示例</h3>
+          <div class="space-y-2 text-sm">
+            <p><strong>明文：</strong><code class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">Hello, World!</code></p>
+            <p><strong>密码：</strong><code class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">mySecretPassword123</code></p>
+            <p><strong>模式：</strong>CBC，<strong>密钥长度：</strong>128 位</p>
+            <p class="text-xs text-gray-500">点击"生成所有参数"可自动生成安全的密码、盐值和 IV</p>
+          </div>
+        </div>
+
+        <!-- 示例2：解密 -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">解密示例</h3>
+          <div class="space-y-2 text-sm">
+            <p><strong>格式：</strong>OpenSSL 格式（带 Salted__ 前缀）</p>
+            <p><strong>步骤：</strong></p>
+            <ol class="list-decimal pl-5 space-y-1">
+              <li>复制完整的加密结果（包含 Salted__ 行）</li>
+              <li>粘贴到输入框，填写正确的密码</li>
+              <li>点击"解密"按钮获取原始内容</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 安全提示 -->
+    <div class="mt-8 p-6 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-2xl">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <span class="text-yellow-500">⚠️</span>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-300">安全提示</h3>
+          <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-400">
+            <ul class="list-disc pl-5 space-y-1">
+              <li>所有加密操作均在本地浏览器完成，数据不会上传到任何服务器</li>
+              <li>请妥善保管密码、盐值和 IV，这些是解密的必要条件</li>
+              <li>建议使用"生成所有参数"功能生成强密码和随机盐值、IV</li>
+              <li>使用"一键复制所有参数"保存配置，以便后续解密使用</li>
+              <li>对于生产环境，请使用专业的密钥管理系统</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OpenSSL 命令行参考 -->
+    <div class="mt-8">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">OpenSSL 命令行参考</h2>
+      <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+        <div class="space-y-4">
+          <div>
+            <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">加密（生成 OpenSSL 格式）</h3>
+            <pre class="bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
+              <code>echo "Hello, World!" | openssl enc -aes-128-cbc -pbkdf2 -salt -pass pass:myPassword -base64</code>
+            </pre>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">解密（OpenSSL 格式）</h3>
+            <pre class="bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
+              <code>echo "U2FsdGVkX1..." | openssl enc -aes-128-cbc -d -pbkdf2 -salt -pass pass:myPassword -base64</code>
+            </pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  /* 全局样式优化 */
+  .container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  /* 代码块样式 */
+  pre code {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  /* 响应式调整 */
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* 暗色模式优化 */
+  .dark pre {
+    background-color: #1e293b;
+  }
+
+  .dark code {
+    color: #e2e8f0;
+  }
+</style>
