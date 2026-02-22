@@ -16,6 +16,8 @@ concurrency:
 
 env:
   BUILD_PATH: "."
+  NODE_VERSION: "20"
+  PNPM_VERSION: "8"
 
 jobs:
   build:
@@ -29,57 +31,97 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
+        id: pnpm-setup
         with:
-          version: 8
-          run_install: false
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
           cache-dependency-path: '**/pnpm-lock.yaml'
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
+      - name: Cache pnpm store
         uses: actions/cache@v4
+        id: pnpm-cache
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: |
+            ~/.local/share/pnpm/store
+            ~/.pnpm-store
+            node_modules
+            .next
+            .astro
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-pnpm-
+
+      - name: Verify lock file exists
+        id: check-lockfile
+        run: |
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "lockfile=pnpm-lock.yaml" >> $GITHUB_OUTPUT
+            echo "has-lockfile=true" >> $GITHUB_OUTPUT
+          else
+            echo "lockfile=package.json" >> $GITHUB_OUTPUT
+            echo "has-lockfile=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        working-directory: ${{ env.BUILD_PATH }}
+        id: install-deps
+        run: |
+          if [ "${{ steps.check-lockfile.outputs.has-lockfile }}" = "true" ]; then
+            echo "Using pnpm-lock.yaml"
+            pnpm install --frozen-lockfile
+          else
+            echo "Warning: No pnpm-lock.yaml found, generating one..."
+            pnpm install
+          fi
+
+      - name: Verify installation
+        run: |
+          echo "PNPM version: $(pnpm --version)"
+          echo "Node version: $(node --version)"
+          echo "Project dependencies:"
+          pnpm list --depth=0 || true
 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
 
       - name: Build with Astro
-        run: pnpm run build
-        working-directory: ${{ env.BUILD_PATH }}
+        run: |
+          pnpm run build -- --site "https://mcpackms.github.io" --base "/ruantools2/"
         env:
           NODE_ENV: production
-          ASTRO_SITE: ${{ steps.pages.outputs.origin }}
-          ASTRO_BASE: ${{ steps.pages.outputs.base_path }}
+          CI: true
+
+      - name: Check build output
+        run: |
+          echo "Build directory contents:"
+          ls -la dist/ || echo "No dist directory found"
+          
+          if [ -d "dist" ]; then
+            echo "Build output size:"
+            du -sh dist
+            echo "Number of files:"
+            find dist -type f | wc -l
+          else
+            echo "Error: Build directory 'dist' not found"
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ env.BUILD_PATH }}/dist
+          path: dist/
 
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
     runs-on: ubuntu-latest
+    needs: build
     name: Deploy
     steps:
       - name: Deploy to GitHub Pages
