@@ -3,11 +3,11 @@ export const apps = [
   {
     id: 1,
     name: '软天空 NEXT',
-    version: 'v1.01',
+    version: 'v1.02',
     author: '一支电笔 / sl_ly',
     description: '主打精简，包体积小，使用流畅，功能较少，超稳定 <s>本站作者的改版</s>',
-    downloadUrl: 'https://ruantools.pages.dev/file/apk/ruansky/sl_ly/RUANSKY_NEXT_E_1.01.apk',
-    sha256: 'f0956ea4890fadb038e26438644d883bfe9e5dd2ebc5c2ac88789f003b1275de',
+    downloadUrl: 'https://ruantools.pages.dev/file/apk/ruansky/sl_ly/RUANSKY_NEXT_E_1.02.apk',
+    sha256: 'ff1cc32c37f2ebd360aa5a6e592ca8eff530a9832aa2f0ce3045651b04c34b7b',
     downloadText: '下载 APK'
   },
   {
