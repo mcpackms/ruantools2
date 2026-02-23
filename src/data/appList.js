@@ -23,11 +23,11 @@ export const apps = [
   {
     id: 3,
     name: '软天空（解锁版）',
-    version: 'v2.2',
+    version: 'v2.3',
     author: 'k点',
     description: '极其精简，界面好看(真的好看!)，适合使用社区功能的用户使用',
     downloadUrl: 'https://ruantools.pages.dev/files/apk/ruansky/k_dian/kDianUnlock.apk',
-    sha256: '6f8aae3df58e8740a0f64ce96bd75f692c83bcc7f2ce3819c8e46fd979f69281',
+    sha256: 'bb8521fa135554ea4ae570bd3d0f0215913e46aa79786fe2b835c85b0fd5947d',
     downloadText: '下载 APK'
   },
   {
