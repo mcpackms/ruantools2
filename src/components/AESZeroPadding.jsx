@@ -1,443 +1,205 @@
-// src/components/AESZeroPadding.jsx
-import { useState, useEffect, useRef } from 'react';
-import CryptoJS from 'crypto-js';
+---
+// src/pages/tools/aes-native.astro
+import Layout from '../../layouts/Layout.astro';
+import AESZeroPaddingWebCrypto from '../../components/AESZeroPaddingWebCrypto.jsx';
 
-const AESZeroPadding = () => {
-  // 固定密钥和IV
-  const KEY_STRING = "P.8CGq@Wr~Vs]!4!";
-  const IV_STRING = KEY_STRING;
+const pageTitle = 'AES 加密解密工具 (原生 API)';
+const description = '使用浏览器原生 Web Crypto API 的 AES-128-CBC 零填充加密解密工具，更安全，无需外部依赖';
+---
 
-  // 状态管理
-  const [mode, setMode] = useState('decrypt'); // 'encrypt' 或 'decrypt'
-  const [inputText, setInputText] = useState('');
-  const [outputText, setOutputText] = useState('');
-  const [statusMessage, setStatusMessage] = useState('');
-  const [statusType, setStatusType] = useState('info'); // 'success', 'error', 'info'
-  const [copyButtonText, setCopyButtonText] = useState('复制结果');
+<Layout title={`${pageTitle} | 软糖工具`}>
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- 页面标题和描述 -->
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        {pageTitle}
+      </h1>
+      <p class="text-lg text-gray-600 dark:text-gray-400">
+        {description}
+      </p>
+    </div>
 
-  const copyButtonRef = useRef(null);
+    <!-- 工具主界面 -->
+    <div class="mb-8">
+      <AESZeroPaddingWebCrypto client:load />
+    </div>
 
-  // 将字符串密钥转为 CryptoJS WordArray
-  const getKeyAndIv = () => {
-    const key = CryptoJS.enc.Utf8.parse(KEY_STRING);
-    const iv = CryptoJS.enc.Utf8.parse(IV_STRING);
-    return { key, iv };
-  };
-
-  // 零填充：补足16倍数 (补0x00)
-  const applyZeroPadding = (plainUtf8Bytes) => {
-    const sigBytes = plainUtf8Bytes.sigBytes;
-    const remainder = sigBytes % 16;
-    
-    if (remainder === 0) {
-      return plainUtf8Bytes.clone();
-    }
-    
-    const padLen = 16 - remainder;
-    const padded = new CryptoJS.lib.WordArray.init(
-      plainUtf8Bytes.words.slice(0),
-      sigBytes
-    );
-    
-    for (let i = 0; i < padLen; i++) {
-      padded.words[padded.sigBytes >>> 2] |= (0x00 << (24 - (8 * (padded.sigBytes % 4))));
-      padded.sigBytes++;
-    }
-    
-    return padded;
-  };
-
-  // 去除尾部零填充
-  const removeZeroPadding = (decryptedBytes) => {
-    let sigBytes = decryptedBytes.sigBytes;
-    if (sigBytes === 0) return decryptedBytes;
-
-    const words = decryptedBytes.words;
-    let newLen = sigBytes;
-    
-    for (let i = sigBytes - 1; i >= 0; i--) {
-      const byteIndex = i % 4;
-      const wordIndex = Math.floor(i / 4);
-      const byteVal = (words[wordIndex] >>> (24 - byteIndex * 8)) & 0xff;
-      
-      if (byteVal === 0x00) {
-        newLen--;
-      } else {
-        break;
-      }
-    }
-    
-    if (newLen === sigBytes) return decryptedBytes;
-    return new CryptoJS.lib.WordArray.init(words.slice(0), newLen);
-  };
-
-  // 加密 (输入明文, 输出Base64)
-  const encryptPlaintext = (plainText) => {
-    if (!plainText) {
-      return { success: false, message: '输入不能为空' };
-    }
-    
-    try {
-      const plainUtf8 = CryptoJS.enc.Utf8.parse(plainText);
-      const paddedPlain = applyZeroPadding(plainUtf8);
-      const { key, iv } = getKeyAndIv();
-      
-      const encrypted = CryptoJS.AES.encrypt(paddedPlain, key, {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.NoPadding
-      });
-      
-      const cipherBase64 = CryptoJS.enc.Base64.stringify(encrypted.ciphertext);
-      return { success: true, data: cipherBase64 };
-    } catch (error) {
-      console.error('加密错误:', error);
-      return { success: false, message: `加密异常: ${error.message}` };
-    }
-  };
-
-  // 解密 (输入Base64, 输出明文字符串)
-  const decryptBase64 = (cipherBase64) => {
-    if (!cipherBase64) {
-      return { success: false, message: '输入不能为空' };
-    }
-    
-    try {
-      // 清理输入，移除可能的空白字符
-      const cleanCipher = cipherBase64.trim();
-      const cipherWordArray = CryptoJS.enc.Base64.parse(cleanCipher);
-      
-      if (cipherWordArray.sigBytes % 16 !== 0) {
-        return { 
-          success: false, 
-          message: `密文长度必须为16的倍数 (当前 ${cipherWordArray.sigBytes} 字节)` 
-        };
-      }
-      
-      const { key, iv } = getKeyAndIv();
-      const decrypted = CryptoJS.AES.decrypt(
-        { ciphertext: cipherWordArray },
-        key,
-        {
-          iv: iv,
-          mode: CryptoJS.mode.CBC,
-          padding: CryptoJS.pad.NoPadding
-        }
-      );
-      
-      const withoutPad = removeZeroPadding(decrypted);
-      const plainText = CryptoJS.enc.Utf8.stringify(withoutPad);
-      
-      return { success: true, data: plainText };
-    } catch (error) {
-      console.error('解密错误:', error);
-      return { success: false, message: `解密异常: ${error.message}` };
-    }
-  };
-
-  // 执行加密/解密
-  const handleExecute = () => {
-    if (!inputText.trim()) {
-      setStatusMessage('请在输入框中填写内容');
-      setStatusType('error');
-      setOutputText('');
-      return;
-    }
-
-    let result;
-    
-    if (mode === 'encrypt') {
-      result = encryptPlaintext(inputText);
-    } else {
-      result = decryptBase64(inputText);
-    }
-
-    if (result.success) {
-      setOutputText(result.data || '(空)');
-      setStatusMessage(`${mode === 'encrypt' ? '🔒 加密' : '🔓 解密'}成功`);
-      setStatusType('success');
-    } else {
-      setOutputText('');
-      setStatusMessage(`❌ ${result.message}`);
-      setStatusType('error');
-    }
-  };
-
-  // 清空所有
-  const handleClear = () => {
-    setInputText('');
-    setOutputText('');
-    setStatusMessage('');
-    setCopyButtonText('复制结果');
-  };
-
-  // 填充示例
-  const handleFillExample = () => {
-    if (mode === 'encrypt') {
-      setInputText('Hello! CBC NoPad');
-    } else {
-      // 加密示例文本以生成示例密文
-      const exampleResult = encryptPlaintext('Hello! CBC NoPad');
-      if (exampleResult.success) {
-        setInputText(exampleResult.data);
-      } else {
-        // 后备示例
-        setInputText('8kuV0hSGqW8r8FxB3H/kDg==');
-      }
-    }
-    
-    setStatusMessage('📋 示例已填入，点击「执行」查看结果');
-    setStatusType('info');
-    setOutputText('');
-    setCopyButtonText('复制结果');
-  };
-
-  // 复制结果到剪贴板
-  const handleCopy = async () => {
-    if (!outputText) {
-      setStatusMessage('❌ 没有可复制的内容');
-      setStatusType('error');
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(outputText);
-      setCopyButtonText('✅ 已复制');
-      setStatusMessage('✅ 已复制到剪贴板');
-      setStatusType('success');
-      
-      setTimeout(() => {
-        setCopyButtonText('复制结果');
-      }, 2000);
-    } catch (error) {
-      console.error('复制失败:', error);
-      
-      // 降级方案：使用传统的 execCommand
-      try {
-        const textarea = document.createElement('textarea');
-        textarea.value = outputText;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        
-        const success = document.execCommand('copy');
-        document.body.removeChild(textarea);
-        
-        if (success) {
-          setCopyButtonText('✅ 已复制');
-          setStatusMessage('✅ 已复制到剪贴板');
-          setStatusType('success');
-          
-          setTimeout(() => {
-            setCopyButtonText('复制结果');
-          }, 2000);
-        } else {
-          throw new Error('复制失败');
-        }
-      } catch (fallbackError) {
-        setStatusMessage('❌ 复制失败，请手动选择复制');
-        setStatusType('error');
-      }
-    }
-  };
-
-  // 处理输入变化时清空状态
-  const handleInputChange = (e) => {
-    setInputText(e.target.value);
-    if (statusMessage) {
-      setStatusMessage('');
-    }
-  };
-
-  // 处理模式切换
-  const handleModeChange = (newMode) => {
-    setMode(newMode);
-    setOutputText('');
-    setStatusMessage('');
-    setCopyButtonText('复制结果');
-  };
-
-  // 初始加载时设置示例
-  useEffect(() => {
-    // 默认在解密模式时填入示例密文
-    if (mode === 'decrypt') {
-      const exampleResult = encryptPlaintext('Hello! CBC NoPad');
-      if (exampleResult.success) {
-        setInputText(exampleResult.data);
-      } else {
-        setInputText('8kuV0hSGqW8r8FxB3H/kDg==');
-      }
-    }
-  }, []);
-
-  return (
-    <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-      {/* 密钥显示区域 */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 p-6 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium px-3 py-1.5 rounded-full">
-              🔑 密钥/IV
-            </div>
-            <div className="font-mono text-lg font-semibold text-gray-900 dark:text-gray-100">
-              {KEY_STRING}
-            </div>
-          </div>
-          <div className="ml-auto text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-            128位 · 零填充 · CBC模式
-          </div>
+    <!-- Web Crypto API 介绍 -->
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6 mb-8">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center">
+          <span class="text-2xl">🔐</span>
         </div>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">关于 Web Crypto API</h2>
       </div>
-
-      {/* 主内容区 */}
-      <div className="p-6">
-        {/* 输入区域 */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-700 dark:text-gray-300 font-medium">输入区</span>
-              <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-full">
-                {mode === 'encrypt' ? '明文输入' : 'Base64 密文输入'}
-              </span>
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {inputText.length} 字符
-            </div>
-          </div>
-          <textarea
-            value={inputText}
-            onChange={handleInputChange}
-            placeholder={
-              mode === 'encrypt' 
-                ? '输入要加密的明文...\n注意：文本将被零填充至16字节倍数'
-                : '输入要解密的 Base64 密文...\n注意：密文长度必须是16字节的倍数'
-            }
-            rows={5}
-            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 resize-none font-mono text-sm transition-colors"
-          />
-        </div>
-
-        {/* 模式选择 */}
-        <div className="mb-6">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">操作模式</div>
-          <div className="flex gap-4">
-            <button
-              onClick={() => handleModeChange('encrypt')}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border transition-all ${mode === 'encrypt' 
-                ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300' 
-                : 'bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-            >
-              <span className="text-lg">🔒</span>
-              <span className="font-medium">加密</span>
-              <span className="text-xs opacity-75">明文 → Base64</span>
-            </button>
-            <button
-              onClick={() => handleModeChange('decrypt')}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border transition-all ${mode === 'decrypt' 
-                ? 'bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300' 
-                : 'bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-            >
-              <span className="text-lg">🔓</span>
-              <span className="font-medium">解密</span>
-              <span className="text-xs opacity-75">Base64 → 明文</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 操作按钮 */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-          <button
-            onClick={handleExecute}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
-          >
-            <span>⚡</span>
-            执行 {mode === 'encrypt' ? '加密' : '解密'}
-          </button>
-          <button
-            onClick={handleClear}
-            className="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2"
-          >
-            <span>🗑️</span>
-            清空
-          </button>
-          <button
-            onClick={handleFillExample}
-            className="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2"
-          >
-            <span>📎</span>
-            示例
-          </button>
-        </div>
-
-        {/* 输出区域 */}
-        <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-          <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-700 dark:text-gray-300 font-medium">
-                {mode === 'encrypt' ? '📤 加密输出 (Base64)' : '📥 解密输出 (明文)'}
-              </span>
-            </div>
-            <button
-              ref={copyButtonRef}
-              onClick={handleCopy}
-              className={`text-sm font-medium px-4 py-2 rounded-lg transition-colors ${copyButtonText.includes('已复制') 
-                ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
-                : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'}`}
-            >
-              {copyButtonText}
-            </button>
-          </div>
-          <div className="p-6 bg-white dark:bg-gray-800">
-            <div className="min-h-[120px] bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-              <pre className="font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all min-h-[60px]">
-                {outputText || (mode === 'encrypt' ? '加密结果将显示在这里...' : '解密结果将显示在这里...')}
-              </pre>
-            </div>
-            
-            {/* 状态消息 */}
-            {statusMessage && (
-              <div className={`mt-4 px-4 py-3 rounded-lg text-sm font-medium ${statusType === 'success' 
-                ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
-                : statusType === 'error' 
-                ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
-                : 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'}`}
-              >
-                {statusMessage}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 技术信息 */}
-        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-gray-600 dark:text-gray-400">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span>算法: <code className="font-mono">AES-128-CBC</code></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span>填充: <code className="font-mono">Zero Padding (补0x00)</code></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span>密钥/IV: <code className="font-mono">{KEY_STRING.length * 8}位</code></span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 页脚 */}
-      <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>
-            AES-128-CBC · 零填充(补0x00) · 密钥即偏移量 · 所有操作在本地浏览器完成
-          </p>
+      <div class="space-y-3 text-gray-700 dark:text-gray-300">
+        <p><strong>Web Crypto API</strong> 是浏览器提供的原生加密 API，具有以下优势：</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li><strong>高性能</strong>：使用浏览器的原生加密实现，比 JavaScript 库更快</li>
+          <li><strong>更安全</strong>：避免第三方库的安全隐患，密钥处理更安全</li>
+          <li><strong>标准化</strong>：W3C 标准，所有现代浏览器都支持</li>
+          <li><strong>无依赖</strong>：无需加载外部库，减少页面大小</li>
+          <li><strong>更好的随机数生成</strong>：使用系统级安全随机数生成器</li>
+        </ul>
+        <div class="mt-4 p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+          <p class="text-sm font-medium text-blue-800 dark:text-blue-300">💡 注意：此工具实现了零填充（Zero Padding），Web Crypto API 本身不支持此填充方式，因此我们在代码中手动实现了填充和去填充逻辑。</p>
         </div>
       </div>
     </div>
-  );
-};
 
-export default AESZeroPadding;
+    <!-- 技术规格 -->
+    <div class="bg-gray-50 dark:bg-gray-900 rounded-2xl p-6 mb-8">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">技术规格</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">算法参数</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">加密 API</span>
+              <code class="font-mono text-gray-800 dark:text-gray-200">Web Crypto API</code>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">算法</span>
+              <code class="font-mono text-gray-800 dark:text-gray-200">AES-CBC</code>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">密钥长度</span>
+              <code class="font-mono text-gray-800 dark:text-gray-200">128位 (16字节)</code>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">填充方式</span>
+              <code class="font-mono text-gray-800 dark:text-gray-200">零填充 (手动实现)</code>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">密钥信息</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">密钥</span>
+              <code class="font-mono text-gray-800 dark:text-gray-200 break-all">P.8CGq@Wr~Vs]!4!</code>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">初始化向量</span>
+              <code class="font-mono text-gray-800 dark:text-gray-200 break-all">与密钥相同</code>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">数据编码</span>
+              <span class="text-gray-800 dark:text-gray-200">UTF-8 / Base64</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 dark:text-gray-400">块大小</span>
+              <span class="text-gray-800 dark:text-gray-200">16 字节</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 使用说明 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">加密示例</h3>
+        <div class="space-y-2 text-sm">
+          <p><strong>步骤：</strong></p>
+          <ol class="list-decimal pl-5 space-y-1">
+            <li>选择"加密"模式</li>
+            <li>输入要加密的明文，如：<code class="bg-gray-100 dark:bg-gray-700 px-1 rounded">Hello! CBC NoPad</code></li>
+            <li>点击"执行加密"按钮</li>
+            <li>获取 Base64 编码的密文</li>
+          </ol>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">注意：文本会被自动零填充至 16 字节倍数</p>
+        </div>
+      </div>
+
+      <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">解密示例</h3>
+        <div class="space-y-2 text-sm">
+          <p><strong>步骤：</strong></p>
+          <ol class="list-decimal pl-5 space-y-1">
+            <li>选择"解密"模式（默认）</li>
+            <li>输入 Base64 密文，如示例中的密文</li>
+            <li>点击"执行解密"按钮</li>
+            <li>获取原始明文</li>
+          </ol>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">注意：密文长度必须是 16 字节的倍数</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 浏览器兼容性 -->
+    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6 mb-8">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">浏览器兼容性</h2>
+      <div class="space-y-3 text-gray-700 dark:text-gray-300">
+        <p>Web Crypto API 在现代浏览器中得到了良好支持：</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li><strong>Chrome 37+</strong>：完全支持</li>
+          <li><strong>Firefox 34+</strong>：完全支持</li>
+          <li><strong>Safari 11+</strong>：完全支持</li>
+          <li><strong>Edge 12+</strong>：完全支持</li>
+          <li><strong>Opera 24+</strong>：完全支持</li>
+        </ul>
+        <div class="mt-4 p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+          <p class="text-sm font-medium text-green-800 dark:text-green-300">✅ 此工具可在所有现代浏览器中正常工作，包括移动端浏览器。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 安全提示 -->
+    <div class="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-2xl p-6">
+      <div class="flex items-start gap-3">
+        <div class="flex-shrink-0">
+          <span class="text-2xl">⚠️</span>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-2">安全提示</h3>
+          <ul class="space-y-2 text-yellow-700 dark:text-yellow-400">
+            <li>• 所有加密/解密操作均在您的浏览器本地完成，数据不会上传到任何服务器</li>
+            <li>• 此工具使用固定密钥，适合学习、测试和简单加密需求</li>
+            <li>• 零填充方式在某些场景下可能不够安全，建议用于非关键数据</li>
+            <li>• 对于生产环境，请使用标准填充方式（如 PKCS7）和安全的密钥管理方案</li>
+            <li>• 考虑使用 Web Crypto API 的密钥派生函数（PBKDF2）生成更安全的密钥</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  /* 自定义滚动条样式 */
+  pre {
+    overflow-x: auto;
+  }
+  
+  pre::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  pre::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+  
+  pre::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+  
+  pre::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  
+  /* 暗色模式滚动条 */
+  .dark pre::-webkit-scrollbar-track {
+    background: #374151;
+  }
+  
+  .dark pre::-webkit-scrollbar-thumb {
+    background: #6b7280;
+  }
+  
+  .dark pre::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+</style>
