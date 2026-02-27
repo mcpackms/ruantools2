@@ -108,7 +108,7 @@ export default function ColorConverter() {
       const rgbVal = hexToRgb(hex);
       if (rgbVal) {
         setRgb(rgbVal);
-        setHsl(rgbToHsl(rgbVal.r, rgbVal.r, rgbVal.b));
+        setHsl(rgbToHsl(rgbVal.r, rgbVal.g, rgbVal.b));
         setHsv(rgbToHsv(rgbVal.r, rgbVal.g, rgbVal.b));
       }
     } else if (activeInput === 'rgb') {
