@@ -330,10 +330,9 @@ const loadFFmpeg = async () => {
     
     progressText.value = '加载 FFmpeg...'
     
-    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd'
     await ffmpeg.load({
-      coreURL: `${baseURL}/ffmpeg-core.js`,
-      wasmURL: `${baseURL}/ffmpeg-core.wasm`
+      coreURL: '/ruantools2/ffmpeg/ffmpeg-core.js',
+      wasmURL: '/ruantools2/ffmpeg/ffmpeg-core.wasm'
     })
     
     ffmpegLoaded.value = true
