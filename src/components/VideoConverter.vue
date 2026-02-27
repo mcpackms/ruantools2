@@ -309,22 +309,12 @@ const formatDuration = (seconds) => {
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 }
 
+import { FFmpeg } from '@ffmpeg/ffmpeg'
+import { fetchFile } from '@ffmpeg/util'
+
 const loadFFmpeg = async () => {
   try {
-    if (window.FFmpeg) {
-      ffmpeg = new window.FFmpeg()
-    } else {
-      const script = document.createElement('script')
-      script.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js'
-      document.head.appendChild(script)
-      
-      await new Promise((resolve, reject) => {
-        script.onload = resolve
-        script.onerror = reject
-      })
-      
-      ffmpeg = new window.FFmpeg()
-    }
+    ffmpeg = new FFmpeg()
     
     ffmpeg.on('progress', ({ progress: p }) => {
       progress.value = Math.round(p * 100)
@@ -337,8 +327,8 @@ const loadFFmpeg = async () => {
     
     progressText.value = '加载 FFmpeg...'
     await ffmpeg.load({
-      coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',
-      wasmURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm'
+      coreURL: new URL('@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js', import.meta.url).href,
+      wasmURL: new URL('@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm', import.meta.url).href
     })
     
     ffmpegLoaded.value = true
@@ -366,10 +356,6 @@ const convertVideo = async () => {
   }
   
   try {
-    const fetchFile = (file) => {
-      return new Uint8Array(file.arrayBuffer())
-    }
-    
     const inputName = 'input' + getExt(selectedFile.value.name)
     const outputName = 'output.' + outputFormatExt.value
     

@@ -13,6 +13,8 @@
   "dependencies": {
     "@astrojs/react": "^4.4.2",
     "@astrojs/vue": "^5.1.4",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "astro": "^5.17.3",
