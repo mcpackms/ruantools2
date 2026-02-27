@@ -9,6 +9,7 @@ export const categoryConfig = {
   '软件下载': { icon: '📦', bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' },
   '图片工具': { icon: '🖼️', bg: 'rgba(236, 72, 153, 0.1)', color: '#ec4899' },
   '开发工具': { icon: '🛠️', bg: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4' },
+  '生活工具': { icon: '🏠', bg: 'rgba(234, 179, 8, 0.1)', color: '#eab308' },
   '其他': { icon: '📌', bg: 'rgba(107, 114, 128, 0.1)', color: '#6b7280' }
 };
 
@@ -115,6 +116,62 @@ export const tools = [
     description: "文本与摩斯电码相互转换", 
     path: "/ruantools2/tools/morse-code", 
     category: "编码转换",
+    comingSoon: false
+  },
+  { 
+    id: "sql-formatter", 
+    name: "SQL 格式化", 
+    description: "在线格式化 SQL 语句，支持关键词高亮", 
+    path: "/ruantools2/tools/sql-formatter", 
+    category: "开发工具",
+    comingSoon: false
+  },
+  { 
+    id: "markdown-preview", 
+    name: "Markdown 预览", 
+    description: "在线编辑和预览 Markdown，支持实时转换 HTML", 
+    path: "/ruantools2/tools/markdown-preview", 
+    category: "开发工具",
+    comingSoon: false
+  },
+  { 
+    id: "word-counter", 
+    name: "字数统计", 
+    description: "统计文本字数、行数、字符数，支持中英文", 
+    path: "/ruantools2/tools/word-counter", 
+    category: "文本处理",
+    comingSoon: false
+  },
+  { 
+    id: "html-escape", 
+    name: "HTML 转义", 
+    description: "HTML 实体编码与解码，防止 XSS 攻击", 
+    path: "/ruantools2/tools/html-escape", 
+    category: "编码转换",
+    comingSoon: false
+  },
+  { 
+    id: "unicode-converter", 
+    name: "Unicode 转换", 
+    description: "文本与 Unicode 编码相互转换", 
+    path: "/ruantools2/tools/unicode-converter", 
+    category: "编码转换",
+    comingSoon: false
+  },
+  { 
+    id: "cron-generator", 
+    name: "Cron 表达式", 
+    description: "在线生成和解析 Cron 表达式，支持可视化选择", 
+    path: "/ruantools2/tools/cron-generator", 
+    category: "开发工具",
+    comingSoon: false
+  },
+  { 
+    id: "url-parser", 
+    name: "URL 参数解析", 
+    description: "解析 URL 查询参数，查看和编辑 URL", 
+    path: "/ruantools2/tools/url-parser", 
+    category: "开发工具",
     comingSoon: false
   }
   

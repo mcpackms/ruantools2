@@ -21,18 +21,15 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
         --primary: #2563eb;
         --primary-light: #3b82f6;
         --primary-dark: #1d4ed8;
-        --bg-color: #fafbfc;
+        --bg-color: #f8fafc;
         --surface-color: #ffffff;
         --border-color: #e2e8f0;
-        --text-primary: #1e293b;
-        --text-secondary: #64748b;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
         --text-tertiary: #94a3b8;
-        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        --shadow-lg: 0 10px 40px -10px rgba(37, 99, 235, 0.15);
-        --radius-md: 8px;
-        --radius-lg: 12px;
-        --radius-xl: 20px;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+        --shadow-lg: 0 20px 40px rgba(0,0,0,0.12);
       }
       
       * {
@@ -43,10 +40,16 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
       
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
-        background-color: var(--bg-color);
+        background: var(--bg-color);
         color: var(--text-primary);
         line-height: 1.6;
         min-height: 100vh;
+        background-image: 
+          radial-gradient(at 40% 20%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+          radial-gradient(at 80% 0%, rgba(139, 92, 246, 0.06) 0px, transparent 50%),
+          radial-gradient(at 0% 50%, rgba(6, 182, 212, 0.06) 0px, transparent 50%),
+          radial-gradient(at 80% 50%, rgba(236, 72, 153, 0.05) 0px, transparent 50%),
+          radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.06) 0px, transparent 50%);
       }
       
       .container {
@@ -57,22 +60,9 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
 
       /* Hero 区域 */
       .hero {
-        padding: 60px 0 40px;
+        padding: 80px 0 60px;
         text-align: center;
         position: relative;
-      }
-
-      .hero::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
-        max-width: 800px;
-        height: 300px;
-        background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
-        pointer-events: none;
       }
 
       .hero-badge {
@@ -81,11 +71,11 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
         gap: 8px;
         background: white;
         border: 1px solid var(--border-color);
-        padding: 6px 16px;
+        padding: 8px 20px;
         border-radius: 50px;
         font-size: 0.875rem;
         color: var(--text-secondary);
-        margin-bottom: 24px;
+        margin-bottom: 28px;
         box-shadow: var(--shadow-sm);
       }
 
@@ -98,20 +88,21 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
       }
 
       @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(0.9); }
       }
 
       .hero-title {
-        font-size: 3rem;
+        font-size: 3.5rem;
         font-weight: 800;
         color: var(--text-primary);
-        margin-bottom: 16px;
-        letter-spacing: -0.02em;
+        margin-bottom: 20px;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
       }
 
       .hero-title span {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        background: linear-gradient(135deg, #2563eb 0%, #8b5cf6 50%, #06b6d4 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -121,14 +112,14 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
         font-size: 1.25rem;
         color: var(--text-secondary);
         max-width: 600px;
-        margin: 0 auto 32px;
-        line-height: 1.6;
+        margin: 0 auto 40px;
+        line-height: 1.7;
       }
 
       .hero-stats {
         display: flex;
         justify-content: center;
-        gap: 40px;
+        gap: 48px;
         flex-wrap: wrap;
       }
 
@@ -137,40 +128,44 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
       }
 
       .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--primary);
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         display: block;
       }
 
       .stat-label {
-        font-size: 0.875rem;
+        font-size: 0.9rem;
         color: var(--text-tertiary);
+        margin-top: 4px;
       }
 
       /* 主内容区 */
       main {
-        padding: 20px 0 60px;
+        padding: 20px 0 80px;
       }
 
       /* 使用说明 */
       .usage-note {
         background: white;
         border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        padding: 24px;
-        margin-top: 40px;
+        border-radius: 20px;
+        padding: 28px;
+        margin-top: 60px;
         display: flex;
         align-items: flex-start;
-        gap: 16px;
+        gap: 20px;
         box-shadow: var(--shadow-sm);
       }
 
       .usage-icon {
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-        border-radius: 12px;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -178,8 +173,8 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
       }
 
       .usage-icon svg {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
         fill: var(--primary);
       }
 
@@ -188,14 +183,14 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
       }
 
       .usage-title {
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 600;
         color: var(--text-primary);
         margin-bottom: 8px;
       }
 
       .usage-text {
-        font-size: 0.875rem;
+        font-size: 0.95rem;
         color: var(--text-secondary);
         line-height: 1.6;
       }
@@ -215,23 +210,26 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
       }
 
       .footer-logo {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
       .footer-text {
-        font-size: 0.875rem;
+        font-size: 0.9rem;
         color: var(--text-secondary);
       }
 
       .footer-links {
         display: flex;
-        gap: 24px;
+        gap: 28px;
       }
 
       .footer-link {
-        font-size: 0.875rem;
+        font-size: 0.9rem;
         color: var(--text-secondary);
         text-decoration: none;
         transition: color 0.2s ease;
@@ -242,14 +240,14 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
       }
 
       .footer-copyright {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         color: var(--text-tertiary);
-        margin-top: 16px;
+        margin-top: 20px;
       }
 
       @media (max-width: 768px) {
         .hero-title {
-          font-size: 2rem;
+          font-size: 2.25rem;
         }
 
         .hero-subtitle {
@@ -257,11 +255,17 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
         }
 
         .hero-stats {
-          gap: 24px;
+          gap: 32px;
         }
 
         .stat-value {
-          font-size: 1.5rem;
+          font-size: 2rem;
+        }
+
+        .usage-note {
+          flex-direction: column;
+          text-align: center;
+          align-items: center;
         }
       }
     </style>
@@ -273,18 +277,18 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
       <header class="hero">
         <div class="hero-badge">
           <span class="badge-dot"></span>
-          持续更新中
+          持续更新中 · 目前已有 {toolCount} 个工具
         </div>
         <h1 class="hero-title">
-          <span>RuanTools</span> 在线工具箱
+          <span>RuanTools</span>
         </h1>
         <p class="hero-subtitle">
-          简洁高效的开发者工具集合，所有工具均在浏览器本地运行，数据安全有保障
+          简洁高效的开发者工具集合，所有工具均在浏览器本地运行，数据安全有保障，无需联网即可使用
         </p>
         <div class="hero-stats">
           <div class="stat-item">
             <span class="stat-value">{toolCount}</span>
-            <span class="stat-label">工具数量</span>
+            <span class="stat-label">在线工具</span>
           </div>
           <div class="stat-item">
             <span class="stat-value">100%</span>
@@ -309,7 +313,7 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
             </svg>
           </div>
           <div class="usage-content">
-            <div class="usage-title">安全提示</div>
+            <div class="usage-title">安全可靠 · 隐私优先</div>
             <p class="usage-text">
               所有工具均在您的浏览器本地运行，数据不会上传到任何服务器。
               如果您发现任何问题或有新工具建议，欢迎在 GitHub 仓库提交 Issue。
