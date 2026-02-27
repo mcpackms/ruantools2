@@ -311,10 +311,20 @@ const formatDuration = (seconds) => {
 
 const loadFFmpeg = async () => {
   try {
-    const { FFmpeg } = await import('@ffmpeg/ffmpeg')
-    const { fetchFile } = await import('@ffmpeg/util')
-    
-    ffmpeg = new FFmpeg()
+    if (window.FFmpeg) {
+      ffmpeg = new window.FFmpeg()
+    } else {
+      const script = document.createElement('script')
+      script.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js'
+      document.head.appendChild(script)
+      
+      await new Promise((resolve, reject) => {
+        script.onload = resolve
+        script.onerror = reject
+      })
+      
+      ffmpeg = new window.FFmpeg()
+    }
     
     ffmpeg.on('progress', ({ progress: p }) => {
       progress.value = Math.round(p * 100)
@@ -356,7 +366,9 @@ const convertVideo = async () => {
   }
   
   try {
-    const { fetchFile } = await import('@ffmpeg/util')
+    const fetchFile = (file) => {
+      return new Uint8Array(file.arrayBuffer())
+    }
     
     const inputName = 'input' + getExt(selectedFile.value.name)
     const outputName = 'output.' + outputFormatExt.value
