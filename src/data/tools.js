@@ -1,4 +1,16 @@
 // src/data/tools.js
+
+export const categoryConfig = {
+  '数据格式': { icon: '⚡', bg: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' },
+  '编码转换': { icon: '🔄', bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981' },
+  '时间工具': { icon: '⏰', bg: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' },
+  '加密工具': { icon: '🔐', bg: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' },
+  '文本处理': { icon: '📝', bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' },
+  '软件下载': { icon: '📦', bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' },
+  '图片工具': { icon: '🖼️', bg: 'rgba(236, 72, 153, 0.1)', color: '#ec4899' },
+  '其他': { icon: '📌', bg: 'rgba(107, 114, 128, 0.1)', color: '#6b7280' }
+};
+
 export const tools = [
   { 
     id: "code-formatter", 

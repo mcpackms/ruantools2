@@ -1,24 +1,4 @@
-import { tools } from '../data/tools';
-
-const categoryIcons = {
-  '数据格式': '⚡',
-  '编码转换': '🔄',
-  '时间工具': '⏰',
-  '加密工具': '🔐',
-  '文本处理': '📝',
-  '软件下载': '📦',
-  '图片工具': '🖼️'
-};
-
-const categoryColors = {
-  '数据格式': { bg: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' },
-  '编码转换': { bg: 'rgba(16, 185, 129, 0.1)', color: '#10b981' },
-  '时间工具': { bg: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' },
-  '加密工具': { bg: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' },
-  '文本处理': { bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' },
-  '软件下载': { bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' },
-  '图片工具': { bg: 'rgba(236, 72, 153, 0.1)', color: '#ec4899' }
-};
+import { tools, categoryConfig } from '../data/tools';
 
 export default function ToolList() {
   const availableTools = tools.filter(t => !t.comingSoon);
@@ -35,50 +15,57 @@ export default function ToolList() {
     alert('该工具正在开发中，即将上线！');
   };
 
+  const getCategoryConfig = (category) => {
+    return categoryConfig[category] || categoryConfig['其他'];
+  };
+
   return (
     <div className="tool-list">
-      {Object.entries(groupedTools).map(([category, categoryTools]) => (
-        <section key={category} className="category-section">
-          <div className="category-header">
-            <span className="category-icon">{categoryIcons[category] || '📌'}</span>
-            <h2 className="category-title">{category}</h2>
-            <span className="category-count">{categoryTools.length} 个工具</span>
-          </div>
-          <div className="tools-grid">
-            {categoryTools.map(tool => (
-              <a
-                key={tool.id}
-                href={tool.path}
-                className="tool-card"
-              >
-                <div className="card-content">
-                  <div className="card-top">
-                    <h3 className="tool-name">{tool.name}</h3>
-                    <span 
-                      className="tool-category"
-                      style={{ 
-                        background: categoryColors[category]?.bg || 'rgba(107, 114, 128, 0.1)',
-                        color: categoryColors[category]?.color || '#6b7280'
-                      }}
-                    >
-                      {category}
+      {Object.entries(groupedTools).map(([category, categoryTools]) => {
+        const config = getCategoryConfig(category);
+        return (
+          <section key={category} className="category-section">
+            <div className="category-header">
+              <span className="category-icon">{config.icon}</span>
+              <h2 className="category-title">{category}</h2>
+              <span className="category-count">{categoryTools.length} 个工具</span>
+            </div>
+            <div className="tools-grid">
+              {categoryTools.map(tool => (
+                <a
+                  key={tool.id}
+                  href={tool.path}
+                  className="tool-card"
+                >
+                  <div className="card-content">
+                    <div className="card-top">
+                      <h3 className="tool-name">{tool.name}</h3>
+                      <span 
+                        className="tool-category"
+                        style={{ 
+                          background: config.bg,
+                          color: config.color
+                        }}
+                      >
+                        {category}
+                      </span>
+                    </div>
+                    <p className="tool-description">{tool.description}</p>
+                  </div>
+                  <div className="card-footer">
+                    <span className="use-btn">
+                      立即使用
+                      <svg className="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                      </svg>
                     </span>
                   </div>
-                  <p className="tool-description">{tool.description}</p>
-                </div>
-                <div className="card-footer">
-                  <span className="use-btn">
-                    立即使用
-                    <svg className="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                  </span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
-      ))}
+                </a>
+              ))}
+            </div>
+          </section>
+        );
+      })}
 
       {upcomingTools.length > 0 && (
         <section className="category-section coming-soon-section">
