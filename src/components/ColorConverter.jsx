@@ -108,21 +108,20 @@ export default function ColorConverter() {
       const rgbVal = hexToRgb(hex);
       if (rgbVal) {
         setRgb(rgbVal);
-        setHsl(rgbToHsl(rgbVal.r, rgbVal.g, rgbVal.b));
-        setHsv(rgbToHsv(rgbVal.r, rgbVal.g, rgbVal.b));
+        const hslVal = rgbToHsl(rgbVal.r, rgbVal.g, rgbVal.b);
+        const hsvVal = rgbToHsv(rgbVal.r, rgbVal.g, rgbVal.b);
+        setHsl(hslVal);
+        setHsv(hsvVal);
       }
     } else if (activeInput === 'rgb') {
       const hexVal = rgbToHex(rgb.r, rgb.g, rgb.b);
+      const hslVal = rgbToHsl(rgb.r, rgb.g, rgb.b);
+      const hsvVal = rgbToHsv(rgb.r, rgb.g, rgb.b);
       setHex(hexVal);
-      setHsl(rgbToHsl(rgb.r, rgb.g, rgb.b));
-      setHsv(rgbToHsv(rgb.r, rgb.g, rgb.b));
-    } else if (activeInput === 'hsl') {
-      const rgbVal = hslToRgb(hsl.h, hsl.s, hsl.l);
-      setRgb(rgbVal);
-      setHex(rgbToHex(rgbVal.r, rgbVal.g, rgbVal.b));
-      setHsv(rgbToHsv(rgbVal.r, rgbVal.g, rgbVal.b));
+      setHsl(hslVal);
+      setHsv(hsvVal);
     }
-  }, [hex, rgb, hsl, activeInput]);
+  }, [activeInput, hex, rgb]);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -303,18 +302,39 @@ export default function ColorConverter() {
           <div className="format-label">
             <span>HSL</span>
           </div>
-          <div className="slider-group">
+            <div className="slider-group">
             <div className="slider-item">
               <div className="slider-label"><span>H</span><span>{hsl.h}°</span></div>
-              <input type="range" className="slider" min="0" max="360" value={hsl.h} onChange={(e) => { setHsl({...hsl, h: parseInt(e.target.value)}); setActiveInput('hsl'); }} />
+              <input type="range" className="slider" min="0" max="360" value={hsl.h} onChange={(e) => {
+                const newHsl = {...hsl, h: parseInt(e.target.value)};
+                setHsl(newHsl);
+                const rgbVal = hslToRgb(newHsl.h, newHsl.s, newHsl.l);
+                setRgb(rgbVal);
+                setHex(rgbToHex(rgbVal.r, rgbVal.g, rgbVal.b));
+                setHsv(rgbToHsv(rgbVal.r, rgbVal.g, rgbVal.b));
+              }} />
             </div>
             <div className="slider-item">
               <div className="slider-label"><span>S</span><span>{hsl.s}%</span></div>
-              <input type="range" className="slider" min="0" max="100" value={hsl.s} onChange={(e) => { setHsl({...hsl, s: parseInt(e.target.value)}); setActiveInput('hsl'); }} />
+              <input type="range" className="slider" min="0" max="100" value={hsl.s} onChange={(e) => {
+                const newHsl = {...hsl, s: parseInt(e.target.value)};
+                setHsl(newHsl);
+                const rgbVal = hslToRgb(newHsl.h, newHsl.s, newHsl.l);
+                setRgb(rgbVal);
+                setHex(rgbToHex(rgbVal.r, rgbVal.g, rgbVal.b));
+                setHsv(rgbToHsv(rgbVal.r, rgbVal.g, rgbVal.b));
+              }} />
             </div>
             <div className="slider-item">
               <div className="slider-label"><span>L</span><span>{hsl.l}%</span></div>
-              <input type="range" className="slider" min="0" max="100" value={hsl.l} onChange={(e) => { setHsl({...hsl, l: parseInt(e.target.value)}); setActiveInput('hsl'); }} />
+              <input type="range" className="slider" min="0" max="100" value={hsl.l} onChange={(e) => {
+                const newHsl = {...hsl, l: parseInt(e.target.value)};
+                setHsl(newHsl);
+                const rgbVal = hslToRgb(newHsl.h, newHsl.s, newHsl.l);
+                setRgb(rgbVal);
+                setHex(rgbToHex(rgbVal.r, rgbVal.g, rgbVal.b));
+                setHsv(rgbToHsv(rgbVal.r, rgbVal.g, rgbVal.b));
+              }} />
             </div>
           </div>
           <div className="format-value" style={{ marginTop: '12px' }}>
