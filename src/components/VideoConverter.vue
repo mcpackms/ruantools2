@@ -311,13 +311,10 @@ const formatDuration = (seconds) => {
 
 const loadFFmpeg = async () => {
   try {
-    const [ffmpegModule, utilModule] = await Promise.all([
-      import('@ffmpeg/ffmpeg'),
-      import('@ffmpeg/util')
-    ])
+    const ffmpegModule = await import('@ffmpeg/ffmpeg')
     
     ffmpeg = new ffmpegModule.FFmpeg()
-    ffmpegUtils = utilModule.fetchFile
+    ffmpegUtils = ffmpegModule.fetchFile
     
     ffmpeg.on('progress', ({ progress: p }) => {
       progress.value = Math.round(p * 100)
@@ -330,16 +327,15 @@ const loadFFmpeg = async () => {
     
     progressText.value = '加载 FFmpeg...'
     
-    await ffmpeg.load({
-      coreURL: '/ruantools2/ffmpeg/ffmpeg-core.js',
-      wasmURL: '/ruantools2/ffmpeg/ffmpeg-core.wasm'
-    })
+    // 使用 unpkg CDN 加载 ffmpeg 核心文件
+    await ffmpeg.load('https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js')
     
     ffmpegLoaded.value = true
     showNotification('FFmpeg 加载完成', 'success')
   } catch (error) {
     console.error('FFmpeg 加载失败:', error)
-    showNotification('FFmpeg 加载失败，请刷新页面重试', 'error')
+    console.error('Error details:', error.stack)
+    showNotification('FFmpeg 加载失败: ' + error.message, 'error')
   }
 }
 
