@@ -311,10 +311,20 @@ const formatDuration = (seconds) => {
 
 const loadFFmpeg = async () => {
   try {
-    const ffmpegModule = await import('@ffmpeg/ffmpeg')
+    // 直接从 CDN 加载 ffmpeg
+    const script = document.createElement('script')
+    script.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js'
+    document.head.appendChild(script)
     
-    ffmpeg = new ffmpegModule.FFmpeg()
-    ffmpegUtils = ffmpegModule.fetchFile
+    await new Promise((resolve, reject) => {
+      script.onload = resolve
+      script.onerror = reject
+    })
+    
+    // @ts-ignore
+    const { FFmpeg, fetchFile } = window.FFmpeg
+    ffmpeg = new FFmpeg()
+    ffmpegUtils = fetchFile
     
     ffmpeg.on('progress', ({ progress: p }) => {
       progress.value = Math.round(p * 100)
@@ -327,8 +337,11 @@ const loadFFmpeg = async () => {
     
     progressText.value = '加载 FFmpeg...'
     
-    // 使用 jsDelivr CDN 加载 ffmpeg 核心文件（国内访问更快）
-    await ffmpeg.load('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js')
+    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.11.6/dist/umd'
+    await ffmpeg.load({
+      coreURL: `${baseURL}/ffmpeg-core.js`,
+      wasmURL: `${baseURL}/ffmpeg-core.wasm`
+    })
     
     ffmpegLoaded.value = true
     showNotification('FFmpeg 加载完成', 'success')
