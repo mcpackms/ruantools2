@@ -1,10 +1,10 @@
 ---
 // src/pages/index.astro
 
-// 页面元数据
 import ToolList from '../components/ToolList.jsx';
 import { tools } from '../data/tools';
 
+const toolCount = tools.filter(t => !t.comingSoon).length;
 const pageTitle = "RuanTools - 在线工具集合";
 const description = "一个实用的在线工具集合，包含 JSON 格式化、Base64 编解码等常用开发工具。";
 ---
@@ -20,16 +20,19 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
       :root {
         --primary: #2563eb;
         --primary-light: #3b82f6;
-        --bg-color: #ffffff;
-        --surface-color: #f8fafc;
+        --primary-dark: #1d4ed8;
+        --bg-color: #fafbfc;
+        --surface-color: #ffffff;
         --border-color: #e2e8f0;
         --text-primary: #1e293b;
         --text-secondary: #64748b;
         --text-tertiary: #94a3b8;
         --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 40px -10px rgba(37, 99, 235, 0.15);
         --radius-md: 8px;
         --radius-lg: 12px;
+        --radius-xl: 20px;
       }
       
       * {
@@ -39,157 +42,293 @@ const description = "一个实用的在线工具集合，包含 JSON 格式化�
       }
       
       body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
         background-color: var(--bg-color);
         color: var(--text-primary);
-        line-height: 1.5;
+        line-height: 1.6;
         min-height: 100vh;
       }
       
       .container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0 24px;
       }
-      
-      /* 头部样式 */
-      .header {
-        padding: 40px 0 30px;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 40px;
+
+      /* Hero 区域 */
+      .hero {
+        padding: 60px 0 40px;
+        text-align: center;
+        position: relative;
       }
-      
-      .site-title {
+
+      .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 800px;
+        height: 300px;
+        background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        border: 1px solid var(--border-color);
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .badge-dot {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+
+      .hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 16px;
+        letter-spacing: -0.02em;
+      }
+
+      .hero-title span {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-subtitle {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        max-width: 600px;
+        margin: 0 auto 32px;
+        line-height: 1.6;
+      }
+
+      .hero-stats {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-value {
         font-size: 2rem;
         font-weight: 700;
         color: var(--primary);
-        margin-bottom: 8px;
+        display: block;
       }
-      
-      .site-subtitle {
-        font-size: 1rem;
-        color: var(--text-secondary);
-        margin-bottom: 16px;
-      }
-      
-      .site-meta {
-        display: flex;
-        gap: 20px;
+
+      .stat-label {
         font-size: 0.875rem;
         color: var(--text-tertiary);
       }
-      
-      .meta-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
+
+      /* 主内容区 */
+      main {
+        padding: 20px 0 60px;
       }
-      
-      .meta-item::before {
-        content: "•";
-        color: var(--primary-light);
-      }
-      
-      /* 页脚样式 */
-      .footer {
-        padding: 40px 0;
-        border-top: 1px solid var(--border-color);
-        margin-top: 60px;
-        text-align: center;
-      }
-      
-      .footer-content {
-        max-width: 600px;
-        margin: 0 auto;
-      }
-      
-      .footer-text {
-        font-size: 0.875rem;
-        color: var(--text-secondary);
-        margin-bottom: 16px;
-      }
-      
-      .footer-links {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 20px;
-      }
-      
-      .footer-link {
-        font-size: 0.875rem;
-        color: var(--primary);
-        text-decoration: none;
-      }
-      
-      .footer-link:hover {
-        text-decoration: underline;
-      }
-      
+
       /* 使用说明 */
       .usage-note {
-        background: rgba(37, 99, 235, 0.05);
-        border: 1px solid rgba(37, 99, 235, 0.2);
-        border-radius: var(--radius-md);
-        padding: 16px;
-        margin-top: 30px;
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        margin-top: 40px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        box-shadow: var(--shadow-sm);
       }
-      
+
+      .usage-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .usage-icon svg {
+        width: 24px;
+        height: 24px;
+        fill: var(--primary);
+      }
+
+      .usage-content {
+        flex: 1;
+      }
+
       .usage-title {
-        font-size: 0.875rem;
+        font-size: 1rem;
         font-weight: 600;
-        color: var(--primary);
+        color: var(--text-primary);
         margin-bottom: 8px;
       }
-      
+
       .usage-text {
         font-size: 0.875rem;
         color: var(--text-secondary);
-        line-height: 1.5;
+        line-height: 1.6;
+      }
+
+      /* 页脚 */
+      .footer {
+        padding: 40px 0;
+        border-top: 1px solid var(--border-color);
+        background: white;
+      }
+
+      .footer-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .footer-logo {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .footer-text {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 24px;
+      }
+
+      .footer-link {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      .footer-link:hover {
+        color: var(--primary);
+      }
+
+      .footer-copyright {
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+        margin-top: 16px;
+      }
+
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1rem;
+        }
+
+        .hero-stats {
+          gap: 24px;
+        }
+
+        .stat-value {
+          font-size: 1.5rem;
+        }
       }
     </style>
   </head>
   
   <body>
     <div class="container">
-      <!-- 网站头部 -->
-      <header class="header">
-        <h1 class="site-title">RuanTools</h1>
-        <p class="site-subtitle">简洁实用的在线工具集合，专为开发者设计</p>
-        <div class="site-meta">
-          <span class="meta-item">本地运行 · 无需上传</span>
-          <span class="meta-item">完全免费 · 无需注册</span>
-          <span class="meta-item">持续更新 · 开源项目</span>
+      <!-- Hero 区域 -->
+      <header class="hero">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          持续更新中
+        </div>
+        <h1 class="hero-title">
+          <span>RuanTools</span> 在线工具箱
+        </h1>
+        <p class="hero-subtitle">
+          简洁高效的开发者工具集合，所有工具均在浏览器本地运行，数据安全有保障
+        </p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-value">{toolCount}</span>
+            <span class="stat-label">工具数量</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">100%</span>
+            <span class="stat-label">本地运行</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">免费</span>
+            <span class="stat-label">无需注册</span>
+          </div>
         </div>
       </header>
       
-      <!-- 主要工具区域 - 使用 Vue 组件 -->
+      <!-- 主要工具区域 -->
       <main>
         <ToolList client:load />
         
         <!-- 使用说明 -->
         <div class="usage-note">
-          <div class="usage-title">使用说明</div>
-          <p class="usage-text">
-            所有工具均在您的浏览器本地运行，数据不会上传到任何服务器。
-            如果您发现任何问题或有新工具建议，欢迎在 GitHub 仓库提交 Issue。
-          </p>
+          <div class="usage-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+            </svg>
+          </div>
+          <div class="usage-content">
+            <div class="usage-title">安全提示</div>
+            <p class="usage-text">
+              所有工具均在您的浏览器本地运行，数据不会上传到任何服务器。
+              如果您发现任何问题或有新工具建议，欢迎在 GitHub 仓库提交 Issue。
+            </p>
+          </div>
         </div>
       </main>
       
       <!-- 页脚 -->
       <footer class="footer">
         <div class="footer-content">
-          <p class="footer-text">
-            © 2024 RuanTools
-          </p>
-          <p class="footer-text">
-            项目开源地址：
-          </p>
+          <div class="footer-logo">RuanTools</div>
+          <p class="footer-text">简洁实用的在线工具集合</p>
           <div class="footer-links">
             <a href="https://github.com/mcpackms/ruantools2" class="footer-link" target="_blank">GitHub</a>
             <a href="/ruantools2/issues" class="footer-link" target="_blank">问题反馈</a>
-            <a href="https://astro.build" class="footer-link" target="_blank">Astro 框架</a>
+          </div>
+          <div class="footer-copyright">
+            © 2024 RuanTools · 基于 Astro 构建
           </div>
         </div>
       </footer>
