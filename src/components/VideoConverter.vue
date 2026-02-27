@@ -313,39 +313,45 @@ const loadFFmpeg = async () => {
   try {
     progressText.value = '加载 FFmpeg...'
     
-    // 加载 ffmpeg 脚本
-    if (!window.FFmpeg) {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js'
-        script.onload = resolve
-        script.onerror = () => reject(new Error('脚本加载失败'))
-        document.head.appendChild(script)
-      })
-    }
+    // 动态创建并加载模块
+    const baseURL = 'https://esm.sh/@ffmpeg/ffmpeg@0.10.1'
     
-    // 等待 FFmpeg 初始化
-    await new Promise(resolve => setTimeout(resolve, 500))
+    // 创建模块脚本
+    const script = document.createElement('script')
+    script.type = 'module'
+    script.textContent = `
+      import init, { FFmpeg, fetchFile } from '${baseURL}';
+      window.__FFmpegModule = { FFmpeg, fetchFile };
+      window.dispatchEvent(new Event('ffmpegLoaded'));
+    `
+    document.head.appendChild(script)
+    
+    // 等待模块加载
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('加载超时')), 30000)
+      window.addEventListener('ffmpegLoaded', () => {
+        clearTimeout(timeout)
+        resolve()
+      }, { once: true })
+      window.addEventListener('error', (e) => {
+        clearTimeout(timeout)
+        reject(new Error('加载失败'))
+      }, { once: true })
+    })
     
     // @ts-ignore
-    if (typeof window.FFmpeg !== 'function') {
-      throw new Error('FFmpeg 未正确加载')
-    }
-    
-    // @ts-ignore
-    ffmpeg = new window.FFmpeg()
-    // @ts-ignore
-    ffmpegUtils = window.FFmpeg.fetchFile
+    const { FFmpeg, fetchFile } = window.__FFmpegModule
+    ffmpeg = new FFmpeg()
+    ffmpegUtils = fetchFile
     
     ffmpeg.on('progress', ({ progress: p }) => {
       progress.value = Math.round(p * 100)
       progressText.value = '转换中...'
     })
     
-    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.10.1/dist/umd'
     await ffmpeg.load({
-      coreURL: `${baseURL}/ffmpeg-core.js`,
-      wasmURL: `${baseURL}/ffmpeg-core.wasm`
+      coreURL: 'https://unpkg.com/@ffmpeg/core@0.10.1/dist/umd/ffmpeg-core.js',
+      wasmURL: 'https://unpkg.com/@ffmpeg/core@0.10.1/dist/umd/ffmpeg-core.wasm'
     })
     
     ffmpegLoaded.value = true
