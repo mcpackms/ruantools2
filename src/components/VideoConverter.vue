@@ -309,12 +309,15 @@ const formatDuration = (seconds) => {
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 }
 
-import { FFmpeg } from '@ffmpeg/ffmpeg'
-import { fetchFile } from '@ffmpeg/util'
-
 const loadFFmpeg = async () => {
   try {
-    ffmpeg = new FFmpeg()
+    const [ffmpegModule, utilModule] = await Promise.all([
+      import('@ffmpeg/ffmpeg'),
+      import('@ffmpeg/util')
+    ])
+    
+    ffmpeg = new ffmpegModule.FFmpeg()
+    ffmpegUtils = utilModule.fetchFile
     
     ffmpeg.on('progress', ({ progress: p }) => {
       progress.value = Math.round(p * 100)
@@ -326,9 +329,11 @@ const loadFFmpeg = async () => {
     })
     
     progressText.value = '加载 FFmpeg...'
+    
+    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd'
     await ffmpeg.load({
-      coreURL: new URL('@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js', import.meta.url).href,
-      wasmURL: new URL('@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm', import.meta.url).href
+      coreURL: `${baseURL}/ffmpeg-core.js`,
+      wasmURL: `${baseURL}/ffmpeg-core.wasm`
     })
     
     ffmpegLoaded.value = true
@@ -360,7 +365,7 @@ const convertVideo = async () => {
     const outputName = 'output.' + outputFormatExt.value
     
     progressText.value = '读取视频...'
-    await ffmpeg.writeFile(inputName, await fetchFile(selectedFile.value))
+    await ffmpeg.writeFile(inputName, await ffmpegUtils(selectedFile.value))
     
     const args = ['-i', inputName]
     
