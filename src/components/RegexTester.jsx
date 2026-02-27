@@ -1,3 +1,4 @@
+// src/components/RegexTester.jsx
 import { useState, useRef, useEffect } from 'react';
 
 export default function RegexTester() {
@@ -19,6 +20,7 @@ export default function RegexTester() {
   
   const textareaRef = useRef(null);
 
+  // 构建正则表达式标志字符串
   const buildFlagsString = () => {
     let flagStr = '';
     if (flags.global) flagStr += 'g';
@@ -30,6 +32,7 @@ export default function RegexTester() {
     return flagStr;
   };
 
+  // 测试正则表达式
   const testRegex = () => {
     setError('');
     setMatches([]);
@@ -52,8 +55,10 @@ export default function RegexTester() {
       const pattern = new RegExp(regex, flagStr);
       
       const matchesArray = [];
+      let match;
       
       if (flags.global) {
+        // 全局匹配
         const globalMatches = testText.matchAll(pattern);
         for (const m of globalMatches) {
           matchesArray.push({
@@ -64,6 +69,7 @@ export default function RegexTester() {
           });
         }
       } else {
+        // 单次匹配
         const singleMatch = pattern.exec(testText);
         if (singleMatch) {
           matchesArray.push({
@@ -78,18 +84,23 @@ export default function RegexTester() {
       setMatches(matchesArray);
       setResultCount(matchesArray.length);
       
+      // 生成高亮文本
       if (matchesArray.length > 0) {
         let lastIndex = 0;
         const segments = [];
         matchesArray.forEach(match => {
+          // 添加匹配前的文本
           segments.push(testText.slice(lastIndex, match.index));
-          segments.push(`<mark class="match-highlight">${escapeHtml(match.fullMatch)}</mark>`);
+          // 添加高亮的匹配文本
+          segments.push(`<mark class="bg-yellow-200 dark:bg-yellow-700 px-1 rounded">${match.fullMatch}</mark>`);
           lastIndex = match.index + match.fullMatch.length;
         });
+        // 添加剩余文本
         segments.push(testText.slice(lastIndex));
         setHighlightedText(segments.join(''));
       }
       
+      // 生成匹配信息
       if (matchesArray.length > 0) {
         let info = `找到 ${matchesArray.length} 个匹配项\n\n`;
         matchesArray.forEach((match, idx) => {
@@ -120,18 +131,11 @@ export default function RegexTester() {
       
     } catch (err) {
       setError(`正则表达式错误: ${err.message}`);
+      console.error('Regex error:', err);
     }
   };
 
-  const escapeHtml = (text) => {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  };
-
+  // 清空所有
   const clearAll = () => {
     setRegex('');
     setTestText('');
@@ -150,6 +154,7 @@ export default function RegexTester() {
     setMatchInfo('');
   };
 
+  // 切换标志
   const toggleFlag = (flagName) => {
     setFlags(prev => ({
       ...prev,
@@ -157,6 +162,7 @@ export default function RegexTester() {
     }));
   };
 
+  // 快速填充示例
   const loadExample = (example) => {
     setRegex(example.regex);
     setTestText(example.text);
@@ -170,6 +176,7 @@ export default function RegexTester() {
     });
   };
 
+  // 常用示例
   const examples = [
     {
       name: '邮箱地址',
@@ -184,26 +191,27 @@ export default function RegexTester() {
       description: '匹配中国大陆手机号码'
     },
     {
-      name: '日期格式',
+      name: '日期 (YYYY-MM-DD)',
       regex: '\\d{4}-\\d{2}-\\d{2}',
       text: '今天是2024-01-15，会议时间2024-02-20',
-      description: '匹配 YYYY-MM-DD 格式的日期'
+      description: '匹配YYYY-MM-DD格式的日期'
     },
     {
       name: 'HTML标签',
       regex: '<([a-zA-Z][a-zA-Z0-9]*)\\b[^>]*>(.*?)<\\/\\1>',
       text: '<div class="test">Hello</div><p>World</p>',
       flags: { global: true, ignoreCase: false, multiline: false, dotAll: true },
-      description: '匹配 HTML 标签及其内容'
+      description: '匹配HTML标签及其内容'
     },
     {
       name: '提取URL',
       regex: 'https?:\\/\\/(?:[\\w-]+\\.)+[\\w-]+(?:\\/[\\w\\-._~:/?#\\[\\]@!$&\'()*+,;=]*)?',
       text: '访问 https://example.com 或 http://test.org/path',
-      description: '匹配 HTTP/HTTPS URL'
+      description: '匹配HTTP/HTTPS URL'
     }
   ];
 
+  // 自动测试（当正则表达式变化时）
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (regex.trim() && testText.trim()) {
@@ -215,496 +223,205 @@ export default function RegexTester() {
   }, [regex, testText, flags]);
 
   return (
-    <div className="regex-tester">
-      <style>{`
-        .regex-tester {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 20px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        .header {
-          text-align: center;
-          margin-bottom: 30px;
-        }
-        .header h1 {
-          font-size: 1.75rem;
-          font-weight: 700;
-          color: #1e293b;
-          margin-bottom: 8px;
-        }
-        .header p {
-          color: #64748b;
-          font-size: 0.9rem;
-        }
-        .error-box {
-          background: #fef2f2;
-          border: 1px solid #fecaca;
-          border-radius: 12px;
-          padding: 16px;
-          margin-bottom: 20px;
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-        }
-        .error-icon {
-          font-size: 1.25rem;
-        }
-        .error-title {
-          font-weight: 600;
-          color: #dc2626;
-          font-size: 0.9rem;
-        }
-        .error-text {
-          color: #dc2626;
-          font-size: 0.85rem;
-          margin-top: 4px;
-        }
-        .main-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-        }
-        @media (max-width: 1024px) {
-          .main-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-        .panel {
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 16px;
-          padding: 24px;
-        }
-        .panel-title {
-          font-size: 1rem;
-          font-weight: 600;
-          color: #1e293b;
-          margin-bottom: 16px;
-        }
-        .input-label {
-          display: block;
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: #1e293b;
-          margin-bottom: 10px;
-        }
-        .regex-input-wrapper {
-          display: flex;
-          align-items: center;
-          background: #1e293b;
-          border-radius: 10px;
-          padding: 4px 16px;
-          margin-bottom: 12px;
-        }
-        .regex-delimiter {
-          font-size: 1.25rem;
-          color: #64748b;
-          font-weight: 500;
-        }
-        .regex-input {
-          flex: 1;
-          background: transparent;
-          border: none;
-          padding: 12px 12px;
-          font-family: 'Monaco', 'Menlo', monospace;
-          font-size: 0.95rem;
-          color: #f1f5f9;
-        }
-        .regex-input:focus {
-          outline: none;
-        }
-        .regex-input::placeholder {
-          color: #64748b;
-        }
-        .flags-row {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-bottom: 20px;
-        }
-        .flag-btn {
-          padding: 6px 14px;
-          border-radius: 20px;
-          font-size: 0.8rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-        .flag-btn.inactive {
-          background: #f1f5f9;
-          border: 1px solid #e2e8f0;
-          color: #64748b;
-        }
-        .flag-btn.active {
-          background: linear-gradient(135deg, #3b82f6, #2563eb);
-          border: 1px solid #3b82f6;
-          color: white;
-        }
-        .flag-btn:hover:not(.active) {
-          border-color: #3b82f6;
-          color: #3b82f6;
-        }
-        .flag-letter {
-          font-weight: 700;
-        }
-        .test-textarea {
-          width: 100%;
-          min-height: 180px;
-          padding: 14px;
-          border: 1px solid #e2e8f0;
-          border-radius: 10px;
-          font-family: 'Monaco', 'Menlo', monospace;
-          font-size: 0.9rem;
-          resize: vertical;
-          line-height: 1.6;
-          transition: border-color 0.2s;
-        }
-        .test-textarea:focus {
-          outline: none;
-          border-color: #3b82f6;
-        }
-        .btn-row {
-          display: flex;
-          gap: 12px;
-          margin-top: 20px;
-        }
-        .btn {
-          padding: 12px 24px;
-          border-radius: 10px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-          font-size: 0.9rem;
-        }
-        .btn-primary {
-          background: linear-gradient(135deg, #3b82f6, #2563eb);
-          color: white;
-          border: none;
-        }
-        .btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
-        }
-        .btn-outline {
-          background: white;
-          border: 1px solid #e2e8f0;
-          color: #64748b;
-        }
-        .btn-outline:hover {
-          border-color: #3b82f6;
-          color: #3b82f6;
-        }
-        .result-box {
-          background: #f8fafc;
-          border-radius: 12px;
-          padding: 20px;
-          margin-bottom: 16px;
-        }
-        .result-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 12px;
-        }
-        .result-title {
-          font-weight: 600;
-          color: #1e293b;
-        }
-        .result-count {
-          font-size: 0.85rem;
-          color: #64748b;
-        }
-        .result-badge {
-          padding: 6px 14px;
-          border-radius: 20px;
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
-        .badge-success {
-          background: #dcfce7;
-          color: #16a34a;
-        }
-        .badge-empty {
-          background: #f1f5f9;
-          color: #64748b;
-        }
-        .highlight-box {
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 10px;
-          padding: 14px;
-          font-family: 'Monaco', 'Menlo', monospace;
-          font-size: 0.9rem;
-          line-height: 1.7;
-          white-space: pre-wrap;
-          word-break: break-all;
-          min-height: 80px;
-        }
-        :global(.match-highlight) {
-          background: linear-gradient(135deg, #fef08a, #fde047);
-          color: #854d0e;
-          padding: 2px 4px;
-          border-radius: 4px;
-          font-weight: 600;
-        }
-        .info-box {
-          background: #1e293b;
-          border-radius: 10px;
-          padding: 14px;
-          font-family: 'Monaco', 'Menlo', monospace;
-          font-size: 0.8rem;
-          color: #e2e8f0;
-          line-height: 1.7;
-          white-space: pre-wrap;
-          word-break: break-all;
-          max-height: 300px;
-          overflow-y: auto;
-        }
-        .examples-section {
-          margin-top: 40px;
-          padding-top: 30px;
-          border-top: 1px solid #e2e8f0;
-        }
-        .examples-title {
-          font-size: 1.1rem;
-          font-weight: 600;
-          color: #1e293b;
-          margin-bottom: 20px;
-        }
-        .examples-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 16px;
-        }
-        .example-card {
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          padding: 16px;
-          text-align: left;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .example-card:hover {
-          border-color: #3b82f6;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-          transform: translateY(-2px);
-        }
-        .example-name {
-          font-weight: 600;
-          color: #1e293b;
-          margin-bottom: 8px;
-        }
-        .example-regex {
-          font-family: monospace;
-          font-size: 0.8rem;
-          background: #f1f5f9;
-          color: #3b82f6;
-          padding: 6px 10px;
-          border-radius: 6px;
-          margin-bottom: 8px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .example-desc {
-          font-size: 0.8rem;
-          color: #64748b;
-        }
-        .help-box {
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.08));
-          border: 1px solid rgba(59, 130, 246, 0.2);
-          border-radius: 12px;
-          padding: 20px;
-          margin-top: 30px;
-        }
-        .help-title {
-          font-size: 0.95rem;
-          font-weight: 600;
-          color: #1e293b;
-          margin-bottom: 12px;
-        }
-        .help-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-          gap: 10px;
-        }
-        .help-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 0.85rem;
-        }
-        .help-code {
-          font-family: monospace;
-          background: white;
-          padding: 4px 8px;
-          border-radius: 4px;
-          color: #3b82f6;
-          font-weight: 500;
-        }
-        .help-text {
-          color: #64748b;
-        }
-        .help-note {
-          font-size: 0.8rem;
-          color: #64748b;
-          margin-top: 16px;
-          padding-top: 12px;
-          border-top: 1px solid rgba(59, 130, 246, 0.2);
-        }
-      `}</style>
-
-      <div className="header">
-        <h1>正则表达式测试</h1>
-        <p>在线测试和调试正则表达式，实时显示匹配结果</p>
-      </div>
-
+    <div className="space-y-6">
+      {/* 错误提示 */}
       {error && (
-        <div className="error-box">
-          <span className="error-icon">❌</span>
-          <div>
-            <div className="error-title">错误</div>
-            <div className="error-text">{error}</div>
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <span className="text-red-500">❌</span>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-300">错误</h3>
+              <p className="mt-2 text-sm text-red-700 dark:text-red-400">{error}</p>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="main-grid">
-        <div className="panel">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 左侧：正则表达式和测试文本 */}
+        <div className="space-y-6">
+          {/* 正则表达式输入 */}
           <div>
-            <label className="input-label">正则表达式</label>
-            <div className="regex-input-wrapper">
-              <span className="regex-delimiter">/</span>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              正则表达式
+            </label>
+            <div className="flex items-center space-x-2 mb-2">
+              <div className="text-lg text-gray-500 dark:text-gray-400">/</div>
               <input
                 type="text"
                 value={regex}
                 onChange={(e) => setRegex(e.target.value)}
-                placeholder="输入正则表达式..."
-                className="regex-input"
+                placeholder="例如：\d{3}-\d{3}-\d{4}"
+                className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:text-gray-100 font-mono"
               />
-              <span className="regex-delimiter">/{buildFlagsString()}</span>
+              <div className="text-lg text-gray-500 dark:text-gray-400">/{buildFlagsString()}</div>
             </div>
             
-            <div className="flags-row">
+            {/* 正则标志 */}
+            <div className="flex flex-wrap gap-3 mt-3">
               {Object.entries(flags).map(([key, value]) => (
                 <button
                   key={key}
                   onClick={() => toggleFlag(key)}
-                  className={`flag-btn ${value ? 'active' : 'inactive'}`}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
+                    value
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}
                 >
-                  <span className="flag-letter">{key.charAt(0).toUpperCase()}</span>
-                  <span>{getFlagDescription(key)}</span>
+                  {key.charAt(0).toUpperCase()}
+                  <span className="text-xs opacity-75 ml-1">({getFlagDescription(key)})</span>
                 </button>
               ))}
             </div>
           </div>
 
+          {/* 测试文本输入 */}
           <div>
-            <label className="input-label">测试文本</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                测试文本
+              </label>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {testText.length} 字符
+              </span>
+            </div>
             <textarea
               ref={textareaRef}
               value={testText}
               onChange={(e) => setTestText(e.target.value)}
               placeholder="输入要测试的文本..."
-              className="test-textarea"
+              rows={8}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:text-gray-100 font-mono"
             />
           </div>
 
-          <div className="btn-row">
-            <button className="btn btn-primary" onClick={testRegex}>
+          {/* 操作按钮 */}
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={testRegex}
+              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
               测试正则表达式
             </button>
-            <button className="btn btn-outline" onClick={clearAll}>
+            <button
+              onClick={clearAll}
+              className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
+            >
               清空全部
             </button>
           </div>
         </div>
 
-        <div className="panel">
-          <div className="result-box">
-            <div className="result-header">
+        {/* 右侧：匹配结果 */}
+        <div className="space-y-6">
+          {/* 结果摘要 */}
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+            <div className="flex items-center justify-between">
               <div>
-                <div className="result-title">匹配结果</div>
-                <div className="result-count">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">匹配结果</h3>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   {resultCount > 0 ? `找到 ${resultCount} 个匹配项` : '未找到匹配项'}
-                </div>
+                </p>
               </div>
               {resultCount > 0 && (
-                <span className="result-badge badge-success">匹配成功</span>
-              )}
-              {resultCount === 0 && regex && testText && (
-                <span className="result-badge badge-empty">无匹配</span>
+                <div className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm font-medium rounded-full">
+                  匹配成功
+                </div>
               )}
             </div>
           </div>
 
+          {/* 高亮显示 */}
           {highlightedText && (
             <div>
-              <label className="input-label">匹配高亮</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                匹配高亮
+              </label>
               <div
-                className="highlight-box"
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm dark:text-gray-100 font-mono whitespace-pre-wrap break-words min-h-[100px]"
                 dangerouslySetInnerHTML={{ __html: highlightedText }}
               />
             </div>
           )}
 
+          {/* 详细匹配信息 */}
           {matchInfo && (
-            <div style={{ marginTop: '16px' }}>
-              <label className="input-label">匹配详情</label>
-              <div className="info-box">{matchInfo}</div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                匹配详情
+              </label>
+              <pre className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm dark:text-gray-100 font-mono whitespace-pre-wrap break-words max-h-[300px] overflow-y-auto">
+                {matchInfo}
+              </pre>
             </div>
           )}
         </div>
       </div>
 
-      <div className="examples-section">
-        <div className="examples-title">常用示例</div>
-        <div className="examples-grid">
+      {/* 示例区 */}
+      <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">常用示例</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {examples.map((example, index) => (
             <button
               key={index}
               onClick={() => loadExample(example)}
-              className="example-card"
+              className="text-left p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <div className="example-name">{example.name}</div>
-              <div className="example-regex">/{example.regex}/</div>
-              <div className="example-desc">{example.description}</div>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-1">
+                {example.name}
+              </h4>
+              <code className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded block mb-2 truncate">
+                /{example.regex}/
+              </code>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                {example.description}
+              </p>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="help-box">
-        <div className="help-title">正则表达式快速参考</div>
-        <div className="help-grid">
-          <div className="help-item"><span className="help-code">\d</span><span className="help-text">数字</span></div>
-          <div className="help-item"><span className="help-code">\w</span><span className="help-text">单词字符</span></div>
-          <div className="help-item"><span className="help-code">\s</span><span className="help-text">空白</span></div>
-          <div className="help-item"><span className="help-code">.</span><span className="help-text">任意字符</span></div>
-          <div className="help-item"><span className="help-code">*</span><span className="help-text">0次或多次</span></div>
-          <div className="help-item"><span className="help-code">+</span><span className="help-text">1次或多次</span></div>
-          <div className="help-item"><span className="help-code">?</span><span className="help-text">0次或1次</span></div>
-          <div className="help-item"><span className="help-code">{'{n,m}'}</span><span className="help-text">n到m次</span></div>
+      {/* 帮助信息 */}
+      <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-6">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <span className="text-blue-500">💡</span>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">正则表达式提示</h3>
+            <div className="mt-2 text-sm text-blue-700 dark:text-blue-400 space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">\d</code> 数字</div>
+                <div><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">\w</code> 单词字符</div>
+                <div><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">\s</code> 空白字符</div>
+                <div><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">.</code> 任意字符</div>
+                <div><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">*</code> 0次或多次</div>
+                <div><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">+</code> 1次或多次</div>
+                <div><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">?</code> 0次或1次</div>
+                <div><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">{'{n,m}'}</code> n到m次</div>
+              </div>
+              <p>所有操作均在浏览器本地完成，数据不会上传服务器。</p>
+            </div>
+          </div>
         </div>
-        <div className="help-note">💡 所有操作均在浏览器本地完成，数据不会上传服务器。</div>
       </div>
     </div>
   );
 }
 
+// 获取标志描述
 function getFlagDescription(flag) {
   const descriptions = {
-    global: '全局',
+    global: '全局匹配',
     ignoreCase: '忽略大小写',
-    multiline: '多行',
+    multiline: '多行模式',
     dotAll: '点号匹配换行',
-    unicode: 'Unicode',
-    sticky: '粘性'
+    unicode: 'Unicode模式',
+    sticky: '粘性匹配'
   };
   return descriptions[flag] || flag;
 }
