@@ -327,8 +327,8 @@ const loadFFmpeg = async () => {
     
     progressText.value = '加载 FFmpeg...'
     
-    // 使用 unpkg CDN 加载 ffmpeg 核心文件
-    await ffmpeg.load('https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js')
+    // 使用 jsDelivr CDN 加载 ffmpeg 核心文件（国内访问更快）
+    await ffmpeg.load('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js')
     
     ffmpegLoaded.value = true
     showNotification('FFmpeg 加载完成', 'success')
