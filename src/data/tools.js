@@ -63,6 +63,14 @@ export const tools = [
     path: "/ruantools2/tools/image-compressor", 
     category: "图片工具",
     comingSoon: false
+  },
+  { 
+    id: "image-converter", 
+    name: "图片格式转换", 
+    description: "在线转换 JPG、PNG、GIF、WebP、BMP、SVG 图片格式", 
+    path: "/ruantools2/tools/image-converter", 
+    category: "图片工具",
+    comingSoon: false
   }
   
 ];
