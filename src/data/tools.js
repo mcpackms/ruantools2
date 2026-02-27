@@ -9,6 +9,7 @@ export const categoryConfig = {
   '软件下载': { icon: '📦', bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' },
   '图片工具': { icon: '🖼️', bg: 'rgba(236, 72, 153, 0.1)', color: '#ec4899' },
   '开发工具': { icon: '🛠️', bg: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4' },
+  '下载工具': { icon: '⬇️', bg: 'rgba(234, 179, 8, 0.1)', color: '#eab308' },
   '生活工具': { icon: '🏠', bg: 'rgba(234, 179, 8, 0.1)', color: '#eab308' },
   '其他': { icon: '📌', bg: 'rgba(107, 114, 128, 0.1)', color: '#6b7280' }
 };
@@ -172,6 +173,14 @@ export const tools = [
     description: "解析 URL 查询参数，查看和编辑 URL", 
     path: "/ruantools2/tools/url-parser", 
     category: "开发工具",
+    comingSoon: false
+  },
+  { 
+    id: "multi-downloader", 
+    name: "多线程下载器", 
+    description: "在线多线程下载工具，支持分段下载和断点续传", 
+    path: "/ruantools2/tools/multi-downloader", 
+    category: "下载工具",
     comingSoon: false
   }
   
