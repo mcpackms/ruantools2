@@ -313,31 +313,33 @@ const loadFFmpeg = async () => {
   try {
     progressText.value = '加载 FFmpeg...'
     
-    // 加载 ffmpeg 脚本 - 使用 0.10.x 版本更稳定
-    await new Promise((resolve, reject) => {
-      if (window.FFmpeg) {
-        resolve()
-        return
-      }
-      const script = document.createElement('script')
-      script.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js'
-      script.onload = resolve
-      script.onerror = reject
-      document.head.appendChild(script)
-    })
+    // 加载 ffmpeg 脚本
+    if (!window.FFmpeg) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js'
+        script.onload = resolve
+        script.onerror = () => reject(new Error('脚本加载失败'))
+        document.head.appendChild(script)
+      })
+    }
+    
+    // 等待 FFmpeg 初始化
+    await new Promise(resolve => setTimeout(resolve, 500))
     
     // @ts-ignore
-    const { FFmpeg, fetchFile } = window.FFmpeg
-    ffmpeg = new FFmpeg()
-    ffmpegUtils = fetchFile
+    if (typeof window.FFmpeg !== 'function') {
+      throw new Error('FFmpeg 未正确加载')
+    }
+    
+    // @ts-ignore
+    ffmpeg = new window.FFmpeg()
+    // @ts-ignore
+    ffmpegUtils = window.FFmpeg.fetchFile
     
     ffmpeg.on('progress', ({ progress: p }) => {
       progress.value = Math.round(p * 100)
       progressText.value = '转换中...'
-    })
-    
-    ffmpeg.on('log', ({ message }) => {
-      console.log('FFmpeg:', message)
     })
     
     const baseURL = 'https://unpkg.com/@ffmpeg/core@0.10.1/dist/umd'
