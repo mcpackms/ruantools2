@@ -8,6 +8,7 @@ export const categoryConfig = {
   '文本处理': { icon: '📝', bg: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' },
   '软件下载': { icon: '📦', bg: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' },
   '图片工具': { icon: '🖼️', bg: 'rgba(236, 72, 153, 0.1)', color: '#ec4899' },
+  '开发工具': { icon: '🛠️', bg: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4' },
   '其他': { icon: '📌', bg: 'rgba(107, 114, 128, 0.1)', color: '#6b7280' }
 };
 
@@ -82,6 +83,38 @@ export const tools = [
     description: "在线转换 JPG、PNG、GIF、WebP、BMP、SVG 图片格式", 
     path: "/ruantools2/tools/image-converter", 
     category: "图片工具",
+    comingSoon: false
+  },
+  { 
+    id: "jwt-decoder", 
+    name: "JWT 解码器", 
+    description: "在线解码 JWT Token，查看 Header 和 Payload", 
+    path: "/ruantools2/tools/jwt-decoder", 
+    category: "开发工具",
+    comingSoon: false
+  },
+  { 
+    id: "color-converter", 
+    name: "颜色转换器", 
+    description: "在线转换 HEX、RGB、HSL、HSV 颜色格式", 
+    path: "/ruantools2/tools/color-converter", 
+    category: "开发工具",
+    comingSoon: false
+  },
+  { 
+    id: "uuid-generator", 
+    name: "UUID 生成器", 
+    description: "批量生成 UUID，可选择版本（v1、v4）", 
+    path: "/ruantools2/tools/uuid-generator", 
+    category: "开发工具",
+    comingSoon: false
+  },
+  { 
+    id: "morse-code", 
+    name: "摩斯电码", 
+    description: "文本与摩斯电码相互转换", 
+    path: "/ruantools2/tools/morse-code", 
+    category: "编码转换",
     comingSoon: false
   }
   
