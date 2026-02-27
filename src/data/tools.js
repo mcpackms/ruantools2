@@ -55,6 +55,14 @@ export const tools = [
     path: "/ruantools2/tools/aes", 
     category: "加密工具",
     comingSoon: false
+  },
+  { 
+    id: "image-compressor", 
+    name: "图片压缩", 
+    description: "在线压缩 JPG、PNG、GIF、WebP 图片", 
+    path: "/ruantools2/tools/image-compressor", 
+    category: "图片工具",
+    comingSoon: false
   }
   
 ];
