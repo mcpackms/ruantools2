@@ -71,6 +71,14 @@ export const tools = [
     path: "/ruantools2/tools/image-converter", 
     category: "图片工具",
     comingSoon: false
+  },
+  { 
+    id: "video-converter", 
+    name: "视频格式转换", 
+    description: "在线转换 MP4、WebM、MOV、AVI、MKV 视频格式", 
+    path: "/ruantools2/tools/video-converter", 
+    category: "视频工具",
+    comingSoon: false
   }
   
 ];
