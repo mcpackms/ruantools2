@@ -28,6 +28,11 @@ export default function MultiDownloader() {
     localStorage.setItem('downloadHistory', JSON.stringify(newHistory));
   };
 
+  const clearHistory = () => {
+    setHistory([]);
+    localStorage.removeItem('downloadHistory');
+  };
+
   const fetchFileInfo = async () => {
     if (!url.trim()) {
       setError('请输入下载链接');
@@ -444,11 +449,32 @@ export default function MultiDownloader() {
         .history-section {
           margin-top: 30px;
         }
+        .history-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 14px;
+        }
         .history-title {
           font-size: 1rem;
           font-weight: 600;
           color: #1e293b;
-          margin-bottom: 14px;
+          margin-bottom: 0;
+        }
+        .clear-history-btn {
+          padding: 6px 14px;
+          background: transparent;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          font-size: 0.8rem;
+          color: #64748b;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .clear-history-btn:hover {
+          background: #fee2e2;
+          border-color: #fecaca;
+          color: #dc2626;
         }
         .history-list {
           display: flex;
@@ -608,7 +634,12 @@ export default function MultiDownloader() {
 
       {history.length > 0 && (
         <div className="history-section">
-          <div className="history-title">下载历史</div>
+          <div className="history-header">
+            <div className="history-title">下载历史</div>
+            <button className="clear-history-btn" onClick={clearHistory}>
+              清除历史
+            </button>
+          </div>
           <div className="history-list">
             {history.map((item, index) => (
               <div key={index} className="history-item">
