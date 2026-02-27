@@ -2,7 +2,7 @@
   <div class="image-compressor">
     <div class="header">
       <h1>图片压缩</h1>
-      <p class="description">支持 JPG、PNG、GIF、WebP 格式的在线图片压缩工具</p>
+      <p class="description">支持 JPG、PNG、GIF、WebP、BMP、AVIF 格式的在线图片压缩工具</p>
     </div>
 
     <div class="compressor-container">
@@ -21,7 +21,7 @@
                 id="file-input"
                 ref="fileInput"
                 class="file-input"
-                accept="image/jpeg,image/png,image/gif,image/webp"
+                accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/avif"
                 @change="handleFileSelect"
               />
               <div class="upload-content">
@@ -30,7 +30,7 @@
                 </svg>
                 <p v-if="!selectedFile">点击选择图片或拖放到此处</p>
                 <p v-else>点击更换图片</p>
-                <p class="format-hint">支持 JPG、PNG、GIF、WebP</p>
+                <p class="format-hint">支持 JPG、PNG、GIF、WebP、BMP、AVIF</p>
               </div>
             </div>
           </div>
@@ -232,7 +232,10 @@ const notification = ref({ show: false, message: '', type: 'success' })
 const formats = [
   { value: 'image/jpeg', label: 'JPEG' },
   { value: 'image/png', label: 'PNG' },
-  { value: 'image/webp', label: 'WebP' }
+  { value: 'image/webp', label: 'WebP' },
+  { value: 'image/gif', label: 'GIF' },
+  { value: 'image/bmp', label: 'BMP' },
+  { value: 'image/avif', label: 'AVIF' }
 ]
 
 const mimeType = ref('')
@@ -276,7 +279,9 @@ const handleFile = (file) => {
     'jpeg': 'image/jpeg',
     'png': 'image/png',
     'gif': 'image/gif',
-    'webp': 'image/webp'
+    'webp': 'image/webp',
+    'bmp': 'image/bmp',
+    'avif': 'image/avif'
   }
   mimeType.value = mimeTypes[ext] || file.type || 'image/jpeg'
   
@@ -380,7 +385,10 @@ const downloadImage = () => {
   const extMap = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
-    'image/webp': 'webp'
+    'image/webp': 'webp',
+    'image/gif': 'gif',
+    'image/bmp': 'bmp',
+    'image/avif': 'avif'
   }
   const ext = extMap[outputFormat.value] || 'jpg'
   const baseName = selectedFile.value.name.replace(/\.[^.]+$/, '')
