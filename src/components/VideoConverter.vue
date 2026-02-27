@@ -312,30 +312,24 @@ const formatDuration = (seconds) => {
 const loadFFmpeg = async () => {
   try {
     progressText.value = '加载 FFmpeg...'
+    ffmpegLoaded.value = false
     
-    // 动态创建并加载模块
     const baseURL = 'https://esm.sh/@ffmpeg/ffmpeg@0.10.1'
     
-    // 创建模块脚本
     const script = document.createElement('script')
     script.type = 'module'
     script.textContent = `
       import init, { FFmpeg, fetchFile } from '${baseURL}';
       window.__FFmpegModule = { FFmpeg, fetchFile };
-      window.dispatchEvent(new Event('ffmpegLoaded'));
+      window.dispatchEvent(new CustomEvent('ffmpegLoaded'));
     `
     document.head.appendChild(script)
     
-    // 等待模块加载
     await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('加载超时')), 30000)
+      const timeout = setTimeout(() => reject(new Error('加载超时，请检查网络或稍后重试')), 60000)
       window.addEventListener('ffmpegLoaded', () => {
         clearTimeout(timeout)
         resolve()
-      }, { once: true })
-      window.addEventListener('error', (e) => {
-        clearTimeout(timeout)
-        reject(new Error('加载失败'))
       }, { once: true })
     })
     
@@ -350,15 +344,16 @@ const loadFFmpeg = async () => {
     })
     
     await ffmpeg.load({
-      coreURL: 'https://unpkg.com/@ffmpeg/core@0.10.1/dist/umd/ffmpeg-core.js',
-      wasmURL: 'https://unpkg.com/@ffmpeg/core@0.10.1/dist/umd/ffmpeg-core.wasm'
+      coreURL: 'https://esm.sh/@ffmpeg/core@0.10.1/ffmpeg-core.js',
+      wasmURL: 'https://esm.sh/@ffmpeg/core@0.10.1/ffmpeg-core.wasm'
     })
     
     ffmpegLoaded.value = true
     showNotification('FFmpeg 加载完成', 'success')
   } catch (error) {
     console.error('FFmpeg 加载失败:', error)
-    showNotification('FFmpeg 加载失败: ' + error.message, 'error')
+    progressText.value = '加载失败，点击重试'
+    showNotification('FFmpeg 加载失败，请点击重试', 'error')
   }
 }
 
