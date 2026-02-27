@@ -128,8 +128,10 @@ export default function MultiDownloader() {
         downloadedRef.current += blob.size;
         
         const elapsed = (Date.now() - startTimeRef.current) / 1000;
-        setSpeed(Math.round(downloadedRef.current / elapsed));
-        setProgress(Math.round((downloadedRef.current / totalSize) * 100));
+        if (elapsed > 0 && totalSize > 0) {
+          setSpeed(Math.round(downloadedRef.current / elapsed));
+          setProgress(Math.min(100, Math.round((downloadedRef.current / totalSize) * 100)));
+        }
         
         return { index, data: blob };
       })
@@ -175,8 +177,10 @@ export default function MultiDownloader() {
       receivedLength += value.length;
       
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
-      setSpeed(Math.round(receivedLength / elapsed));
-      setProgress(Math.round((receivedLength / downloadInfo.size) * 100));
+      if (elapsed > 0 && downloadInfo.size > 0) {
+        setSpeed(Math.round(receivedLength / elapsed));
+        setProgress(Math.min(100, Math.round((receivedLength / downloadInfo.size) * 100)));
+      }
     }
 
     if (abortRef.current) return;
