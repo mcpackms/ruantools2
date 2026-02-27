@@ -117,6 +117,31 @@ export default function ToolList() {
       )}
 
       <style>{`
+        @media (prefers-color-scheme: dark) {
+          .tool-card {
+            background: var(--surface-color) !important;
+            border-color: var(--border-color) !important;
+          }
+          .tool-name {
+            color: var(--text-primary) !important;
+          }
+          .tool-description {
+            color: var(--text-secondary) !important;
+          }
+          .card-footer {
+            border-color: var(--border-color) !important;
+          }
+          .category-header {
+            border-color: var(--border-color) !important;
+          }
+          .category-title {
+            color: var(--text-primary) !important;
+          }
+          .category-count {
+            background: var(--surface-color) !important;
+          }
+        }
+
         .tool-list {
           padding: 20px 0;
         }
