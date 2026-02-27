@@ -311,14 +311,19 @@ const formatDuration = (seconds) => {
 
 const loadFFmpeg = async () => {
   try {
-    // 直接从 CDN 加载 ffmpeg
-    const script = document.createElement('script')
-    script.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js'
-    document.head.appendChild(script)
+    progressText.value = '加载 FFmpeg...'
     
+    // 加载 ffmpeg 脚本 - 使用 0.10.x 版本更稳定
     await new Promise((resolve, reject) => {
+      if (window.FFmpeg) {
+        resolve()
+        return
+      }
+      const script = document.createElement('script')
+      script.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js'
       script.onload = resolve
       script.onerror = reject
+      document.head.appendChild(script)
     })
     
     // @ts-ignore
@@ -335,9 +340,7 @@ const loadFFmpeg = async () => {
       console.log('FFmpeg:', message)
     })
     
-    progressText.value = '加载 FFmpeg...'
-    
-    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.11.6/dist/umd'
+    const baseURL = 'https://unpkg.com/@ffmpeg/core@0.10.1/dist/umd'
     await ffmpeg.load({
       coreURL: `${baseURL}/ffmpeg-core.js`,
       wasmURL: `${baseURL}/ffmpeg-core.wasm`
@@ -347,7 +350,6 @@ const loadFFmpeg = async () => {
     showNotification('FFmpeg 加载完成', 'success')
   } catch (error) {
     console.error('FFmpeg 加载失败:', error)
-    console.error('Error details:', error.stack)
     showNotification('FFmpeg 加载失败: ' + error.message, 'error')
   }
 }
