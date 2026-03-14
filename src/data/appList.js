@@ -7,7 +7,7 @@ export const apps = [
     author: '一支电笔 / sl_ly',
     description: '主打精简，包体积小，使用流畅，功能较少，超稳定 <s>本站作者的改版</s>',
     downloadUrl: 'https://ruantools.pages.dev/files/apk/ruansky/sl_ly/RUANSKY_NEXT_E_1.02.apk',
-    sha256: 'ff1cc32c37f2ebd360aa5a6e592ca8eff530a9832aa2f0ce3045651b04c34b7b',
+    sha256: 'af14333dd3cc5739dba648280698b64938df4f4a123c9d94f8b9ff866b693430',
     downloadText: '下载 APK'
   },
   {
