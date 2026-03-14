@@ -59,7 +59,7 @@ export const tools = [
     id: "aes-openssl", 
     name: "AES在线加解密", 
     description: "AES在线加解密工具", 
-    path: "/ruantools2/tools/AESEncryptorOpenSSL", 
+    path: "/ruantools2/tools/aes-openssl", 
     category: "加密工具",
     comingSoon: false
   },
